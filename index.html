@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MCEvents</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:Inter,sans-serif;
+    background:#0d1117;
+    color:white;
+    overflow-x:hidden;
+}
+
+body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    background:
+        radial-gradient(circle at 20% 20%,#3b82f655 0%,transparent 30%),
+        radial-gradient(circle at 80% 30%,#8b5cf655 0%,transparent 30%),
+        radial-gradient(circle at 50% 90%,#06b6d455 0%,transparent 35%);
+    filter:blur(80px);
+    z-index:-2;
+}
+
+nav{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:28px 10%;
+    backdrop-filter:blur(18px);
+    position:fixed;
+    width:100%;
+    top:0;
+    background:rgba(13,17,23,.55);
+    border-bottom:1px solid rgba(255,255,255,.08);
+}
+
+.logo{
+    font-size:28px;
+    font-weight:800;
+}
+
+nav ul{
+    display:flex;
+    list-style:none;
+    gap:35px;
+}
+
+nav a{
+    color:white;
+    text-decoration:none;
+    opacity:.8;
+    transition:.25s;
+}
+
+nav a:hover{
+    opacity:1;
+}
+
+.hero{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+    padding:120px 20px;
+}
+
+.hero h1{
+    font-size:72px;
+    font-weight:800;
+    margin-bottom:20px;
+}
+
+.hero p{
+    font-size:20px;
+    max-width:700px;
+    margin:auto;
+    opacity:.8;
+    line-height:1.7;
+}
+
+.buttons{
+    margin-top:40px;
+    display:flex;
+    justify-content:center;
+    gap:18px;
+    flex-wrap:wrap;
+}
+
+.btn{
+    padding:15px 34px;
+    border-radius:50px;
+    text-decoration:none;
+    color:white;
+    transition:.3s;
+    font-weight:600;
+}
+
+.primary{
+    background:#3b82f6;
+}
+
+.primary:hover{
+    transform:translateY(-3px);
+    box-shadow:0 10px 30px #3b82f655;
+}
+
+.secondary{
+    border:1px solid rgba(255,255,255,.15);
+    background:rgba(255,255,255,.05);
+}
+
+.secondary:hover{
+    background:rgba(255,255,255,.09);
+}
+
+.cards{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+    gap:25px;
+    padding:0 10% 100px;
+}
+
+.card{
+    background:rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.08);
+    backdrop-filter:blur(15px);
+    border-radius:18px;
+    padding:35px;
+    transition:.3s;
+}
+
+.card:hover{
+    transform:translateY(-8px);
+    border-color:#3b82f6;
+}
+
+.card h3{
+    margin-bottom:15px;
+}
+
+.card p{
+    opacity:.75;
+    line-height:1.7;
+}
+
+footer{
+    text-align:center;
+    padding:40px;
+    opacity:.55;
+}
+
+@media(max-width:700px){
+
+.hero h1{
+    font-size:48px;
+}
+
+nav ul{
+    display:none;
+}
+
+}
+</style>
+
+</head>
+
+<body>
+
+<nav>
+    <div class="logo">MCEvents</div>
+
+    <ul>
+        <li><a href="#">Home</a></li>
+        <li><a href="#">Rules</a></li>
+        <li><a href="#">Store</a></li>
+        <li><a href="#">Discord</a></li>
+    </ul>
+</nav>
+
+<section class="hero">
+
+<div>
+
+<h1>Welcome to MCEvents</h1>
+
+<p>
+A unique Minecraft experience featuring custom events,
+competitive gameplay, and an active community.
+Jump in and start your adventure today.
+</p>
+
+<div class="buttons">
+<a class="btn primary" href="#">Join Now</a>
+<a class="btn secondary" href="#">Discord</a>
+</div>
+
+</div>
+
+</section>
+
+<section class="cards">
+
+<div class="card">
+<h3>⚔️ Custom Events</h3>
+<p>Weekly PvP, survival and building events with exclusive rewards.</p>
+</div>
+
+<div class="card">
+<h3>🏆 Leaderboards</h3>
+<p>Compete against other players and climb the rankings.</p>
+</div>
+
+<div class="card">
+<h3>💬 Community</h3>
+<p>Meet new players, join events and stay updated through Discord.</p>
+</div>
+
+</section>
+
+<footer>
+© 2026 MCEvents • All Rights Reserved
+</footer>
+
+</body>
+</html>
