@@ -781,6 +781,7 @@ img { max-width: 100%; }
 .tier-a { --tier-color: #9372ff; }
 .tier-b { --tier-color: #5abaff; }
 .tier-c { --tier-color: #5ddfc4; }
+.tier-d { --tier-color: #ffad72; }
 .tier-label { display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 20px; padding: 34px 32px; border-right: 1px solid var(--line); background: linear-gradient(145deg, color-mix(in srgb, var(--tier-color) 9%, transparent), transparent); }
 .tier-label > span { display: grid; place-items: center; width: 62px; height: 62px; border: 1px solid color-mix(in srgb, var(--tier-color) 45%, transparent); border-radius: 17px; background: color-mix(in srgb, var(--tier-color) 12%, rgba(8, 14, 35, .9)); color: var(--tier-color); font-size: 28px; font-weight: 940; box-shadow: 0 10px 35px color-mix(in srgb, var(--tier-color) 12%, transparent); }
 .tier-label h3 { margin: 0; font-size: 20px; font-weight: 840; letter-spacing: -.03em; }

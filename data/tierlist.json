@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-14T15:15:00.000Z",
+  "updatedAt": "2026-07-14T18:38:33.825Z",
   "intro": "The official McEvents PvP rankings, selected and maintained by server staff.",
   "tiers": [
     {
@@ -28,19 +28,83 @@
       "id": "a",
       "label": "A Tier",
       "description": "Elite fighters with consistent results.",
-      "players": []
+      "players": [
+        {
+          "username": "OriV1",
+          "specialty": "Overall PvP",
+          "note": "Ranked #1 in A Tier."
+        },
+        {
+          "username": "SquidSpeakz",
+          "specialty": "Overall PvP",
+          "note": "Ranked #2 in A Tier."
+        },
+        {
+          "username": "Belser",
+          "specialty": "Overall PvP",
+          "note": "Ranked #3 in A Tier."
+        },
+        {
+          "username": "Ludze",
+          "specialty": "Overall PvP",
+          "note": "Ranked #4 in A Tier."
+        },
+        {
+          "username": "Skalpen",
+          "specialty": "Overall PvP",
+          "note": "Ranked #5 in A Tier."
+        },
+        {
+          "username": "AceHunterYT",
+          "specialty": "Overall PvP",
+          "note": "Ranked #6 in A Tier."
+        }
+      ]
     },
     {
       "id": "b",
       "label": "B Tier",
       "description": "Dangerous opponents who can upset anyone.",
-      "players": []
+      "players": [
+        {
+          "username": "CN_Warrior",
+          "specialty": "Overall PvP",
+          "note": "Ranked #1 in B Tier."
+        },
+        {
+          "username": "Mr_Bagarn",
+          "specialty": "Overall PvP",
+          "note": "Ranked #2 in B Tier."
+        }
+      ]
     },
     {
       "id": "c",
       "label": "C Tier",
       "description": "Strong competitors on the rise.",
       "players": []
+    },
+    {
+      "id": "d",
+      "label": "D Tier",
+      "description": "Developing competitors building their place in the rankings.",
+      "players": [
+        {
+          "username": "NinjaHamp",
+          "specialty": "Overall PvP",
+          "note": "Ranked #1 in D Tier."
+        },
+        {
+          "username": "ItzLvcaz",
+          "specialty": "Overall PvP",
+          "note": "Ranked #2 in D Tier."
+        },
+        {
+          "username": "JamesGamez14",
+          "specialty": "Overall PvP",
+          "note": "Ranked #3 in D Tier."
+        }
+      ]
     }
   ]
 }

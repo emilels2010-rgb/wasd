@@ -1,13 +1,14 @@
 (() => {
   "use strict";
 
-  const TIER_IDS = ["s", "a", "b", "c"];
+  const TIER_IDS = ["s", "a", "b", "c", "d"];
   const TIER_LIMITS = { s: 3 };
   const TIER_DEFAULTS = {
     s: { label: "S Tier", description: "Only the server's top three players can hold S Tier." },
     a: { label: "A Tier", description: "Elite fighters who consistently perform at the top." },
     b: { label: "B Tier", description: "Strong, dependable competitors with serious skill." },
-    c: { label: "C Tier", description: "Rising players to watch as the competition develops." }
+    c: { label: "C Tier", description: "Rising players to watch as the competition develops." },
+    d: { label: "D Tier", description: "Developing competitors building their place in the rankings." }
   };
   const EMPTY_DATA = {
     updatedAt: "",
