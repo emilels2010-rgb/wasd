@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-14T00:00:00.000Z",
+  "updatedAt": "2026-07-14T15:15:00.000Z",
   "intro": "The official McEvents PvP rankings, selected and maintained by server staff.",
   "tiers": [
     {
@@ -8,9 +8,19 @@
       "description": "The players everyone else is chasing.",
       "players": [
         {
-          "username": "SzyMixe",
+          "username": "Szymixe",
           "specialty": "Overall PvP",
-          "note": "Replace this sample in the Tierlist manager."
+          "note": "Ranked #1 in Overall PvP."
+        },
+        {
+          "username": "beeenji",
+          "specialty": "Overall PvP",
+          "note": "Ranked #2 in Overall PvP."
+        },
+        {
+          "username": "Billy_Billboard",
+          "specialty": "Overall PvP",
+          "note": "Ranked #3 in Overall PvP."
         }
       ]
     },
@@ -18,25 +28,13 @@
       "id": "a",
       "label": "A Tier",
       "description": "Elite fighters with consistent results.",
-      "players": [
-        {
-          "username": "ExampleFighter",
-          "specialty": "Sword",
-          "note": "Sample player"
-        }
-      ]
+      "players": []
     },
     {
       "id": "b",
       "label": "B Tier",
       "description": "Dangerous opponents who can upset anyone.",
-      "players": [
-        {
-          "username": "ExampleRival",
-          "specialty": "Axe",
-          "note": "Sample player"
-        }
-      ]
+      "players": []
     },
     {
       "id": "c",
