@@ -1,75 +1,46 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#07152f">
-  <meta name="description" content="The official McEvents Minecraft PvP tierlist.">
-  <title>PvP Tierlist — McEvents</title>
-  <link rel="preconnect" href="https://mc-heads.net">
-  <link rel="stylesheet" href="assets/css/styles.css">
-  <script src="site.config.js" defer></script>
-  <script src="assets/js/site.js" defer></script>
-  <script src="assets/js/tierlist.js" defer></script>
-</head>
-<body class="tierlist-page">
-  <a class="skip-link" href="#main">Skip to content</a>
-  <div class="ambient ambient-one" aria-hidden="true"></div>
-  <div class="ambient ambient-two" aria-hidden="true"></div>
-  <header class="site-header" data-header>
-    <a class="brand" href="index.html" aria-label="McEvents home"><span class="brand-mark" aria-hidden="true"><span></span></span><span>McEvents</span></a>
-    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-navigation" data-nav-toggle><span class="sr-only">Open menu</span><span></span><span></span></button>
-    <nav class="primary-nav" id="primary-navigation" data-nav>
-      <a href="index.html#server">Server</a>
-      <a href="index.html#features">Features</a>
-      <a class="active" href="tierlist.html" aria-current="page">Tierlist</a>
-      <a href="index.html#discord">Discord</a>
-    </nav>
-  </header>
-
-  <main id="main">
-    <section class="tier-hero shell">
-      <div class="tier-hero-copy reveal">
-        <div class="eyebrow"><span class="crosshair" aria-hidden="true"></span> Official PvP rankings</div>
-        <h1>The fighters at the <em>top of their game.</em></h1>
-        <p data-tier-intro>The official McEvents PvP rankings, selected and maintained by server staff.</p>
-        <div class="tier-meta"><span><i class="live-dot"></i> Staff curated</span><span data-updated>Loading latest update…</span></div>
-      </div>
-      <div class="rank-emblem reveal reveal-delay" aria-hidden="true">
-        <div class="rank-ring rank-ring-one"></div><div class="rank-ring rank-ring-two"></div>
-        <span>S</span><small>TIER</small>
-      </div>
-    </section>
-
-    <section class="tier-board-wrap shell" aria-labelledby="rankings-title">
-      <div class="board-toolbar reveal">
-        <div><span class="kicker">Current season</span><h2 id="rankings-title">PvP rankings</h2></div>
-        <label class="player-search"><span class="sr-only">Search players</span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><input type="search" placeholder="Find a player…" autocomplete="off" data-player-search></label>
-      </div>
-      <div class="tier-board" data-tier-board aria-live="polite" aria-busy="true">
-        <div class="board-loading"><span></span><span></span><span></span><p>Loading the arena…</p></div>
-      </div>
-      <p class="no-results" data-no-results hidden>No ranked player matches that search.</p>
-    </section>
-
-    <section class="ranking-note shell reveal">
-      <div class="note-symbol" aria-hidden="true">i</div>
-      <div><h2>How rankings work</h2><p>The McEvents staff places players using recent performance, consistency, and results in server PvP. Rankings can change as the season develops.</p></div>
-      <a class="text-link" data-discord-link href="https://discord.gg/fdSwxhUf5p" target="_blank" rel="noopener">Discuss on Discord <span>↗</span></a>
-    </section>
-
-    <section class="tier-cta">
-      <div class="shell tier-cta-inner reveal">
-        <div><span class="kicker">Think you belong here?</span><h2>Step into the arena.</h2></div>
-        <button class="button button-light" type="button" data-copy-ip>Copy server IP <span>↗</span></button>
-      </div>
-    </section>
-  </main>
-
-  <footer class="site-footer">
-    <div class="shell footer-main"><a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true"><span></span></span><span>McEvents</span></a><p>Original Minecraft experiences,<br>built around the community.</p><div class="footer-links"><a href="index.html#server">Server</a><a href="tierlist.html">Tierlist</a><a data-discord-link href="https://discord.gg/fdSwxhUf5p">Discord</a></div></div>
-    <div class="shell footer-base"><span>© 2026 McEvents</span><span>Player skins are loaded from public Minecraft profile data.</span></div>
-  </footer>
-  <div class="toast" role="status" aria-live="polite" data-toast>Server IP copied</div>
-</body>
-</html>
+{
+  "updatedAt": "2026-07-14T15:15:00.000Z",
+  "intro": "The official McEvents PvP rankings, selected and maintained by server staff.",
+  "tiers": [
+    {
+      "id": "s",
+      "label": "S Tier",
+      "description": "Only the server's top three players can hold S Tier.",
+      "players": [
+        {
+          "username": "Szymixe",
+          "specialty": "Overall PvP",
+          "note": "Ranked #1 in Overall PvP."
+        },
+        {
+          "username": "beeenji",
+          "specialty": "Overall PvP",
+          "note": "Ranked #2 in Overall PvP."
+        },
+        {
+          "username": "Billy_Billboard",
+          "specialty": "Overall PvP",
+          "note": "Ranked #3 in Overall PvP."
+        }
+      ]
+    },
+    {
+      "id": "a",
+      "label": "A Tier",
+      "description": "Elite fighters with consistent results.",
+      "players": []
+    },
+    {
+      "id": "b",
+      "label": "B Tier",
+      "description": "Dangerous opponents who can upset anyone.",
+      "players": []
+    },
+    {
+      "id": "c",
+      "label": "C Tier",
+      "description": "Strong competitors on the rise.",
+      "players": []
+    }
+  ]
+}
