@@ -1,194 +1,90 @@
-(function () {
-  "use strict";
+# McEvents website + PvP Tierlist
 
-  const board = document.querySelector("[data-tier-board]");
-  if (!board) return;
+A build-free replacement for the current `mcevents.uk` GitHub Pages site. It includes a redesigned home page, a dedicated Tierlist tab, automatic Minecraft skin avatars, NameMC profile links, and a private ranking manager.
 
-  const search = document.querySelector("[data-player-search]");
-  const noResults = document.querySelector("[data-no-results]");
-  const intro = document.querySelector("[data-tier-intro]");
-  const updated = document.querySelector("[data-updated]");
-  const config = window.MCEVENTS_CONFIG || {};
-  const tierConfig = config.tierlist || {};
-  const dataUrl = tierConfig.dataUrl || "data/tierlist.json";
-  let tierData = null;
+## What is included
 
-  function safeUsername(username) {
-    return String(username || "").trim();
+- `index.html` — redesigned home page
+- `tierlist.html` — public tierlist with search, tier bands, live skin avatars, and NameMC links
+- `admin/index.html` — private editing workspace at `/admin/`
+- `data/tierlist.json` — the public rankings data
+- `site.config.js` — server, Discord, skin, NameMC, and GitHub settings
+- `assets/` — shared CSS and JavaScript; no build tools or package install required
+
+## Deploy
+
+1. Back up the current website repository.
+2. Copy everything in this folder into the repository root, replacing the old `index.html`, `style.css`, and `script.js` setup.
+3. Keep the repository's existing `CNAME` file if it has one. This bundle intentionally does not replace it.
+4. Open `site.config.js` and set `github.owner`, `github.repo`, and (if needed) `github.branch`.
+5. Replace all sample players in `data/tierlist.json`, or deploy first and use `/admin/`.
+6. Commit and push. GitHub Pages will publish the site as usual.
+
+You can preview locally with any static web server. Do not open the HTML with a `file://` URL because browsers block the JSON request in that mode.
+
+## Update the tierlist
+
+Open `https://mcevents.uk/admin/` after deployment.
+
+### Direct publish through GitHub
+
+1. Create a **fine-grained personal access token** in GitHub.
+2. Restrict its repository access to the website repository only.
+3. Give it **Contents: read and write** permission. No administration, workflow, or account permissions are needed for the included data-file workflow.
+4. In the manager, enter the repository owner, repository name, branch, JSON path, and token.
+5. Select **Load from GitHub**, edit the rankings, review the live preview, and select **Publish to GitHub**.
+
+The repository settings are kept in local browser storage. The token is kept in `sessionStorage`, meaning it is scoped to that browser tab session; it is never written into the site, the JSON, an export, or local storage. Use **Forget token** before leaving a shared computer.
+
+GitHub documentation: [managing fine-grained tokens](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens) and [repository contents API](https://docs.github.com/en/rest/repos/contents).
+
+### Manual publish
+
+The manager also works without a GitHub connection. Edit the rankings, select **Export JSON**, then replace `data/tierlist.json` in the repository with the downloaded file. You can also import a prior export.
+
+## Player data
+
+Each player supports:
+
+```json
+{
+  "username": "MinecraftName",
+  "specialty": "Sword PvP",
+  "note": "Optional private or tooltip note"
+}
+```
+
+- The username supplies the current avatar through the configured skin-image service.
+- The entire public card links to `https://namemc.com/profile/{username}`.
+- If you later add a stable Minecraft UUID as `"uuid": "..."`, the public scripts automatically use it for the NameMC link.
+- Keep Java usernames to letters, numbers, and underscores, up to 16 characters.
+- S Tier is capped at three players. The manager blocks a fourth entry, and the public page never displays more than the first three S-Tier players.
+
+## Quick configuration
+
+Edit `site.config.js`:
+
+```js
+window.MCEVENTS_CONFIG = {
+  site: {
+    name: "McEvents",
+    serverAddress: "play.mcevents.uk",
+    discordUrl: "https://discord.gg/fdSwxhUf5p"
+  },
+  tierlist: {
+    dataUrl: "data/tierlist.json",
+    skinUrl: "https://mc-heads.net/avatar/{username}/160",
+    nameMcUrl: "https://namemc.com/profile/{username}"
+  },
+  github: {
+    owner: "YOUR_GITHUB_USERNAME",
+    repo: "YOUR_REPOSITORY",
+    branch: "main",
+    dataPath: "data/tierlist.json"
   }
+};
+```
 
-  function urlFromTemplate(template, player) {
-    const username = safeUsername(player.username);
-    const profileKey = player.uuid || username;
-    return String(template)
-      .replaceAll("{username}", encodeURIComponent(username))
-      .replaceAll("{uuid}", encodeURIComponent(profileKey));
-  }
+## Security note
 
-  function skinUrl(player) {
-    return urlFromTemplate(tierConfig.skinUrl || "https://mc-heads.net/avatar/{username}/160", player);
-  }
-
-  function profileUrl(player) {
-    const template = player.uuid
-      ? (tierConfig.nameMcUuidUrl || "https://namemc.com/profile/{uuid}")
-      : (tierConfig.nameMcUrl || "https://namemc.com/profile/{username}");
-    return urlFromTemplate(template, player);
-  }
-
-  function makeExternalIcon() {
-    const icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    icon.setAttribute("viewBox", "0 0 24 24");
-    icon.setAttribute("aria-hidden", "true");
-    const pathOne = document.createElementNS(icon.namespaceURI, "path");
-    pathOne.setAttribute("d", "M14 5h5v5");
-    const pathTwo = document.createElementNS(icon.namespaceURI, "path");
-    pathTwo.setAttribute("d", "m19 5-9 9");
-    const pathThree = document.createElementNS(icon.namespaceURI, "path");
-    pathThree.setAttribute("d", "M18 13v5a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5");
-    icon.append(pathOne, pathTwo, pathThree);
-    return icon;
-  }
-
-  function makePlayerCard(player, rank, tierId) {
-    const username = safeUsername(player.username) || "Unknown player";
-    const link = document.createElement("a");
-    link.className = "player-card";
-    link.dataset.username = username.toLowerCase();
-    link.href = profileUrl(player);
-    link.target = "_blank";
-    link.rel = "noopener noreferrer";
-    link.setAttribute("aria-label", `${username}, view profile on NameMC`);
-
-    const rankLabel = document.createElement("span");
-    rankLabel.className = "player-rank";
-    rankLabel.textContent = String(rank).padStart(2, "0");
-
-    const avatarWrap = document.createElement("span");
-    avatarWrap.className = "player-avatar";
-    const fallback = document.createElement("span");
-    fallback.className = "avatar-fallback";
-    fallback.textContent = username.charAt(0).toUpperCase();
-    const image = document.createElement("img");
-    image.src = skinUrl(player);
-    image.alt = `${username}'s Minecraft skin`;
-    image.width = 160;
-    image.height = 160;
-    image.loading = "lazy";
-    image.decoding = "async";
-    image.addEventListener("load", () => fallback.setAttribute("hidden", ""));
-    image.addEventListener("error", () => image.setAttribute("hidden", ""));
-    avatarWrap.append(fallback, image);
-
-    const details = document.createElement("span");
-    details.className = "player-details";
-    const name = document.createElement("strong");
-    name.textContent = username;
-    const specialty = document.createElement("small");
-    specialty.textContent = player.specialty || `${tierId.toUpperCase()} tier fighter`;
-    details.append(name, specialty);
-
-    const profile = document.createElement("span");
-    profile.className = "profile-cue";
-    profile.append("NameMC", makeExternalIcon());
-
-    link.append(rankLabel, avatarWrap, details, profile);
-    if (player.note) link.title = player.note;
-    return link;
-  }
-
-  function render(data, query) {
-    board.replaceChildren();
-    const fragment = document.createDocumentFragment();
-    let globalRank = 0;
-    let visibleCount = 0;
-    const normalizedQuery = String(query || "").trim().toLowerCase();
-
-    data.tiers.forEach((tier) => {
-      const row = document.createElement("section");
-      row.className = `tier-row tier-${String(tier.id).toLowerCase()}`;
-
-      const label = document.createElement("div");
-      label.className = "tier-label";
-      const tierLetter = document.createElement("span");
-      tierLetter.textContent = String(tier.id).toUpperCase();
-      const labelText = document.createElement("div");
-      const title = document.createElement("h3");
-      title.textContent = tier.label || `${String(tier.id).toUpperCase()} Tier`;
-      const description = document.createElement("p");
-      description.textContent = tier.description || "Ranked fighters";
-      labelText.append(title, description);
-      label.append(tierLetter, labelText);
-
-      const players = document.createElement("div");
-      players.className = "tier-players";
-      const allTierPlayers = Array.isArray(tier.players) ? tier.players : [];
-      const tierPlayers = String(tier.id).toLowerCase() === "s"
-        ? allTierPlayers.slice(0, 3)
-        : allTierPlayers;
-
-      tierPlayers.forEach((player) => {
-        globalRank += 1;
-        const username = safeUsername(player.username).toLowerCase();
-        if (normalizedQuery && !username.includes(normalizedQuery)) return;
-        players.append(makePlayerCard(player, globalRank, tier.id));
-        visibleCount += 1;
-      });
-
-      if (tierPlayers.length === 0 && !normalizedQuery) {
-        const empty = document.createElement("div");
-        empty.className = "empty-tier";
-        empty.textContent = "No fighters placed here yet.";
-        players.append(empty);
-      }
-
-      if (!normalizedQuery || players.childElementCount > 0) {
-        row.append(label, players);
-        fragment.append(row);
-      }
-    });
-
-    board.append(fragment);
-    board.setAttribute("aria-busy", "false");
-    if (noResults) noResults.hidden = visibleCount > 0 || !normalizedQuery;
-  }
-
-  async function loadTierlist() {
-    try {
-      const separator = dataUrl.includes("?") ? "&" : "?";
-      const response = await fetch(`${dataUrl}${separator}v=${Date.now()}`, { cache: "no-store" });
-      if (!response.ok) throw new Error(`Tierlist request failed (${response.status})`);
-      const data = await response.json();
-      if (!data || !Array.isArray(data.tiers)) throw new Error("Tierlist data is invalid");
-      tierData = data;
-      if (intro && data.intro) intro.textContent = data.intro;
-      if (updated && data.updatedAt) {
-        const date = new Date(data.updatedAt);
-        updated.textContent = Number.isNaN(date.getTime())
-          ? "Recently updated"
-          : `Updated ${new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric" }).format(date)}`;
-      }
-      render(data, "");
-    } catch (error) {
-      board.replaceChildren();
-      const message = document.createElement("div");
-      message.className = "board-error";
-      const heading = document.createElement("strong");
-      heading.textContent = "The tierlist could not be loaded.";
-      const detail = document.createElement("span");
-      detail.textContent = "Refresh the page in a moment or let staff know on Discord.";
-      message.append(heading, detail);
-      board.append(message);
-      board.setAttribute("aria-busy", "false");
-      console.error(error);
-    }
-  }
-
-  if (search) {
-    search.addEventListener("input", () => {
-      if (tierData) render(tierData, search.value);
-    });
-  }
-
-  loadTierlist();
-})();
+The `/admin/` page is not linked publicly and is marked `noindex`, but its address is not a password. Publishing still requires a GitHub token with permission to the configured repository. For a larger staff team, the recommended next step is a same-domain API protected by Cloudflare Access, so staff can sign in by email instead of handling GitHub tokens.
