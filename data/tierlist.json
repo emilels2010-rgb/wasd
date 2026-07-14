@@ -1,0 +1,48 @@
+{
+  "updatedAt": "2026-07-14T00:00:00.000Z",
+  "intro": "The official McEvents PvP rankings, selected and maintained by server staff.",
+  "tiers": [
+    {
+      "id": "s",
+      "label": "S Tier",
+      "description": "The players everyone else is chasing.",
+      "players": [
+        {
+          "username": "ExampleChampion",
+          "specialty": "Overall PvP",
+          "note": "Replace this sample in the Tierlist manager."
+        }
+      ]
+    },
+    {
+      "id": "a",
+      "label": "A Tier",
+      "description": "Elite fighters with consistent results.",
+      "players": [
+        {
+          "username": "ExampleFighter",
+          "specialty": "Sword",
+          "note": "Sample player"
+        }
+      ]
+    },
+    {
+      "id": "b",
+      "label": "B Tier",
+      "description": "Dangerous opponents who can upset anyone.",
+      "players": [
+        {
+          "username": "ExampleRival",
+          "specialty": "Axe",
+          "note": "Sample player"
+        }
+      ]
+    },
+    {
+      "id": "c",
+      "label": "C Tier",
+      "description": "Strong competitors on the rise.",
+      "players": []
+    }
+  ]
+}
