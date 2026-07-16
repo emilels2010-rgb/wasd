@@ -67,14 +67,19 @@
       "description": "Dangerous opponents who can upset anyone.",
       "players": [
         {
-          "username": "CN_Warrior",
+          "username": "svarteorm",
           "specialty": "Overall PvP",
           "note": "Ranked #1 in B Tier."
         },
         {
-          "username": "Mr_Bagarn",
+          "username": "CN_Warrior",
           "specialty": "Overall PvP",
           "note": "Ranked #2 in B Tier."
+        },
+        {
+          "username": "Mr_Bagarn",
+          "specialty": "Overall PvP",
+          "note": "Ranked #3 in B Tier."
         }
       ]
     },
