@@ -4,9 +4,13 @@
   const podium = document.querySelector("[data-home-podium]");
   if (!podium) return;
 
+  const ranking = window.MCEVENTS_RANKING;
   const config = window.MCEVENTS_CONFIG || {};
   const tierConfig = config.tierlist || {};
   const dataUrl = tierConfig.dataUrl || "data/tierlist.json";
+  let loadInFlight = false;
+  let hasLoadedData = false;
+  let refreshTimer = 0;
 
   function templateUrl(template, player) {
     const username = String(player.username || "").trim();
@@ -26,7 +30,10 @@
     card.href = templateUrl(profileTemplate, player);
     card.target = "_blank";
     card.rel = "noopener noreferrer";
-    card.setAttribute("aria-label", `${username}, ranked number ${place}; open on NameMC`);
+    card.setAttribute(
+      "aria-label",
+      `${username}, ranked number ${place} with ${player.points} points; open on NameMC`
+    );
 
     const crown = document.createElement("span");
     crown.className = "podium-rank";
@@ -49,25 +56,31 @@
     details.className = "podium-details";
     const name = document.createElement("strong");
     name.textContent = username;
-    const specialty = document.createElement("small");
-    specialty.textContent = player.specialty || "Ranked fighter";
-    details.append(name, specialty);
+    const score = document.createElement("small");
+    score.textContent = `${Number(player.points).toLocaleString("en-GB")} verified points`;
+    details.append(name, score);
     const base = document.createElement("span");
     base.className = "podium-base";
-    base.textContent = place === 1 ? "CHAMPION" : `RANK ${String(place).padStart(2, "0")}`;
+    base.textContent = place === 1
+      ? `${player.points} POINTS · CHAMPION`
+      : `${player.points} POINTS · RANK ${String(place).padStart(2, "0")}`;
     card.append(crown, avatar, details, base);
     return card;
   }
 
   async function load() {
+    if (loadInFlight) return;
+    loadInFlight = true;
     try {
+      if (!ranking) throw new Error("The ranking calculator could not be loaded.");
       const separator = dataUrl.includes("?") ? "&" : "?";
       const response = await fetch(`${dataUrl}${separator}v=${Date.now()}`, { cache: "no-store" });
       if (!response.ok) throw new Error("Tierlist request failed");
-      const data = await response.json();
-      const players = (data.tiers || []).flatMap((tier) => tier.players || []).slice(0, 3);
+      const data = ranking.normalizeTierlist(await response.json());
+      const players = data.players.filter((player) => player.points > 0).slice(0, 3);
       podium.replaceChildren();
       if (!players.length) {
+        hasLoadedData = true;
         const empty = document.createElement("div");
         empty.className = "podium-empty";
         empty.textContent = "The first rankings are being prepared.";
@@ -76,7 +89,12 @@
       }
       players.forEach((player, index) => podium.append(makePodiumCard(player, index + 1)));
       window.requestAnimationFrame(() => podium.querySelectorAll(".reveal").forEach((card) => card.classList.add("is-visible")));
+      hasLoadedData = true;
     } catch (error) {
+      if (hasLoadedData) {
+        console.error(error);
+        return;
+      }
       podium.replaceChildren();
       const fallback = document.createElement("a");
       fallback.className = "podium-empty";
@@ -84,8 +102,18 @@
       fallback.textContent = "Open the full PvP tierlist →";
       podium.append(fallback);
       console.error(error);
+    } finally {
+      loadInFlight = false;
     }
   }
 
   load();
+
+  if (!refreshTimer) {
+    refreshTimer = window.setInterval(load, 60000);
+  }
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") load();
+  });
+  window.addEventListener("focus", load);
 })();

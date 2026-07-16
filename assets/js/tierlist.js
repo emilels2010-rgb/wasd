@@ -4,14 +4,18 @@
   const board = document.querySelector("[data-tier-board]");
   if (!board) return;
 
+  const ranking = window.MCEVENTS_RANKING;
   const search = document.querySelector("[data-player-search]");
   const noResults = document.querySelector("[data-no-results]");
   const intro = document.querySelector("[data-tier-intro]");
   const updated = document.querySelector("[data-updated]");
+  const maxPoints = document.querySelector("[data-max-points]");
   const config = window.MCEVENTS_CONFIG || {};
   const tierConfig = config.tierlist || {};
   const dataUrl = tierConfig.dataUrl || "data/tierlist.json";
   let tierData = null;
+  let loadInFlight = false;
+  let refreshTimer = 0;
 
   function safeUsername(username) {
     return String(username || "").trim();
@@ -50,19 +54,24 @@
     return icon;
   }
 
-  function makePlayerCard(player, rank, tierId) {
+  function makePlayerCard(player) {
     const username = safeUsername(player.username) || "Unknown player";
+    const points = Number(player.points) || 0;
+    const rank = Number(player.rank) || 0;
     const link = document.createElement("a");
     link.className = "player-card";
     link.dataset.username = username.toLowerCase();
     link.href = profileUrl(player);
     link.target = "_blank";
     link.rel = "noopener noreferrer";
-    link.setAttribute("aria-label", `${username}, view profile on NameMC`);
+    link.setAttribute(
+      "aria-label",
+      `${username}, overall rank ${rank}, ${points} points; view profile on NameMC`
+    );
 
     const rankLabel = document.createElement("span");
     rankLabel.className = "player-rank";
-    rankLabel.textContent = String(rank).padStart(2, "0");
+    rankLabel.textContent = `#${rank}`;
 
     const avatarWrap = document.createElement("span");
     avatarWrap.className = "player-avatar";
@@ -84,23 +93,23 @@
     details.className = "player-details";
     const name = document.createElement("strong");
     name.textContent = username;
-    const specialty = document.createElement("small");
-    specialty.textContent = player.specialty || `${tierId.toUpperCase()} tier fighter`;
-    details.append(name, specialty);
+    const score = document.createElement("small");
+    score.className = "player-points";
+    score.textContent = `${points.toLocaleString("en-GB")} points`;
+    details.append(name, score);
 
     const profile = document.createElement("span");
     profile.className = "profile-cue";
     profile.append("NameMC", makeExternalIcon());
 
     link.append(rankLabel, avatarWrap, details, profile);
-    if (player.note) link.title = player.note;
+    link.title = player.note || player.specialty || `${points} verified PvP points`;
     return link;
   }
 
   function render(data, query) {
     board.replaceChildren();
     const fragment = document.createDocumentFragment();
-    let globalRank = 0;
     let visibleCount = 0;
     const normalizedQuery = String(query || "").trim().toLowerCase();
 
@@ -116,29 +125,25 @@
       const title = document.createElement("h3");
       title.textContent = tier.label || `${String(tier.id).toUpperCase()} Tier`;
       const description = document.createElement("p");
-      description.textContent = tier.description || "Ranked fighters";
+      description.textContent = tier.description || "Automatically calculated from points.";
       labelText.append(title, description);
       label.append(tierLetter, labelText);
 
       const players = document.createElement("div");
       players.className = "tier-players";
-      const allTierPlayers = Array.isArray(tier.players) ? tier.players : [];
-      const tierPlayers = String(tier.id).toLowerCase() === "s"
-        ? allTierPlayers.slice(0, 3)
-        : allTierPlayers;
+      const tierPlayers = Array.isArray(tier.players) ? tier.players : [];
 
       tierPlayers.forEach((player) => {
-        globalRank += 1;
         const username = safeUsername(player.username).toLowerCase();
         if (normalizedQuery && !username.includes(normalizedQuery)) return;
-        players.append(makePlayerCard(player, globalRank, tier.id));
+        players.append(makePlayerCard(player));
         visibleCount += 1;
       });
 
       if (tierPlayers.length === 0 && !normalizedQuery) {
         const empty = document.createElement("div");
         empty.className = "empty-tier";
-        empty.textContent = "No fighters placed here yet.";
+        empty.textContent = "No fighters currently fall in this point range.";
         players.append(empty);
       }
 
@@ -154,22 +159,35 @@
   }
 
   async function loadTierlist() {
+    if (loadInFlight) return;
+    loadInFlight = true;
     try {
+      if (!ranking) throw new Error("The ranking calculator could not be loaded.");
       const separator = dataUrl.includes("?") ? "&" : "?";
       const response = await fetch(`${dataUrl}${separator}v=${Date.now()}`, { cache: "no-store" });
       if (!response.ok) throw new Error(`Tierlist request failed (${response.status})`);
-      const data = await response.json();
-      if (!data || !Array.isArray(data.tiers)) throw new Error("Tierlist data is invalid");
+      const raw = await response.json();
+      const data = ranking.groupedTiers(raw);
       tierData = data;
+
       if (intro && data.intro) intro.textContent = data.intro;
+      if (maxPoints) maxPoints.textContent = `${data.maxPoints.toLocaleString("en-GB")} max points`;
       if (updated && data.updatedAt) {
         const date = new Date(data.updatedAt);
         updated.textContent = Number.isNaN(date.getTime())
           ? "Recently updated"
-          : `Updated ${new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric" }).format(date)}`;
+          : `Updated ${new Intl.DateTimeFormat("en-GB", {
+            day: "numeric",
+            month: "long",
+            year: "numeric"
+          }).format(date)}`;
       }
-      render(data, "");
+      render(data, search ? search.value : "");
     } catch (error) {
+      if (tierData) {
+        console.error(error);
+        return;
+      }
       board.replaceChildren();
       const message = document.createElement("div");
       message.className = "board-error";
@@ -181,6 +199,8 @@
       board.append(message);
       board.setAttribute("aria-busy", "false");
       console.error(error);
+    } finally {
+      loadInFlight = false;
     }
   }
 
@@ -191,4 +211,12 @@
   }
 
   loadTierlist();
+
+  if (!refreshTimer) {
+    refreshTimer = window.setInterval(loadTierlist, 60000);
+  }
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") loadTierlist();
+  });
+  window.addEventListener("focus", loadTierlist);
 })();

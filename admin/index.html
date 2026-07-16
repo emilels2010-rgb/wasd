@@ -390,6 +390,39 @@
     .admin-tier-editor[data-tier="b"] { border-left: 3px solid #57c7ff; }
     .admin-tier-editor[data-tier="c"] { border-left: 3px solid #58dfbc; }
     .admin-tier-editor[data-tier="d"] { border-left: 3px solid #ffad72; }
+    .admin-tier-editor[data-tier="points"] { border-left: 3px solid #ed4bd4; }
+
+    .admin-threshold-grid {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 0.55rem;
+    }
+
+    .admin-threshold {
+      display: grid;
+      gap: 0.2rem;
+      padding: 0.65rem;
+      background: rgba(24, 48, 85, 0.46);
+      border: 1px solid rgba(143, 185, 229, 0.14);
+      border-radius: 0.7rem;
+    }
+
+    .admin-threshold strong {
+      color: var(--admin-blue);
+      font-size: 0.92rem;
+    }
+
+    .admin-threshold[data-tier="s"] strong { color: #f363d9; }
+    .admin-threshold[data-tier="a"] strong { color: #a678ff; }
+    .admin-threshold[data-tier="b"] strong { color: #57c7ff; }
+    .admin-threshold[data-tier="c"] strong { color: #58dfbc; }
+    .admin-threshold[data-tier="d"] strong { color: #ffad72; }
+
+    .admin-threshold span,
+    .admin-player-position {
+      color: var(--admin-muted);
+      font-size: 0.72rem;
+    }
 
     .admin-tier-fields,
     .admin-player-fields {
@@ -405,6 +438,39 @@
       background: rgba(19, 39, 72, 0.52);
       border: 1px solid rgba(143, 185, 229, 0.14);
       border-radius: 0.78rem;
+    }
+
+    .admin-player-editor-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .admin-tier-assignment {
+      display: inline-flex;
+      align-items: center;
+      width: fit-content;
+      padding: 0.3rem 0.62rem;
+      color: #9bb0ca;
+      background: rgba(143, 185, 229, 0.08);
+      border: 1px solid rgba(143, 185, 229, 0.2);
+      border-radius: 999px;
+      font-size: 0.73rem;
+      font-weight: 800;
+    }
+
+    .admin-tier-assignment[data-tier="s"] { color: #ff98e5; border-color: rgba(243, 99, 217, 0.35); }
+    .admin-tier-assignment[data-tier="a"] { color: #c4adff; border-color: rgba(166, 120, 255, 0.35); }
+    .admin-tier-assignment[data-tier="b"] { color: #9adfff; border-color: rgba(87, 199, 255, 0.35); }
+    .admin-tier-assignment[data-tier="c"] { color: #91f1d8; border-color: rgba(88, 223, 188, 0.35); }
+    .admin-tier-assignment[data-tier="d"] { color: #ffd0ae; border-color: rgba(255, 173, 114, 0.35); }
+
+    .admin-points-input {
+      font-family: ui-monospace, monospace;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
     }
 
     .admin-player-editor-actions {
@@ -550,6 +616,10 @@
         grid-template-columns: 1fr;
       }
 
+      .admin-threshold-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
       .admin-field-wide {
         grid-column: auto;
       }
@@ -585,7 +655,7 @@
     <section class="admin-hero" aria-labelledby="admin-title">
       <p class="admin-eyebrow">Private management workspace</p>
       <h1 class="admin-title" id="admin-title">Tierlist <span class="admin-title-accent">manager</span></h1>
-      <p class="admin-lede">Edit player rankings, check the live preview, then export the JSON or publish it straight to GitHub. Clicking a player in the preview opens their NameMC profile.</p>
+      <p class="admin-lede">Edit each player's verified score and the manager automatically calculates their overall rank and tier. Review the live preview, then export the JSON or publish it straight to GitHub.</p>
     </section>
 
     <div class="admin-feedback" aria-label="Editor messages">
@@ -643,8 +713,8 @@
       <section class="admin-panel admin-editor-panel" aria-labelledby="editor-title">
         <div class="admin-panel-header">
           <div>
-            <h2 class="admin-panel-title" id="editor-title">Ranking editor</h2>
-            <p class="admin-helper">Changes are kept as a local browser draft until you publish or discard them. S Tier is limited to three players.</p>
+            <h2 class="admin-panel-title" id="editor-title">Points editor</h2>
+            <p class="admin-helper">Scores run from 0 to 1,000. The three highest positive scores automatically become S Tier; every other tier is calculated from its 200-point range.</p>
           </div>
           <div class="admin-toolbar" aria-label="Tierlist file actions">
             <label class="admin-file-button" for="admin-import-file">
@@ -679,6 +749,7 @@
   <footer class="admin-footer">MC Events tierlist manager · Keep your GitHub token private.</footer>
 
   <script src="../site.config.js"></script>
+  <script src="../assets/js/ranking.js"></script>
   <script src="./admin.js"></script>
 </body>
 </html>

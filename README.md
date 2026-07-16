@@ -5,9 +5,9 @@ A build-free replacement for the current `mcevents.uk` GitHub Pages site. It inc
 ## What is included
 
 - `index.html` — redesigned home page
-- `tierlist.html` — public tierlist with search, tier bands, live skin avatars, and NameMC links
-- `admin/index.html` — private editing workspace at `/admin/`
-- `data/tierlist.json` — the public rankings data
+- `tierlist.html` — public points tierlist with search, automatic tier bands, live skin avatars, and NameMC links
+- `admin/index.html` — private points-editing workspace at `/admin/`
+- `data/tierlist.json` — the public player scores and calculated rankings
 - `site.config.js` — server, Discord, skin, NameMC, and GitHub settings
 - `assets/` — shared CSS and JavaScript; no build tools or package install required
 
@@ -17,7 +17,7 @@ A build-free replacement for the current `mcevents.uk` GitHub Pages site. It inc
 2. Copy everything in this folder into the repository root, replacing the old `index.html`, `style.css`, and `script.js` setup.
 3. Keep the repository's existing `CNAME` file if it has one. This bundle intentionally does not replace it.
 4. Open `site.config.js` and set `github.owner`, `github.repo`, and (if needed) `github.branch`.
-5. Replace all sample players in `data/tierlist.json`, or deploy first and use `/admin/`.
+5. Update the player scores in `data/tierlist.json`, or deploy first and use `/admin/`.
 6. Commit and push. GitHub Pages will publish the site as usual.
 
 You can preview locally with any static web server. Do not open the HTML with a `file://` URL because browsers block the JSON request in that mode.
@@ -32,7 +32,7 @@ Open `https://mcevents.uk/admin/` after deployment.
 2. Restrict its repository access to the website repository only.
 3. Give it **Contents: read and write** permission. No administration, workflow, or account permissions are needed for the included data-file workflow.
 4. In the manager, enter the repository owner, repository name, branch, JSON path, and token.
-5. Select **Load from GitHub**, edit the rankings, review the live preview, and select **Publish to GitHub**.
+5. Select **Load from GitHub**, edit player points, review the automatically calculated tiers, and select **Publish to GitHub**.
 
 The repository settings are kept in local browser storage. The token is kept in `sessionStorage`, meaning it is scoped to that browser tab session; it is never written into the site, the JSON, an export, or local storage. Use **Forget token** before leaving a shared computer.
 
@@ -49,16 +49,26 @@ Each player supports:
 ```json
 {
   "username": "MinecraftName",
+  "points": 750,
+  "tier": "a",
+  "rank": 4,
+  "tierRank": 1,
   "specialty": "Sword PvP",
-  "note": "Optional private or tooltip note"
+  "note": "Optional test result or staff note"
 }
 ```
 
+- `points` must be a whole number from 0 to 1,000.
+- `tier`, `rank`, and `tierRank` are calculated automatically whenever the manager, public site, or Discord bot processes the file. Do not use them to place a player manually.
+- The three highest positive scores are always S Tier.
+- After the top three, A Tier is 601–1,000, B Tier is 401–600, C Tier is 201–400, and D Tier is 1–200.
+- A player with 0 points remains in the manager and JSON but is unranked and hidden from the public board.
 - The username supplies the current avatar through the configured skin-image service.
 - The entire public card links to `https://namemc.com/profile/{username}`.
 - If you later add a stable Minecraft UUID as `"uuid": "..."`, the public scripts automatically use it for the NameMC link.
-- Keep Java usernames to letters, numbers, and underscores, up to 16 characters.
-- S Tier is capped at three players. The manager blocks a fourth entry, and the public page never displays more than the first three S-Tier players.
+- Keep Java usernames to 3–16 letters, numbers, and underscores.
+
+The public tierlist and home-page podium check for new JSON data every 60 seconds and whenever the tab becomes active, so a deployed Discord-bot or GitHub update appears without a manual refresh.
 
 ## Quick configuration
 

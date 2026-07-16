@@ -1,115 +1,169 @@
 {
-  "updatedAt": "2026-07-14T18:38:33.825Z",
-  "intro": "The official McEvents PvP rankings, selected and maintained by server staff.",
+  "updatedAt": "2026-07-16T18:40:00.340Z",
+  "intro": "PvP rankings calculated automatically from verified test points.",
+  "maxPoints": 1000,
   "tiers": [
     {
       "id": "s",
       "label": "S Tier",
-      "description": "Only the server's top three players can hold S Tier.",
-      "players": [
-        {
-          "username": "Szymixe",
-          "specialty": "Overall PvP",
-          "note": "Ranked #1 in Overall PvP."
-        },
-        {
-          "username": "beeenji",
-          "specialty": "Overall PvP",
-          "note": "Ranked #2 in Overall PvP."
-        },
-        {
-          "username": "OriV1",
-          "specialty": "Overall PvP",
-          "note": "Ranked #3 in Overall PvP."
-        }
-      ]
+      "description": "Automatic: the three highest-scoring ranked players."
     },
     {
       "id": "a",
       "label": "A Tier",
-      "description": "Elite fighters with consistent results.",
-      "players": [
-        {
-          "username": "Billy_Billboard",
-          "specialty": "Overall PvP",
-          "note": "Ranked #1 in A Tier."
-        },
-        {
-          "username": "SquidSpeakz",
-          "specialty": "Overall PvP",
-          "note": "Ranked #2 in A Tier."
-        },
-        {
-          "username": "Belser",
-          "specialty": "Overall PvP",
-          "note": "Ranked #3 in A Tier."
-        },
-        {
-          "username": "Ludze",
-          "specialty": "Overall PvP",
-          "note": "Ranked #4 in A Tier."
-        },
-        {
-          "username": "Skalpen",
-          "specialty": "Overall PvP",
-          "note": "Ranked #5 in A Tier."
-        },
-        {
-          "username": "AceHunterYT",
-          "specialty": "Overall PvP",
-          "note": "Ranked #6 in A Tier."
-        }
-      ]
+      "description": "601–1000 points, excluding the automatic S Tier top three."
     },
     {
       "id": "b",
       "label": "B Tier",
-      "description": "Dangerous opponents who can upset anyone.",
-      "players": [
-        {
-          "username": "svarteorm",
-          "specialty": "Overall PvP",
-          "note": "Ranked #1 in B Tier."
-        },
-        {
-          "username": "CN_Warrior",
-          "specialty": "Overall PvP",
-          "note": "Ranked #2 in B Tier."
-        },
-        {
-          "username": "Mr_Bagarn",
-          "specialty": "Overall PvP",
-          "note": "Ranked #3 in B Tier."
-        }
-      ]
+      "description": "401–600 points."
     },
     {
       "id": "c",
       "label": "C Tier",
-      "description": "Strong competitors on the rise.",
-      "players": []
+      "description": "201–400 points."
     },
     {
       "id": "d",
       "label": "D Tier",
-      "description": "Developing competitors building their place in the rankings.",
-      "players": [
-        {
-          "username": "NinjaHamp",
-          "specialty": "Overall PvP",
-          "note": "Ranked #1 in D Tier."
-        },
-        {
-          "username": "ItzLvcaz",
-          "specialty": "Overall PvP",
-          "note": "Ranked #2 in D Tier."
-        },
-        {
-          "username": "JamesGamez14",
-          "specialty": "Overall PvP",
-          "note": "Ranked #3 in D Tier."
-        }
-      ]
+      "description": "1–200 points."
+    }
+  ],
+  "players": [
+    {
+      "username": "Szymixe",
+      "points": 950,
+      "tier": "s",
+      "rank": 1,
+      "tierRank": 1,
+      "specialty": "Overall PvP",
+      "note": "Verified PvP score."
+    },
+    {
+      "username": "beeenji",
+      "points": 924,
+      "tier": "s",
+      "rank": 2,
+      "tierRank": 2,
+      "specialty": "Overall PvP",
+      "note": "Verified PvP score."
+    },
+    {
+      "username": "OriV1",
+      "points": 890,
+      "tier": "s",
+      "rank": 3,
+      "tierRank": 3,
+      "specialty": "Overall PvP",
+      "note": "Verified PvP score."
+    },
+    {
+      "username": "Billy_Billboard",
+      "points": 735,
+      "tier": "a",
+      "rank": 4,
+      "tierRank": 1,
+      "specialty": "Overall PvP",
+      "note": "Verified PvP score."
+    },
+    {
+      "username": "SquidSpeakz",
+      "points": 715,
+      "tier": "a",
+      "rank": 5,
+      "tierRank": 2,
+      "specialty": "Overall PvP",
+      "note": "Verified PvP score."
+    },
+    {
+      "username": "Skalpen",
+      "points": 675,
+      "tier": "a",
+      "rank": 6,
+      "tierRank": 3,
+      "specialty": "Overall PvP",
+      "note": "Verified PvP score."
+    },
+    {
+      "username": "Belser",
+      "points": 655,
+      "tier": "a",
+      "rank": 7,
+      "tierRank": 4,
+      "specialty": "Overall PvP",
+      "note": "Verified PvP score."
+    },
+    {
+      "username": "Ludze",
+      "points": 630,
+      "tier": "a",
+      "rank": 8,
+      "tierRank": 5,
+      "specialty": "Overall PvP",
+      "note": "Verified PvP score."
+    },
+    {
+      "username": "AceHunterYT",
+      "points": 605,
+      "tier": "a",
+      "rank": 9,
+      "tierRank": 6,
+      "specialty": "Overall PvP",
+      "note": "Verified PvP score."
+    },
+    {
+      "username": "svarteorm",
+      "points": 555,
+      "tier": "b",
+      "rank": 10,
+      "tierRank": 1,
+      "specialty": "Overall PvP",
+      "note": "Verified PvP score."
+    },
+    {
+      "username": "CN_Warrior",
+      "points": 530,
+      "tier": "b",
+      "rank": 11,
+      "tierRank": 2,
+      "specialty": "Overall PvP",
+      "note": "Verified PvP score."
+    },
+    {
+      "username": "Mr_Bagarn",
+      "points": 525,
+      "tier": "b",
+      "rank": 12,
+      "tierRank": 3,
+      "specialty": "Overall PvP",
+      "note": "Verified PvP score."
+    },
+    {
+      "username": "ItzLvcaz",
+      "points": 250,
+      "tier": "c",
+      "rank": 13,
+      "tierRank": 1,
+      "specialty": "Overall PvP",
+      "note": "Verified PvP score."
+    },
+    {
+      "username": "NinjaHamp",
+      "points": 190,
+      "tier": "d",
+      "rank": 14,
+      "tierRank": 1,
+      "specialty": "Overall PvP",
+      "note": "Verified PvP score."
+    },
+    {
+      "username": "JamesGamez14",
+      "points": 140,
+      "tier": "d",
+      "rank": 15,
+      "tierRank": 2,
+      "specialty": "Overall PvP",
+      "note": "Verified PvP score."
     }
   ]
 }

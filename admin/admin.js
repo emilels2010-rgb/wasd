@@ -1,30 +1,28 @@
 (() => {
   "use strict";
 
-  const TIER_IDS = ["s", "a", "b", "c", "d"];
-  const TIER_LIMITS = { s: 3 };
-  const TIER_DEFAULTS = {
-    s: { label: "S Tier", description: "Only the server's top three players can hold S Tier." },
-    a: { label: "A Tier", description: "Elite fighters who consistently perform at the top." },
-    b: { label: "B Tier", description: "Strong, dependable competitors with serious skill." },
-    c: { label: "C Tier", description: "Rising players to watch as the competition develops." },
-    d: { label: "D Tier", description: "Developing competitors building their place in the rankings." }
-  };
+  const ranking = window.MCEVENTS_RANKING;
+  if (!ranking) {
+    throw new Error("The shared ranking calculator could not be loaded.");
+  }
+
+  const { MAX_POINTS, TIER_IDS, TIER_DEFAULTS } = ranking;
   const EMPTY_DATA = {
     updatedAt: "",
-    intro: "The community PvP ranking for MC Events.",
+    intro: "PvP rankings calculated automatically from verified test points.",
+    maxPoints: MAX_POINTS,
     tiers: TIER_IDS.map((id) => ({
       id,
       label: TIER_DEFAULTS[id].label,
-      description: TIER_DEFAULTS[id].description,
-      players: []
-    }))
+      description: TIER_DEFAULTS[id].description
+    })),
+    players: []
   };
 
   const STORAGE_KEYS = {
     connection: "mcevents-tierlist-github-connection-v1",
     token: "mcevents-tierlist-github-token-v1",
-    draft: "mcevents-tierlist-draft-v1"
+    draft: "mcevents-tierlist-points-draft-v2"
   };
 
   const elements = {
@@ -75,33 +73,18 @@
       throw new AdminError("Tierlist JSON must contain an object at its top level.");
     }
 
-    const inputTiers = Array.isArray(raw.tiers) ? raw.tiers : [];
-    const tiers = TIER_IDS.map((id) => {
-      const input = inputTiers.find((tier) => (
-        tier && typeof tier === "object" && asString(tier.id).toLowerCase() === id
-      ));
-      const inputPlayers = input && Array.isArray(input.players) ? input.players : [];
-      const players = inputPlayers
-        .filter((player) => player && typeof player === "object" && !Array.isArray(player))
-        .map((player) => ({
-          username: asString(player.username),
-          specialty: asString(player.specialty),
-          note: asString(player.note)
-        }));
+    const canonicalPlayers = Array.isArray(raw.players) ? raw.players : null;
+    if (canonicalPlayers) {
+      for (const player of canonicalPlayers) {
+        if (!player || typeof player !== "object" || Array.isArray(player)) continue;
+        const points = Number(player.points);
+        if (!Number.isInteger(points) || points < 0 || points > MAX_POINTS) {
+          throw new AdminError(`Every player score must be a whole number from 0 to ${MAX_POINTS}.`);
+        }
+      }
+    }
 
-      return {
-        id,
-        label: asString(input && input.label, TIER_DEFAULTS[id].label),
-        description: asString(input && input.description, TIER_DEFAULTS[id].description),
-        players
-      };
-    });
-
-    return {
-      updatedAt: asString(raw.updatedAt),
-      intro: asString(raw.intro, EMPTY_DATA.intro),
-      tiers
-    };
+    return ranking.normalizeTierlist(raw);
   }
 
   function validateTierlist(data) {
@@ -111,26 +94,27 @@
       if (!tier.label.trim()) {
         return `${tier.id.toUpperCase()} tier needs a display label.`;
       }
-      const tierLimit = TIER_LIMITS[tier.id];
-      if (tierLimit && tier.players.length > tierLimit) {
-        return `${tier.label} can contain no more than ${tierLimit} players.`;
+    }
+
+    for (const player of data.players) {
+      const username = player.username.trim();
+      if (!username) {
+        return "Every player row needs a Minecraft username.";
+      }
+      if (!/^[A-Za-z0-9_]{3,16}$/.test(username)) {
+        return `“${username}” is not a valid Minecraft Java username. Use 3–16 letters, numbers, or underscores.`;
       }
 
-      for (const player of tier.players) {
-        const username = player.username.trim();
-        if (!username) {
-          return `${tier.label} contains a player with no username.`;
-        }
-        if (!/^[A-Za-z0-9_]{1,16}$/.test(username)) {
-          return `“${username}” is not a valid Minecraft Java username. Use 1–16 letters, numbers, or underscores.`;
-        }
-
-        const key = username.toLowerCase();
-        if (usernames.has(key)) {
-          return `“${username}” appears more than once. Every player should have one ranking.`;
-        }
-        usernames.add(key);
+      const points = Number(player.points);
+      if (!Number.isInteger(points) || points < 0 || points > MAX_POINTS) {
+        return `“${username}” needs a whole-number score from 0 to ${MAX_POINTS}.`;
       }
+
+      const key = username.toLowerCase();
+      if (usernames.has(key)) {
+        return `“${username}” appears more than once. Every player should have one score.`;
+      }
+      usernames.add(key);
     }
 
     return "";
@@ -361,88 +345,115 @@
     state.previewTimer = window.setTimeout(renderPreview, 90);
   }
 
-  function tierById(id) {
-    return state.data.tiers.find((tier) => tier.id === id);
+  function scoresAreValid() {
+    return state.data.players.every((player) => {
+      const points = Number(player.points);
+      return Number.isInteger(points) && points >= 0 && points <= MAX_POINTS;
+    });
+  }
+
+  function calculateState() {
+    if (!scoresAreValid()) return;
+    state.data = ranking.normalizeTierlist(state.data);
+  }
+
+  function assignmentLabel(player) {
+    if (!player.tier || player.tier === "unranked" || !player.rank) {
+      return "Unranked · hidden at 0 points";
+    }
+    return `${player.tier.toUpperCase()} Tier · Overall #${player.rank}`;
   }
 
   function renderEditors() {
     elements.intro.value = state.data.intro;
     elements.tierEditors.replaceChildren();
 
-    for (const tier of state.data.tiers) {
-      const article = createElement("article", "admin-tier-editor");
-      article.dataset.tier = tier.id;
+    const article = createElement("article", "admin-tier-editor admin-points-editor");
+    article.dataset.tier = "points";
 
-      const header = createElement("div", "admin-tier-editor-header");
-      const title = createElement("h3", "admin-tier-title", `${tier.id.toUpperCase()} · ${tier.label || "Untitled tier"}`);
-      const tierLimit = TIER_LIMITS[tier.id];
-      const countLabel = tierLimit
-        ? `${tier.players.length}/${tierLimit} players`
-        : playerCountLabel(tier.players.length);
-      const count = createElement("span", "admin-count-badge", countLabel);
-      header.append(title, count);
+    const header = createElement("div", "admin-tier-editor-header");
+    const title = createElement("h3", "admin-tier-title", "Automatic points ranking");
+    const count = createElement("span", "admin-count-badge", playerCountLabel(state.data.players.length));
+    header.append(title, count);
 
-      const tierFields = createElement("div", "admin-tier-fields");
-      const labelInput = createInput(`tier-${tier.id}-label`, tier.label, 50);
-      labelInput.addEventListener("input", () => {
-        tier.label = labelInput.value;
-        title.textContent = `${tier.id.toUpperCase()} · ${tier.label || "Untitled tier"}`;
-        markDirty();
-        schedulePreview();
-      });
-      const descriptionInput = createInput(`tier-${tier.id}-description`, tier.description, 180);
-      descriptionInput.addEventListener("input", () => {
-        tier.description = descriptionInput.value;
-        markDirty();
-        schedulePreview();
-      });
-      tierFields.append(
-        createField("Tier label", labelInput),
-        createField("Short description", descriptionInput)
+    const thresholdGrid = createElement("div", "admin-threshold-grid");
+    const thresholds = [
+      ["S", "Top 3 scores"],
+      ["A", "601–1,000"],
+      ["B", "401–600"],
+      ["C", "201–400"],
+      ["D", "1–200"],
+      ["—", "0 · hidden"]
+    ];
+    thresholds.forEach(([tier, range]) => {
+      const item = createElement("div", "admin-threshold");
+      item.dataset.tier = tier.toLowerCase();
+      item.append(
+        createElement("strong", "", tier),
+        createElement("span", "", range)
       );
+      thresholdGrid.append(item);
+    });
 
-      const playerList = createElement("ul", "admin-player-editor-list");
-      if (!tier.players.length) {
-        const empty = createElement("li", "admin-empty-message", "No players in this tier yet.");
-        playerList.append(empty);
-      }
-
-      tier.players.forEach((player, playerIndex) => {
-        playerList.append(createPlayerEditor(tier, player, playerIndex));
-      });
-
-      const addPlayer = createButton(`Add player to ${tier.id.toUpperCase()}`, "admin-button");
-      if (tierLimit && tier.players.length >= tierLimit) {
-        addPlayer.disabled = true;
-        addPlayer.textContent = `${tier.label} full — ${tierLimit}/${tierLimit} players`;
-        addPlayer.title = `${tier.label} is limited to ${tierLimit} players.`;
-      }
-      addPlayer.addEventListener("click", () => {
-        if (tierLimit && tier.players.length >= tierLimit) {
-          showError(new AdminError(`${tier.label} is limited to ${tierLimit} players.`));
-          return;
-        }
-        tier.players.push({ username: "", specialty: "", note: "" });
-        markDirty();
-        renderAll();
-        setStatus(`Added a new player row to ${tier.label || tier.id.toUpperCase()}.`);
-        const newIndex = tier.players.length - 1;
-        const input = document.getElementById(`player-${tier.id}-${newIndex}-username`);
-        if (input) {
-          input.focus();
-        }
-      });
-
-      article.append(header, tierFields, playerList, addPlayer);
-      elements.tierEditors.append(article);
+    const playerList = createElement("ul", "admin-player-editor-list");
+    if (!state.data.players.length) {
+      playerList.append(createElement("li", "admin-empty-message", "No player scores yet."));
     }
+
+    state.data.players.forEach((player, playerIndex) => {
+      playerList.append(createPlayerEditor(player, playerIndex));
+    });
+
+    const addPlayer = createButton("Add player score", "admin-button");
+    addPlayer.addEventListener("click", () => {
+      state.data.players.push({
+        username: "",
+        points: 0,
+        tier: "unranked",
+        rank: null,
+        tierRank: null,
+        specialty: "Overall PvP",
+        note: ""
+      });
+      markDirty();
+      renderAll();
+      setStatus("Added a new player score row.");
+      const input = document.getElementById(`player-${state.data.players.length - 1}-username`);
+      if (input) input.focus();
+    });
+
+    article.append(header, thresholdGrid, playerList, addPlayer);
+    elements.tierEditors.append(article);
   }
 
-  function createPlayerEditor(tier, player, playerIndex) {
-    const item = createElement("li", "admin-player-editor");
-    const fields = createElement("div", "admin-player-fields");
+  function createPointsInput(id, value) {
+    const input = createElement("input", "admin-input admin-points-input");
+    input.id = id;
+    input.type = "number";
+    input.value = String(value);
+    input.min = "0";
+    input.max = String(MAX_POINTS);
+    input.step = "1";
+    input.inputMode = "numeric";
+    input.autocomplete = "off";
+    return input;
+  }
 
-    const username = createInput(`player-${tier.id}-${playerIndex}-username`, player.username, 16);
+  function createPlayerEditor(player, playerIndex) {
+    const item = createElement("li", "admin-player-editor");
+    item.dataset.tier = player.tier || "unranked";
+
+    const heading = createElement("div", "admin-player-editor-heading");
+    const assignment = createElement("span", "admin-tier-assignment", assignmentLabel(player));
+    assignment.dataset.tier = player.tier || "unranked";
+    const scorePosition = player.rank
+      ? `#${player.rank} overall · #${player.tierRank} in ${player.tier.toUpperCase()}`
+      : "Not visible on the public tierlist";
+    heading.append(assignment, createElement("span", "admin-player-position", scorePosition));
+
+    const fields = createElement("div", "admin-player-fields");
+    const username = createInput(`player-${playerIndex}-username`, player.username, 16);
+    username.minLength = 3;
     username.spellcheck = false;
     username.placeholder = "Minecraft username";
     username.addEventListener("input", () => {
@@ -450,17 +461,34 @@
       markDirty();
       schedulePreview();
     });
+    username.addEventListener("change", () => {
+      calculateState();
+      markDirty();
+      renderAll();
+    });
 
-    const specialty = createInput(`player-${tier.id}-${playerIndex}-specialty`, player.specialty, 60);
-    specialty.placeholder = "e.g. Sword, Axe, Crystal";
-    specialty.addEventListener("input", () => {
-      player.specialty = specialty.value;
+    const points = createPointsInput(`player-${playerIndex}-points`, player.points);
+    points.addEventListener("input", () => {
+      player.points = points.value === "" ? 0 : Number(points.value);
       markDirty();
       schedulePreview();
     });
+    points.addEventListener("change", () => {
+      const score = Number(player.points);
+      if (!Number.isInteger(score) || score < 0 || score > MAX_POINTS) {
+        showError(new AdminError(`Points must be a whole number from 0 to ${MAX_POINTS}.`));
+        points.focus();
+        return;
+      }
+      clearError();
+      calculateState();
+      markDirty();
+      renderAll();
+      setStatus(`${player.username || "Player"} now has ${score} points. Tier and rank recalculated.`, "success");
+    });
 
-    const note = createInput(`player-${tier.id}-${playerIndex}-note`, player.note, 180);
-    note.placeholder = "Short reason for this placement";
+    const note = createInput(`player-${playerIndex}-note`, player.note, 180);
+    note.placeholder = "Optional test result or staff note";
     note.addEventListener("input", () => {
       player.note = note.value;
       markDirty();
@@ -469,98 +497,27 @@
 
     fields.append(
       createField("Minecraft username", username),
-      createField("PvP specialty", specialty),
-      createField("Player note", note, true)
+      createField(`Points (0–${MAX_POINTS})`, points),
+      createField("Test result / note", note, true)
     );
 
     const actions = createElement("div", "admin-player-editor-actions");
-    const orderActions = createElement("div", "admin-action-row");
-    const moveUp = createButton("↑", "admin-button admin-button-small");
-    moveUp.setAttribute("aria-label", `Move ${player.username || "this player"} up within ${tier.label}`);
-    moveUp.disabled = playerIndex === 0;
-    moveUp.addEventListener("click", () => {
-      swapPlayers(tier, playerIndex, playerIndex - 1);
-    });
-
-    const moveDown = createButton("↓", "admin-button admin-button-small");
-    moveDown.setAttribute("aria-label", `Move ${player.username || "this player"} down within ${tier.label}`);
-    moveDown.disabled = playerIndex === tier.players.length - 1;
-    moveDown.addEventListener("click", () => {
-      swapPlayers(tier, playerIndex, playerIndex + 1);
-    });
-    orderActions.append(moveUp, moveDown);
-
-    const moveLabel = createElement("label", "admin-move-field");
-    const moveText = createElement("span", "", "Move to");
-    const moveSelect = createElement("select", "admin-select");
-    moveSelect.setAttribute("aria-label", `Move ${player.username || "this player"} to another tier`);
-    for (const tierOption of state.data.tiers) {
-      const option = document.createElement("option");
-      option.value = tierOption.id;
-      option.textContent = `${tierOption.id.toUpperCase()} · ${tierOption.label}`;
-      option.selected = tierOption.id === tier.id;
-      const targetLimit = TIER_LIMITS[tierOption.id];
-      if (tierOption.id !== tier.id && targetLimit && tierOption.players.length >= targetLimit) {
-        option.disabled = true;
-        option.textContent += ` (full ${targetLimit}/${targetLimit})`;
-      }
-      moveSelect.append(option);
-    }
-    moveSelect.addEventListener("change", () => {
-      movePlayer(tier.id, playerIndex, moveSelect.value);
-    });
-    moveLabel.append(moveText, moveSelect);
-
     const remove = createButton("Delete", "admin-button admin-button-small admin-button-danger");
     remove.setAttribute("aria-label", `Delete ${player.username || "this empty player row"}`);
     remove.addEventListener("click", () => {
       const name = player.username.trim() || "this empty player row";
-      if (!window.confirm(`Delete ${name} from the tierlist?`)) {
-        return;
-      }
-      tier.players.splice(playerIndex, 1);
+      if (!window.confirm(`Delete ${name} from the tierlist?`)) return;
+      const currentIndex = state.data.players.indexOf(player);
+      if (currentIndex >= 0) state.data.players.splice(currentIndex, 1);
+      calculateState();
       markDirty();
       renderAll();
-      setStatus(`Deleted ${name} from ${tier.label}.`);
+      setStatus(`Deleted ${name} from the points ranking.`);
     });
 
-    actions.append(orderActions, moveLabel, remove);
-    item.append(fields, actions);
+    actions.append(remove);
+    item.append(heading, fields, actions);
     return item;
-  }
-
-  function swapPlayers(tier, fromIndex, toIndex) {
-    if (toIndex < 0 || toIndex >= tier.players.length) {
-      return;
-    }
-    const [player] = tier.players.splice(fromIndex, 1);
-    tier.players.splice(toIndex, 0, player);
-    markDirty();
-    renderAll();
-    setStatus(`Reordered ${player.username || "the player"} within ${tier.label}.`);
-  }
-
-  function movePlayer(fromTierId, playerIndex, toTierId) {
-    if (fromTierId === toTierId) {
-      return;
-    }
-    const fromTier = tierById(fromTierId);
-    const toTier = tierById(toTierId);
-    if (!fromTier || !toTier || !fromTier.players[playerIndex]) {
-      showError(new AdminError("That player could not be moved. Reload the editor and try again."));
-      return;
-    }
-    const targetLimit = TIER_LIMITS[toTier.id];
-    if (targetLimit && toTier.players.length >= targetLimit) {
-      showError(new AdminError(`${toTier.label} is limited to ${targetLimit} players. Move someone out before adding another.`));
-      return;
-    }
-
-    const [player] = fromTier.players.splice(playerIndex, 1);
-    toTier.players.push(player);
-    markDirty();
-    renderAll();
-    setStatus(`Moved ${player.username || "the player"} to ${toTier.label}.`);
   }
 
   function playerCountLabel(count) {
@@ -569,15 +526,25 @@
 
   function renderPreview() {
     elements.preview.replaceChildren();
+    const calculated = ranking.groupedTiers(state.data);
 
     const intro = state.data.intro.trim();
     if (intro) {
       elements.preview.append(createElement("p", "admin-helper", intro));
     }
 
-    let totalPlayers = 0;
-    for (const tier of state.data.tiers) {
-      totalPlayers += tier.players.length;
+    const previewTiers = [...calculated.tiers];
+    const unrankedPlayers = calculated.players.filter((player) => player.tier === "unranked");
+    if (unrankedPlayers.length) {
+      previewTiers.push({
+        id: "unranked",
+        label: "Unranked",
+        description: "0 points · kept in the manager but hidden from the public tierlist.",
+        players: unrankedPlayers
+      });
+    }
+
+    for (const tier of previewTiers) {
       const section = createElement("section", "admin-preview-tier");
       section.dataset.tier = tier.id;
 
@@ -593,7 +560,7 @@
 
       const list = createElement("ul", "admin-preview-list");
       if (!tier.players.length) {
-        list.append(createElement("li", "admin-empty-message", "No ranked players yet."));
+        list.append(createElement("li", "admin-empty-message", "No players currently fall in this range."));
       }
 
       for (const player of tier.players) {
@@ -619,9 +586,10 @@
 
         const copy = createElement("div", "admin-preview-card-copy");
         copy.append(createElement("strong", "admin-player-name", displayName));
-        if (player.specialty.trim()) {
-          copy.append(createElement("span", "admin-specialty-badge", player.specialty));
-        }
+        const scoreText = player.rank
+          ? `${player.points} points · #${player.rank} overall`
+          : `${player.points} points · hidden`;
+        copy.append(createElement("span", "admin-specialty-badge", scoreText));
         if (player.note.trim()) {
           copy.append(createElement("p", "admin-player-note", player.note));
         }
@@ -635,11 +603,13 @@
       elements.preview.append(section);
     }
 
-    elements.playerCount.textContent = playerCountLabel(totalPlayers);
+    const rankedCount = calculated.players.filter((player) => player.points > 0).length;
+    elements.playerCount.textContent = `${rankedCount} ranked · ${calculated.players.length} total`;
   }
 
   function renderAll() {
     window.clearTimeout(state.previewTimer);
+    calculateState();
     renderEditors();
     renderPreview();
     updateModeBadge();
@@ -863,7 +833,7 @@
         sha = await findRemoteSha(connection);
       }
 
-      const publishedData = cloneData(state.data);
+      const publishedData = ranking.normalizeTierlist(state.data);
       publishedData.updatedAt = new Date().toISOString();
       const json = `${JSON.stringify(publishedData, null, 2)}\n`;
       const body = {
@@ -931,6 +901,7 @@
       return;
     }
 
+    state.data = ranking.normalizeTierlist(state.data);
     state.data.updatedAt = new Date().toISOString();
     markDirty();
     const json = `${JSON.stringify(state.data, null, 2)}\n`;
