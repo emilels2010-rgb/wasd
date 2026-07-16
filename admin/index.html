@@ -4,25 +4,25 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow, noarchive">
-  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; connect-src 'self'; form-action 'self' https://mcevents.uk; frame-src 'none'; img-src 'self' https://mc-heads.net data:; object-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'">
   <title>Tierlist Manager | MC Events</title>
   <link rel="stylesheet" href="../assets/css/styles.css">
   <style>
     .admin-page {
-      --admin-blue: #57c7ff;
-      --admin-blue-deep: #1767d7;
-      --admin-magenta: #ed4bd4;
-      --admin-ink: #eef7ff;
-      --admin-muted: #9bb0ca;
-      --admin-panel: rgba(10, 22, 45, 0.82);
-      --admin-panel-solid: #0d1c36;
-      --admin-border: rgba(117, 189, 255, 0.22);
+      --admin-blue: #65caff;
+      --admin-blue-deep: #2568ee;
+      --admin-magenta: #ef55d1;
+      --admin-ink: #f1f7ff;
+      --admin-muted: #9eb1cc;
+      --admin-panel: rgba(9, 20, 43, 0.84);
+      --admin-border: rgba(121, 190, 255, 0.22);
       min-height: 100vh;
       color: var(--admin-ink);
       background:
-        radial-gradient(circle at 12% 0%, rgba(41, 151, 255, 0.2), transparent 34rem),
-        radial-gradient(circle at 90% 12%, rgba(237, 75, 212, 0.16), transparent 30rem),
-        #071226;
+        radial-gradient(circle at 8% 2%, rgba(52, 150, 255, 0.22), transparent 34rem),
+        radial-gradient(circle at 91% 12%, rgba(239, 85, 209, 0.18), transparent 31rem),
+        #061022;
     }
 
     .admin-page *,
@@ -33,7 +33,6 @@
 
     .admin-page button,
     .admin-page input,
-    .admin-page select,
     .admin-page textarea {
       font: inherit;
     }
@@ -44,9 +43,9 @@
       top: 0.75rem;
       left: 0.75rem;
       padding: 0.7rem 1rem;
-      color: #081225;
+      color: #061022;
       background: var(--admin-blue);
-      border-radius: 0.65rem;
+      border-radius: 0.7rem;
       transform: translateY(-180%);
     }
 
@@ -64,52 +63,156 @@
       gap: 1rem;
       min-height: 4.5rem;
       padding: 0.85rem clamp(1rem, 4vw, 3rem);
-      background: rgba(7, 18, 38, 0.86);
+      background: rgba(6, 16, 34, 0.84);
       border-bottom: 1px solid var(--admin-border);
-      backdrop-filter: blur(18px);
+      backdrop-filter: blur(20px);
+    }
+
+    .admin-brand,
+    .admin-topbar-actions,
+    .admin-panel-header,
+    .admin-player-editor-heading,
+    .admin-player-editor-actions,
+    .admin-toolbar,
+    .admin-preview-tier-header,
+    .admin-recovery-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
     }
 
     .admin-brand {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.65rem;
       color: var(--admin-ink);
-      font-weight: 800;
+      font-weight: 850;
+      letter-spacing: -0.025em;
       text-decoration: none;
-      letter-spacing: -0.02em;
-    }
-
-    .admin-brand-mark {
-      display: grid;
-      width: 2rem;
-      height: 2rem;
-      place-items: center;
-      color: #081225;
-      background: linear-gradient(135deg, var(--admin-blue), var(--admin-magenta));
-      border-radius: 0.6rem;
-      box-shadow: 0 0 1.5rem rgba(87, 199, 255, 0.28);
     }
 
     .admin-mode-badge,
     .admin-count-badge,
-    .admin-specialty-badge {
+    .admin-specialty-badge,
+    .admin-tier-assignment {
       display: inline-flex;
       align-items: center;
       width: fit-content;
-      padding: 0.28rem 0.6rem;
-      color: #cdeeff;
-      background: rgba(87, 199, 255, 0.1);
-      border: 1px solid rgba(87, 199, 255, 0.24);
+      padding: 0.29rem 0.62rem;
+      color: #ceeeff;
+      background: rgba(101, 202, 255, 0.1);
+      border: 1px solid rgba(101, 202, 255, 0.24);
       border-radius: 999px;
-      font-size: 0.76rem;
-      font-weight: 700;
+      font-size: 0.75rem;
+      font-weight: 800;
       line-height: 1.2;
     }
 
     .admin-shell {
       width: min(1480px, calc(100% - 2rem));
       margin: 0 auto;
-      padding: clamp(2rem, 5vw, 4.75rem) 0 4rem;
+      padding: clamp(2rem, 5vw, 4.5rem) 0 4rem;
+    }
+
+    .admin-auth-shell {
+      display: grid;
+      min-height: calc(100vh - 9rem);
+      place-items: center;
+      padding-block: 2rem 5rem;
+    }
+
+    .admin-login-card {
+      position: relative;
+      width: min(100%, 470px);
+      padding: clamp(1.4rem, 5vw, 2.25rem);
+      background:
+        linear-gradient(145deg, rgba(101, 202, 255, 0.09), rgba(239, 85, 209, 0.07)),
+        var(--admin-panel);
+      border: 1px solid var(--admin-border);
+      border-radius: 1.45rem;
+      box-shadow: 0 2rem 6rem rgba(0, 0, 0, 0.35);
+      overflow: hidden;
+      backdrop-filter: blur(18px);
+    }
+
+    .admin-login-card::before {
+      position: absolute;
+      inset: 0 0 auto;
+      height: 3px;
+      background: linear-gradient(90deg, var(--admin-blue), var(--admin-magenta));
+      content: "";
+    }
+
+    .admin-login-emblem {
+      display: grid;
+      width: 3.5rem;
+      height: 3.5rem;
+      margin-bottom: 1.4rem;
+      place-items: center;
+      color: #08142a;
+      background: linear-gradient(135deg, var(--admin-blue), #a797ff 50%, var(--admin-magenta));
+      border-radius: 1rem;
+      box-shadow: 0 0 2.4rem rgba(101, 202, 255, 0.22);
+      font-size: 1.35rem;
+      font-weight: 950;
+    }
+
+    .admin-eyebrow {
+      margin: 0 0 0.65rem;
+      color: var(--admin-blue);
+      font-size: 0.76rem;
+      font-weight: 850;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .admin-login-title,
+    .admin-title,
+    .admin-panel-title,
+    .admin-tier-title,
+    .admin-player-name {
+      margin: 0;
+      color: var(--admin-ink);
+    }
+
+    .admin-login-title {
+      font-size: clamp(2rem, 8vw, 3.15rem);
+      line-height: 1;
+      letter-spacing: -0.055em;
+    }
+
+    .admin-title {
+      font-size: clamp(2.2rem, 6vw, 4.2rem);
+      line-height: 0.98;
+      letter-spacing: -0.055em;
+    }
+
+    .admin-title-accent {
+      color: transparent;
+      background: linear-gradient(100deg, var(--admin-blue), #ac91ff 48%, var(--admin-magenta));
+      background-clip: text;
+      -webkit-background-clip: text;
+    }
+
+    .admin-login-copy,
+    .admin-lede,
+    .admin-helper,
+    .admin-player-note,
+    .admin-empty-message {
+      color: var(--admin-muted);
+    }
+
+    .admin-login-copy {
+      margin: 1rem 0 1.5rem;
+      line-height: 1.65;
+    }
+
+    .admin-login-form,
+    .admin-login-fields,
+    .admin-editor-panel,
+    .admin-preview-panel,
+    .admin-player-editor-list,
+    .admin-preview-tier-list,
+    .admin-preview-list {
+      display: grid;
+      gap: 0.9rem;
     }
 
     .admin-hero {
@@ -119,57 +222,27 @@
       margin-bottom: 1.5rem;
     }
 
-    .admin-eyebrow {
-      margin: 0;
-      color: var(--admin-blue);
-      font-size: 0.77rem;
-      font-weight: 800;
-      letter-spacing: 0.13em;
-      text-transform: uppercase;
-    }
-
-    .admin-title {
-      margin: 0;
-      font-size: clamp(2rem, 6vw, 4.2rem);
-      line-height: 0.98;
-      letter-spacing: -0.055em;
-    }
-
-    .admin-title-accent {
-      color: transparent;
-      background: linear-gradient(100deg, var(--admin-blue), #b88cff 48%, var(--admin-magenta));
-      background-clip: text;
-      -webkit-background-clip: text;
-    }
-
-    .admin-lede,
-    .admin-helper,
-    .admin-tier-description,
-    .admin-player-note,
-    .admin-empty-message {
-      color: var(--admin-muted);
-    }
-
     .admin-lede {
       max-width: 62ch;
       margin: 0;
-      font-size: 1.03rem;
+      font-size: 1.02rem;
       line-height: 1.7;
     }
 
     .admin-feedback {
       display: grid;
       gap: 0.65rem;
-      margin: 1.25rem 0;
+      margin: 1rem 0;
     }
 
     .admin-status,
-    .admin-error {
+    .admin-error,
+    .admin-recovery {
       margin: 0;
-      padding: 0.8rem 1rem;
+      padding: 0.85rem 1rem;
       border: 1px solid var(--admin-border);
-      border-radius: 0.8rem;
-      background: rgba(87, 199, 255, 0.07);
+      border-radius: 0.85rem;
+      background: rgba(101, 202, 255, 0.07);
       line-height: 1.45;
     }
 
@@ -179,10 +252,29 @@
       background: rgba(38, 173, 111, 0.1);
     }
 
+    .admin-status[data-tone="warning"],
+    .admin-recovery {
+      color: #ffe6b0;
+      border-color: rgba(255, 190, 86, 0.38);
+      background: rgba(187, 114, 24, 0.12);
+    }
+
     .admin-error {
       color: #ffd5e8;
       border-color: rgba(255, 88, 156, 0.42);
       background: rgba(211, 35, 109, 0.12);
+    }
+
+    .admin-recovery {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .admin-recovery-copy {
+      margin: 0;
     }
 
     .admin-panel {
@@ -195,23 +287,10 @@
     }
 
     .admin-panel-header,
-    .admin-tier-editor-header,
-    .admin-preview-tier-header,
-    .admin-player-editor-actions,
-    .admin-action-row,
-    .admin-toolbar {
-      display: flex;
-      align-items: center;
+    .admin-player-editor-heading,
+    .admin-preview-tier-header {
       justify-content: space-between;
-      gap: 0.75rem;
       flex-wrap: wrap;
-    }
-
-    .admin-panel-title,
-    .admin-tier-title,
-    .admin-player-name {
-      margin: 0;
-      color: var(--admin-ink);
     }
 
     .admin-panel-title {
@@ -220,112 +299,84 @@
 
     .admin-helper {
       margin: 0.35rem 0 0;
-      font-size: 0.84rem;
+      font-size: 0.83rem;
       line-height: 1.55;
-    }
-
-    .admin-connection-panel {
-      margin-bottom: 1rem;
-    }
-
-    .admin-connection-grid {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 0.85rem;
-      margin-top: 1.1rem;
     }
 
     .admin-field {
       display: grid;
-      gap: 0.4rem;
+      gap: 0.42rem;
       min-width: 0;
-      color: #c8d7e9;
+      color: #cad8eb;
       font-size: 0.81rem;
-      font-weight: 700;
+      font-weight: 750;
     }
 
     .admin-field-wide {
-      grid-column: span 2;
+      grid-column: 1 / -1;
     }
 
-    .admin-input,
-    .admin-select,
-    .admin-textarea {
+    .admin-input {
       width: 100%;
+      min-height: 2.8rem;
+      padding: 0.68rem 0.78rem;
       color: var(--admin-ink);
-      background: rgba(3, 11, 25, 0.72);
-      border: 1px solid rgba(143, 185, 229, 0.25);
-      border-radius: 0.72rem;
+      background: rgba(3, 11, 25, 0.74);
+      border: 1px solid rgba(143, 185, 229, 0.26);
+      border-radius: 0.74rem;
       outline: none;
       transition: border-color 150ms ease, box-shadow 150ms ease, background 150ms ease;
     }
 
-    .admin-input,
-    .admin-select {
-      min-height: 2.75rem;
-      padding: 0.65rem 0.75rem;
-    }
-
-    .admin-textarea {
-      min-height: 5.5rem;
-      padding: 0.75rem;
-      resize: vertical;
-    }
-
     .admin-input:focus,
-    .admin-select:focus,
-    .admin-textarea:focus,
-    .admin-button:focus-visible,
-    .admin-file-button:focus-within {
+    .admin-button:focus-visible {
       border-color: var(--admin-blue);
-      box-shadow: 0 0 0 3px rgba(87, 199, 255, 0.18);
+      box-shadow: 0 0 0 3px rgba(101, 202, 255, 0.18);
     }
 
-    .admin-button,
-    .admin-file-button {
+    .admin-button {
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 0.4rem;
-      min-height: 2.55rem;
-      padding: 0.62rem 0.9rem;
-      color: #dbeaff;
+      min-height: 2.58rem;
+      padding: 0.62rem 0.92rem;
+      color: #dceaff;
       background: rgba(85, 130, 188, 0.12);
       border: 1px solid rgba(143, 185, 229, 0.25);
-      border-radius: 0.72rem;
+      border-radius: 0.74rem;
       cursor: pointer;
       font-size: 0.82rem;
-      font-weight: 750;
+      font-weight: 800;
       text-decoration: none;
       transition: transform 150ms ease, border-color 150ms ease, background 150ms ease;
     }
 
-    .admin-button:hover,
-    .admin-file-button:hover {
-      border-color: rgba(87, 199, 255, 0.58);
-      background: rgba(87, 199, 255, 0.13);
+    .admin-button:hover {
+      border-color: rgba(101, 202, 255, 0.58);
+      background: rgba(101, 202, 255, 0.13);
       transform: translateY(-1px);
     }
 
     .admin-button-primary {
-      color: #071226;
-      background: linear-gradient(110deg, var(--admin-blue), #84a7ff 52%, var(--admin-magenta));
+      color: #061022;
+      background: linear-gradient(110deg, var(--admin-blue), #8da9ff 52%, var(--admin-magenta));
       border-color: transparent;
     }
 
     .admin-button-primary:hover {
-      background: linear-gradient(110deg, #7bd5ff, #a4a9ff 52%, #f576df);
+      background: linear-gradient(110deg, #84d7ff, #aaaaff 52%, #f878df);
       border-color: transparent;
     }
 
     .admin-button-danger {
       color: #ffd0e1;
-      border-color: rgba(255, 89, 149, 0.26);
+      border-color: rgba(255, 89, 149, 0.28);
     }
 
     .admin-button-small {
-      min-height: 2.1rem;
-      padding: 0.42rem 0.62rem;
+      min-height: 2.12rem;
+      padding: 0.43rem 0.65rem;
       font-size: 0.75rem;
     }
 
@@ -335,14 +386,9 @@
       transform: none;
     }
 
-    .admin-file-input {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      overflow: hidden;
-      clip: rect(0 0 0 0);
-      clip-path: inset(50%);
-      white-space: nowrap;
+    .admin-login-button {
+      width: 100%;
+      margin-top: 0.25rem;
     }
 
     .admin-workspace {
@@ -352,45 +398,12 @@
       align-items: start;
     }
 
-    .admin-editor-panel,
-    .admin-preview-panel {
-      display: grid;
-      gap: 1rem;
-    }
-
     .admin-preview-panel {
       position: sticky;
       top: 5.5rem;
       max-height: calc(100vh - 6.5rem);
       overflow: auto;
     }
-
-    .admin-tier-editor-list,
-    .admin-player-editor-list,
-    .admin-preview-list,
-    .admin-preview-tier-list {
-      display: grid;
-      gap: 0.75rem;
-      margin: 0;
-      padding: 0;
-      list-style: none;
-    }
-
-    .admin-tier-editor {
-      display: grid;
-      gap: 0.85rem;
-      padding: 1rem;
-      background: rgba(4, 13, 29, 0.5);
-      border: 1px solid rgba(143, 185, 229, 0.17);
-      border-radius: 0.9rem;
-    }
-
-    .admin-tier-editor[data-tier="s"] { border-left: 3px solid #f363d9; }
-    .admin-tier-editor[data-tier="a"] { border-left: 3px solid #a678ff; }
-    .admin-tier-editor[data-tier="b"] { border-left: 3px solid #57c7ff; }
-    .admin-tier-editor[data-tier="c"] { border-left: 3px solid #58dfbc; }
-    .admin-tier-editor[data-tier="d"] { border-left: 3px solid #ffad72; }
-    .admin-tier-editor[data-tier="points"] { border-left: 3px solid #ed4bd4; }
 
     .admin-threshold-grid {
       display: grid;
@@ -413,8 +426,8 @@
     }
 
     .admin-threshold[data-tier="s"] strong { color: #f363d9; }
-    .admin-threshold[data-tier="a"] strong { color: #a678ff; }
-    .admin-threshold[data-tier="b"] strong { color: #57c7ff; }
+    .admin-threshold[data-tier="a"] strong { color: #ae92ff; }
+    .admin-threshold[data-tier="b"] strong { color: #65caff; }
     .admin-threshold[data-tier="c"] strong { color: #58dfbc; }
     .admin-threshold[data-tier="d"] strong { color: #ffad72; }
 
@@ -424,72 +437,49 @@
       font-size: 0.72rem;
     }
 
-    .admin-tier-fields,
-    .admin-player-fields {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 0.7rem;
+    .admin-player-editor-list,
+    .admin-preview-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
     }
 
     .admin-player-editor {
       display: grid;
-      gap: 0.7rem;
-      padding: 0.8rem;
+      gap: 0.75rem;
+      padding: 0.85rem;
       background: rgba(19, 39, 72, 0.52);
       border: 1px solid rgba(143, 185, 229, 0.14);
-      border-radius: 0.78rem;
+      border-left: 3px solid var(--player-tier-color, #6e83a6);
+      border-radius: 0.8rem;
     }
 
-    .admin-player-editor-heading {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 0.75rem;
-      flex-wrap: wrap;
-    }
-
-    .admin-tier-assignment {
-      display: inline-flex;
-      align-items: center;
-      width: fit-content;
-      padding: 0.3rem 0.62rem;
-      color: #9bb0ca;
-      background: rgba(143, 185, 229, 0.08);
-      border: 1px solid rgba(143, 185, 229, 0.2);
-      border-radius: 999px;
-      font-size: 0.73rem;
-      font-weight: 800;
-    }
+    .admin-player-editor[data-tier="s"] { --player-tier-color: #f363d9; }
+    .admin-player-editor[data-tier="a"] { --player-tier-color: #ae92ff; }
+    .admin-player-editor[data-tier="b"] { --player-tier-color: #65caff; }
+    .admin-player-editor[data-tier="c"] { --player-tier-color: #58dfbc; }
+    .admin-player-editor[data-tier="d"] { --player-tier-color: #ffad72; }
 
     .admin-tier-assignment[data-tier="s"] { color: #ff98e5; border-color: rgba(243, 99, 217, 0.35); }
-    .admin-tier-assignment[data-tier="a"] { color: #c4adff; border-color: rgba(166, 120, 255, 0.35); }
-    .admin-tier-assignment[data-tier="b"] { color: #9adfff; border-color: rgba(87, 199, 255, 0.35); }
+    .admin-tier-assignment[data-tier="a"] { color: #c9b8ff; border-color: rgba(174, 146, 255, 0.35); }
+    .admin-tier-assignment[data-tier="b"] { color: #a5e2ff; border-color: rgba(101, 202, 255, 0.35); }
     .admin-tier-assignment[data-tier="c"] { color: #91f1d8; border-color: rgba(88, 223, 188, 0.35); }
     .admin-tier-assignment[data-tier="d"] { color: #ffd0ae; border-color: rgba(255, 173, 114, 0.35); }
 
+    .admin-player-fields {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.72rem;
+    }
+
     .admin-points-input {
       font-family: ui-monospace, monospace;
-      font-weight: 800;
+      font-weight: 850;
       font-variant-numeric: tabular-nums;
     }
 
     .admin-player-editor-actions {
       justify-content: flex-end;
-    }
-
-    .admin-move-field {
-      display: inline-grid;
-      grid-template-columns: auto minmax(5.25rem, 1fr);
-      align-items: center;
-      gap: 0.45rem;
-      color: var(--admin-muted);
-      font-size: 0.75rem;
-    }
-
-    .admin-move-field .admin-select {
-      min-height: 2.1rem;
-      padding: 0.35rem 0.5rem;
-      font-size: 0.76rem;
     }
 
     .admin-preview-tier {
@@ -518,17 +508,17 @@
     .admin-preview-card:hover,
     .admin-preview-card:focus-visible {
       border-color: var(--admin-blue);
-      transform: translateX(2px);
       outline: none;
+      transform: translateX(2px);
     }
 
     .admin-player-avatar {
       width: 2.7rem;
       height: 2.7rem;
+      object-fit: cover;
       image-rendering: pixelated;
       background: #172b4a;
       border-radius: 0.55rem;
-      object-fit: cover;
     }
 
     .admin-preview-card-copy {
@@ -557,10 +547,16 @@
       max-width: 100%;
       overflow: hidden;
       color: #fbd8f5;
-      background: rgba(237, 75, 212, 0.09);
-      border-color: rgba(237, 75, 212, 0.22);
+      background: rgba(239, 85, 209, 0.09);
+      border-color: rgba(239, 85, 209, 0.22);
       text-overflow: ellipsis;
       white-space: nowrap;
+    }
+
+    .admin-empty-message {
+      margin: 0;
+      padding: 0.7rem 0;
+      font-size: 0.82rem;
     }
 
     .admin-footer {
@@ -568,18 +564,6 @@
       color: var(--admin-muted);
       text-align: center;
       font-size: 0.78rem;
-    }
-
-    .admin-visually-hidden {
-      position: absolute !important;
-      width: 1px !important;
-      height: 1px !important;
-      padding: 0 !important;
-      margin: -1px !important;
-      overflow: hidden !important;
-      clip: rect(0, 0, 0, 0) !important;
-      white-space: nowrap !important;
-      border: 0 !important;
     }
 
     [hidden] {
@@ -595,13 +579,9 @@
         position: static;
         max-height: none;
       }
-
-      .admin-connection-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
     }
 
-    @media (max-width: 620px) {
+    @media (max-width: 680px) {
       .admin-shell {
         width: min(100% - 1rem, 1480px);
       }
@@ -610,8 +590,10 @@
         padding-inline: 0.75rem;
       }
 
-      .admin-connection-grid,
-      .admin-tier-fields,
+      .admin-mode-badge {
+        display: none;
+      }
+
       .admin-player-fields {
         grid-template-columns: 1fr;
       }
@@ -620,13 +602,15 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
-      .admin-field-wide {
-        grid-column: auto;
+      .admin-recovery {
+        align-items: stretch;
+        flex-direction: column;
       }
 
-      .admin-action-row > *,
-      .admin-toolbar > * {
-        flex: 1 1 auto;
+      .admin-recovery-actions,
+      .admin-toolbar {
+        align-items: stretch;
+        flex-direction: column;
       }
     }
 
@@ -641,114 +625,113 @@
   </style>
 </head>
 <body class="admin-page">
-  <a class="admin-skip-link" href="#admin-main">Skip to tierlist editor</a>
+  <a class="admin-skip-link" href="#admin-main">Skip to main content</a>
 
   <header class="admin-topbar">
     <a class="admin-brand" href="../index.html" aria-label="MC Events home">
-      <span class="admin-brand-mark" aria-hidden="true">M</span>
       <span>MC Events</span>
     </a>
-    <span class="admin-mode-badge" id="admin-mode-badge">Starting…</span>
+    <div class="admin-topbar-actions">
+      <span class="admin-mode-badge" id="admin-mode-badge">Checking session...</span>
+      <button class="admin-button admin-button-small" id="admin-logout" type="button" hidden>Log out</button>
+    </div>
   </header>
 
-  <main class="admin-shell" id="admin-main" tabindex="-1">
-    <section class="admin-hero" aria-labelledby="admin-title">
-      <p class="admin-eyebrow">Private management workspace</p>
-      <h1 class="admin-title" id="admin-title">Tierlist <span class="admin-title-accent">manager</span></h1>
-      <p class="admin-lede">Edit each player's verified score and the manager automatically calculates their overall rank and tier. Review the live preview, then export the JSON or publish it straight to GitHub.</p>
+  <main id="admin-main" tabindex="-1">
+    <section class="admin-shell admin-auth-shell" id="admin-login-view" aria-labelledby="admin-login-title">
+      <div class="admin-login-card">
+        <div class="admin-login-emblem" aria-hidden="true">M</div>
+        <p class="admin-eyebrow">Protected staff area</p>
+        <h1 class="admin-login-title" id="admin-login-title">Tierlist <span class="admin-title-accent">login</span></h1>
+        <p class="admin-login-copy">Sign in with your MC Events staff account to update player test points. Login details are sent only to the secure website API; this page never stores them.</p>
+
+        <form class="admin-login-form" id="admin-login-form" action="https://mcevents.uk/api/admin/login" method="post" novalidate>
+          <div class="admin-login-fields">
+            <label class="admin-field" for="admin-username">
+              Username
+              <input class="admin-input" id="admin-username" name="username" type="text" value="Belser" autocomplete="username" autocapitalize="none" spellcheck="false" required>
+            </label>
+            <label class="admin-field" for="admin-password">
+              Password
+              <input class="admin-input" id="admin-password" name="password" type="password" autocomplete="current-password" required>
+            </label>
+          </div>
+          <p class="admin-error" id="admin-login-error" role="alert" aria-live="assertive" tabindex="-1" hidden></p>
+          <button class="admin-button admin-button-primary admin-login-button" id="admin-login-button" type="submit">Sign in securely</button>
+        </form>
+      </div>
     </section>
 
-    <div class="admin-feedback" aria-label="Editor messages">
-      <p class="admin-status" id="admin-status" role="status" aria-live="polite">Loading bundled tierlist…</p>
-      <p class="admin-error" id="admin-error" role="alert" aria-live="assertive" tabindex="-1" hidden></p>
-    </div>
+    <section class="admin-shell" id="admin-editor-view" hidden>
+      <div class="admin-hero" aria-labelledby="admin-title">
+        <p class="admin-eyebrow">Authenticated management workspace</p>
+        <h1 class="admin-title" id="admin-title">Tierlist <span class="admin-title-accent">manager</span></h1>
+        <p class="admin-lede">Set each player's verified score and save. Overall placement and tiers are calculated automatically, including the three automatic S Tier positions.</p>
+      </div>
 
-    <section class="admin-panel admin-connection-panel" aria-labelledby="connection-title">
-      <div class="admin-panel-header">
-        <div>
-          <h2 class="admin-panel-title" id="connection-title">GitHub connection</h2>
-          <p class="admin-helper">Repository details are saved in this browser. Your token is kept only for this browser tab session and is never added to exported data.</p>
+      <div class="admin-feedback" aria-label="Editor messages">
+        <p class="admin-status" id="admin-status" role="status" aria-live="polite">Loading the current tierlist...</p>
+        <p class="admin-error" id="admin-error" role="alert" aria-live="assertive" tabindex="-1" hidden></p>
+      </div>
+
+      <div class="admin-recovery" id="admin-draft-recovery" hidden>
+        <p class="admin-recovery-copy" id="admin-draft-message">An unsaved local draft is available.</p>
+        <div class="admin-recovery-actions">
+          <button class="admin-button admin-button-small" id="admin-restore-draft" type="button">Restore draft</button>
+          <button class="admin-button admin-button-small" id="admin-discard-draft" type="button">Use server version</button>
         </div>
       </div>
 
-      <form id="admin-connection-form" novalidate>
-        <div class="admin-connection-grid">
-          <label class="admin-field" for="github-owner">
-            GitHub owner
-            <input class="admin-input" id="github-owner" name="owner" type="text" autocomplete="username" spellcheck="false" placeholder="your-account">
-          </label>
-          <label class="admin-field" for="github-repo">
-            Repository
-            <input class="admin-input" id="github-repo" name="repo" type="text" spellcheck="false" placeholder="mcevents-site">
-          </label>
-          <label class="admin-field" for="github-branch">
-            Branch
-            <input class="admin-input" id="github-branch" name="branch" type="text" spellcheck="false" value="main">
-          </label>
-          <label class="admin-field" for="github-data-path">
-            Tierlist JSON path
-            <input class="admin-input" id="github-data-path" name="dataPath" type="text" spellcheck="false" value="data/tierlist.json">
-          </label>
-          <label class="admin-field admin-field-wide" for="github-token">
-            Fine-grained GitHub token
-            <input class="admin-input" id="github-token" name="token" type="password" autocomplete="off" spellcheck="false" placeholder="Required only when publishing">
-          </label>
+      <div class="admin-recovery" id="admin-conflict" hidden>
+        <p class="admin-recovery-copy">Someone else saved a newer tierlist first. Your changes are still safe in this browser. Reload the server version, then the manager can safely merge changes that do not overlap.</p>
+        <div class="admin-recovery-actions">
+          <button class="admin-button admin-button-small" id="admin-conflict-dismiss" type="button">Keep editing</button>
+          <button class="admin-button admin-button-small admin-button-primary" id="admin-conflict-reload" type="button">Reload server version</button>
         </div>
+      </div>
 
-        <div class="admin-action-row" style="margin-top: 1rem;">
-          <div class="admin-action-row">
-            <button class="admin-button" type="submit">Save connection</button>
-            <button class="admin-button" id="admin-forget-token" type="button">Forget token</button>
+      <div class="admin-workspace">
+        <section class="admin-panel admin-editor-panel" aria-labelledby="editor-title">
+          <div class="admin-panel-header">
+            <div>
+              <h2 class="admin-panel-title" id="editor-title">Points editor</h2>
+              <p class="admin-helper">Minecraft usernames must be 3-16 letters, numbers, or underscores. Scores must be whole numbers from 0 to 1,000.</p>
+            </div>
+            <div class="admin-toolbar">
+              <button class="admin-button" id="admin-reload" type="button">Reload</button>
+              <button class="admin-button" id="admin-add-player" type="button">Add player</button>
+              <button class="admin-button admin-button-primary" id="admin-save" type="button">Save changes</button>
+            </div>
           </div>
-          <div class="admin-action-row">
-            <button class="admin-button" id="admin-load-bundled" type="button">Load bundled JSON</button>
-            <button class="admin-button" id="admin-load-github" type="button">Load from GitHub</button>
-            <button class="admin-button admin-button-primary" id="admin-save-github" type="button">Publish to GitHub</button>
+
+          <div class="admin-threshold-grid" aria-label="Automatic tier rules">
+            <div class="admin-threshold" data-tier="s"><strong>S</strong><span>Top 3 positive scores</span></div>
+            <div class="admin-threshold" data-tier="a"><strong>A</strong><span>601-1,000</span></div>
+            <div class="admin-threshold" data-tier="b"><strong>B</strong><span>401-600</span></div>
+            <div class="admin-threshold" data-tier="c"><strong>C</strong><span>201-400</span></div>
+            <div class="admin-threshold" data-tier="d"><strong>D</strong><span>1-200</span></div>
+            <div class="admin-threshold"><strong>-</strong><span>0 points, hidden</span></div>
           </div>
-        </div>
-      </form>
+
+          <ul class="admin-player-editor-list" id="admin-player-editors" aria-label="Player point editors"></ul>
+        </section>
+
+        <aside class="admin-panel admin-preview-panel" aria-labelledby="preview-title">
+          <div class="admin-panel-header">
+            <div>
+              <h2 class="admin-panel-title" id="preview-title">Live preview</h2>
+              <p class="admin-helper">Automatically sorted. Player cards open NameMC.</p>
+            </div>
+            <span class="admin-count-badge" id="admin-player-count">0 players</span>
+          </div>
+          <div class="admin-preview-tier-list" id="admin-live-preview"></div>
+        </aside>
+      </div>
     </section>
-
-    <div class="admin-workspace">
-      <section class="admin-panel admin-editor-panel" aria-labelledby="editor-title">
-        <div class="admin-panel-header">
-          <div>
-            <h2 class="admin-panel-title" id="editor-title">Points editor</h2>
-            <p class="admin-helper">Scores run from 0 to 1,000. The three highest positive scores automatically become S Tier; every other tier is calculated from its 200-point range.</p>
-          </div>
-          <div class="admin-toolbar" aria-label="Tierlist file actions">
-            <label class="admin-file-button" for="admin-import-file">
-              Import JSON
-              <input class="admin-file-input" id="admin-import-file" type="file" accept="application/json,.json">
-            </label>
-            <button class="admin-button" id="admin-export-json" type="button">Export JSON</button>
-          </div>
-        </div>
-
-        <label class="admin-field" for="tierlist-intro">
-          Tierlist introduction
-          <textarea class="admin-textarea" id="tierlist-intro" rows="4" placeholder="A short introduction shown above the rankings."></textarea>
-        </label>
-
-        <div class="admin-tier-editor-list" id="admin-tier-editors" aria-label="Tier editors"></div>
-      </section>
-
-      <aside class="admin-panel admin-preview-panel" aria-labelledby="preview-title">
-        <div class="admin-panel-header">
-          <div>
-            <h2 class="admin-panel-title" id="preview-title">Live preview</h2>
-            <p class="admin-helper">Compact preview · player cards link to NameMC</p>
-          </div>
-          <span class="admin-count-badge" id="admin-player-count">0 players</span>
-        </div>
-        <div class="admin-preview-tier-list" id="admin-live-preview"></div>
-      </aside>
-    </div>
   </main>
 
-  <footer class="admin-footer">MC Events tierlist manager · Keep your GitHub token private.</footer>
+  <footer class="admin-footer">MC Events tierlist manager. This page never stores staff passwords or GitHub tokens.</footer>
 
-  <script src="../site.config.js"></script>
   <script src="../assets/js/ranking.js"></script>
   <script src="./admin.js"></script>
 </body>
