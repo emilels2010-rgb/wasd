@@ -1,0 +1,11 @@
+{
+  "name": "element-smp-tier-bot",
+  "private": true,
+  "type": "module",
+  "scripts": { "start": "node index.js" },
+  "engines": { "node": ">=22" },
+  "dependencies": {
+    "@octokit/rest": "^21.1.1",
+    "discord.js": "^14.18.0"
+  }
+}
