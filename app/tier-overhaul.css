@@ -1,0 +1,68 @@
+/* ELEMENT SMP — MINERAL TIER OVERHAUL */
+
+.tier{position:relative!important;border-radius:14px!important;isolation:isolate!important;overflow:hidden!important;transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s ease,border-color .35s ease!important}
+.tier:after{content:"";position:absolute;inset:0;pointer-events:none;z-index:0;opacity:.32;background-image:radial-gradient(circle at 15% 25%,#ffffff18 0 1px,transparent 2px),radial-gradient(circle at 80% 70%,#ffffff12 0 1px,transparent 2px),repeating-linear-gradient(125deg,transparent 0 18px,#ffffff06 19px 20px,transparent 21px 38px);mix-blend-mode:screen}
+.tier:hover{transform:translateX(7px) translateY(-2px)!important}
+.tier-label{position:relative!important;z-index:2!important;border-radius:12px 0 0 12px!important;overflow:hidden!important}
+.tier-label>b{filter:drop-shadow(0 5px 2px #0007)!important}
+.players{position:relative!important;z-index:2!important}
+.player{border-radius:10px!important;backdrop-filter:blur(8px)!important;transition:transform .28s cubic-bezier(.2,.8,.2,1),background .28s,border-color .28s,box-shadow .28s!important}
+.player:hover{transform:translateY(-4px) scale(1.015)!important;box-shadow:0 10px 24px #0008!important}
+
+/* S — NETHERITE: ultimate, ancient, molten, black-metal */
+.tier-s{background:linear-gradient(125deg,#09080b,#24131b 38%,#100b12 72%,#2c1618)!important;border:2px solid #a88bff!important;box-shadow:0 0 0 2px #5b3b8a66,0 0 38px #9d5cff44,inset 0 0 50px #000!important}
+.tier-s:after{opacity:.55;background-image:radial-gradient(circle,#e0caff 0 1px,transparent 2px),repeating-linear-gradient(115deg,transparent 0 14px,#b89cff0d 15px 17px,transparent 18px 35px)!important;background-size:67px 67px,auto!important}
+.tier-s .tier-label{background:linear-gradient(145deg,#17131d,#3b253f 45%,#120e15)!important;border-right:1px solid #a88bff55!important}
+.tier-s .tier-label:after{content:"";position:absolute;inset:8px;border:1px solid #d9c6ff33;border-radius:9px;box-shadow:inset 0 0 24px #9f5cff22;pointer-events:none}
+.tier-s .tier-label>b{color:#eee5ff!important;text-shadow:0 0 16px #b982ff,4px 5px 0 #24172c!important}
+.tier-s .tier-icon{color:#f1d9ff!important;text-shadow:0 0 12px #bd75ff,0 0 32px #8e45ff!important}
+.tier-s .player{background:linear-gradient(135deg,#ffffff0c,#a96cff12)!important;border-color:#b78cff30!important}
+.tier-s .player:hover{border-color:#d4baff99!important;box-shadow:0 10px 28px #7c3dcc33,0 0 16px #b56cff22!important}
+
+/* A — DIAMOND: icy, crystalline, brilliant */
+.tier-a{background:linear-gradient(125deg,#07151a,#0b2b36 42%,#061319)!important;border:1px solid #54eaff!important;box-shadow:0 0 28px #29d9ff24,inset 0 0 35px #00bcd414!important}
+.tier-a .tier-label{background:linear-gradient(145deg,#08313c,#11647a 48%,#08242d)!important;border-right:1px solid #65edff55!important}
+.tier-a .tier-label:after{content:"";position:absolute;inset:0;background:linear-gradient(135deg,transparent 35%,#a9f8ff12 36% 40%,transparent 41% 60%,#a9f8ff0c 61% 64%,transparent 65%);pointer-events:none}
+.tier-a .tier-label>b{color:#d9fbff!important;text-shadow:0 0 15px #35e9ff,3px 4px 0 #075267!important}
+.tier-a .player{background:#65eaff0a!important;border-color:#61eaff25!important}
+.tier-a .player:hover{box-shadow:0 10px 25px #00cfff26,0 0 18px #4beaff22!important}
+
+/* B — EMERALD: enchanted, lush, magical */
+.tier-b{background:linear-gradient(125deg,#061710,#0c3523 45%,#071d15)!important;border:1px solid #46ff9b!important;box-shadow:0 0 25px #24e47b1f,inset 0 0 34px #00c66a10!important}
+.tier-b .tier-label{background:linear-gradient(145deg,#093d27,#116b43 48%,#082b1c)!important;border-right:1px solid #55ffab55!important}
+.tier-b .tier-label>b{color:#d8ffe9!important;text-shadow:0 0 13px #30ff92,3px 4px 0 #073d25!important}
+.tier-b .player{background:#3cff9610!important;border-color:#43ff9b22!important}
+.tier-b .player:hover{box-shadow:0 10px 25px #00d66a26,0 0 18px #48ff9c22!important}
+
+/* C — GOLD: rich, warm, treasure-metal */
+.tier-c{background:linear-gradient(125deg,#1b1204,#46300a 45%,#211404)!important;border:1px solid #ffd34d!important;box-shadow:0 0 25px #ffb3001c,inset 0 0 32px #ffb0000e!important}
+.tier-c .tier-label{background:linear-gradient(145deg,#5a3905,#a66b0c 48%,#4a2e05)!important;border-right:1px solid #ffe17a55!important}
+.tier-c .tier-label>b{color:#fff4c4!important;text-shadow:0 0 12px #ffc928,3px 4px 0 #553405!important}
+.tier-c .player{background:#ffc9280b!important;border-color:#ffd45a24!important}
+.tier-c .player:hover{box-shadow:0 10px 25px #ffb30026,0 0 18px #ffd34d22!important}
+
+/* D — IRON: heavy, rugged, forged */
+.tier-d{background:linear-gradient(125deg,#101316,#292d31 45%,#151719)!important;border:1px solid #aeb8c2!important;box-shadow:inset 0 0 35px #0008!important}
+.tier-d .tier-label{background:linear-gradient(145deg,#343a40,#5a6269 48%,#292e33)!important;border-right:1px solid #d4dde455!important}
+.tier-d .tier-label>b{color:#f0f4f7!important;text-shadow:0 0 8px #d7e1e8,3px 4px 0 #24282b!important}
+.tier-d .player{background:#ffffff08!important;border-color:#d4dde41d!important}
+.tier-d .player:hover{box-shadow:0 10px 22px #000b,0 0 14px #c9d3dc1c!important}
+
+/* F — COBBLE/STONE: cracked, worn, lowest material */
+.tier-f{background:linear-gradient(125deg,#101010,#242322 45%,#131313)!important;border:1px solid #77736f!important;box-shadow:inset 0 0 45px #000b!important}
+.tier-f:after{opacity:.42;background-image:repeating-linear-gradient(145deg,transparent 0 23px,#aaa49b0d 24px 26px,transparent 27px 48px),repeating-linear-gradient(35deg,transparent 0 37px,#0008 38px 41px,transparent 42px 70px)!important}
+.tier-f .tier-label{background:linear-gradient(145deg,#292826,#45423e 48%,#22211f)!important;border-right:1px solid #aaa49b44!important}
+.tier-f .tier-label>b{color:#d3cec7!important;text-shadow:3px 4px 0 #151413!important}
+.tier-f .player{background:#ffffff05!important;border-color:#ffffff10!important}
+.tier-f .player:hover{box-shadow:0 8px 20px #000b!important}
+
+/* Shared mineral highlights */
+.tier-label small{position:relative;z-index:3!important}
+.tier-s .tier-label small{color:#d8c5f2!important}.tier-a .tier-label small{color:#b9f7ff!important}.tier-b .tier-label small{color:#bfffd9!important}.tier-c .tier-label small{color:#ffeab0!important}.tier-d .tier-label small{color:#d5dde3!important}.tier-f .tier-label small{color:#b6b0aa!important}
+
+@media(max-width:760px){
+ .tier{border-radius:12px!important}
+ .tier-label{border-radius:11px 11px 0 0!important;border-right:0!important}
+ .tier:hover{transform:translateY(-3px)!important}
+}
+@media(prefers-reduced-motion:reduce){.tier,.player{transition:none!important}.tier:hover,.player:hover{transform:none!important}}
