@@ -1,4 +1,4 @@
-# Inferno Rankings
+# Element SMP Tier List
 
 A fire-themed Minecraft points tier list. The top three scores are always S tier; everyone else is placed from A through F by their points.
 
