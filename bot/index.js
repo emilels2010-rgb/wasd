@@ -9,7 +9,7 @@ const github = new Octokit({ auth: process.env.GITHUB_TOKEN });
 const commands = [new SlashCommandBuilder().setName('givetier').setDescription('Set a player’s Element SMP ranking points').addStringOption(option => option.setName('player').setDescription('Minecraft Java username').setRequired(true)).addIntegerOption(option => option.setName('points').setDescription('New total points').setMinValue(0).setRequired(true)).setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild).toJSON()];
 
 async function getPlayers() {
-  const response = await github.repos.getContent({ ...config, path: config.path });
+  const response = await github.repos.getContent({ owner: config.owner, repo: config.repo, path: config.path, ref: config.branch });
   if (Array.isArray(response.data) || response.data.type !== 'file') throw new Error('Player data file was not found.');
   const decoded = Buffer.from(response.data.content, 'base64').toString('utf8');
   const players = JSON.parse(decoded);
@@ -17,7 +17,7 @@ async function getPlayers() {
 }
 async function savePlayers(players, sha, actor) {
   const content = Buffer.from(`${JSON.stringify(players, null, 2)}\n`).toString('base64');
-  await github.repos.createOrUpdateFileContents({ ...config, path: config.path, sha, content, message: `tier: update by ${actor}` });
+  await github.repos.createOrUpdateFileContents({ owner: config.owner, repo: config.repo, branch: config.branch, path: config.path, sha, content, message: `tier: update by ${actor}` });
 }
 function isStaff(interaction) {
   if (interaction.memberPermissions?.has(PermissionFlagsBits.ManageGuild)) return true;
