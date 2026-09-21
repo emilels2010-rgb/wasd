@@ -30,3 +30,27 @@ footer{align-items:flex-start!important;gap:24px!important}
   .player strong{font-size:11px!important}
   footer{flex-direction:column!important}
 }
+
+/* Animated supplied artwork over a smooth charcoal backdrop. */
+body {
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 105%, #282b30 0%, #15171a 48%, #090a0c 100%) !important;
+  background-attachment: fixed !important;
+}
+body:before {
+  background:
+    radial-gradient(ellipse 78% 65% at 50% 48%, transparent 0%, #07080966 66%, #030405e6 100%),
+    linear-gradient(180deg, #090a0c33 0%, #0d0f12a8 56%, #050607e8 100%) !important;
+  opacity: 1 !important;
+}
+body:after {
+  height: 100vh !important;
+  inset: 0 !important;
+  background: url('/assets/element-bg.gif') center 70% / min(100vw, 760px) auto no-repeat !important;
+  opacity: .22 !important;
+  mix-blend-mode: screen !important;
+  filter: saturate(.82) contrast(1.08) !important;
+}
+.pixel-sky,
+.pixel-fire { display: none !important; }
+main { isolation: isolate; }
