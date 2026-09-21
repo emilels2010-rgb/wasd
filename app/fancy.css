@@ -45,8 +45,8 @@ body:before {
 }
 body:after {
   position: fixed !important;
-  height: 48vh !important;
-  min-height: 260px !important;
+  height: 100vw !important;
+  min-height: 0 !important;
   top: auto !important;
   right: 0 !important;
   bottom: 0 !important;
