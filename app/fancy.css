@@ -25,7 +25,7 @@ body{background:linear-gradient(to bottom,#7ea4ef 0%,#a9c4f4 28%,#e8f0fc 48%,#f5
 .pname small{white-space:nowrap!important}
 .avatar{position:relative!important;display:grid!important;place-items:center!important;overflow:hidden!important}
 .avatar-image{width:100%!important;height:100%!important;display:block!important;object-fit:cover!important;image-rendering:pixelated!important}
-.avatar-image{object-fit:contain!important;object-position:center center!important;transform:scale(1.04)!important;filter:drop-shadow(0 4px 5px #000b)!important;background:#050607!important}
+.avatar-image{object-fit:cover!important;object-position:center 42%!important;transform:scale(1.58)!important;filter:drop-shadow(0 4px 5px #000b)!important;background:transparent!important}
 .avatar-fallback{font-family:"Courier New",monospace!important;font-size:18px!important;font-weight:900!important;color:#ffe2a2!important;text-shadow:0 2px 5px #000!important}
 .hero-copy,.subhead,.steps p{max-width:100%!important;overflow-wrap:anywhere!important}
 footer{align-items:flex-start!important;gap:24px!important}
