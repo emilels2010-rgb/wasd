@@ -68,7 +68,7 @@ main { isolation: isolate; }
   padding: 14px 0 !important;
   background: transparent !important;
   border: 0 !important;
-  border-bottom: 1px solid #ffffff22 !important;
+  border-bottom: 0 !important;
   border-radius: 0 !important;
   box-shadow: none !important;
   position: relative !important;
