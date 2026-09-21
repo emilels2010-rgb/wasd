@@ -92,3 +92,22 @@ main { isolation: isolate; }
   border-radius: 0 !important;
   box-shadow: none !important;
 }
+
+/* Deep ember atmosphere: red/fire replaces the old charcoal field. */
+body {
+  background:
+    radial-gradient(ellipse 72% 52% at 50% 108%, #a52b0d 0%, #59150d 32%, #220a0a 63%, #090405 100%) !important;
+}
+body:before {
+  background:
+    radial-gradient(ellipse 42% 34% at 52% 88%, #ff641f44 0%, #a51e0c22 48%, transparent 76%),
+    radial-gradient(ellipse 70% 58% at 14% 76%, #8e160c33 0%, transparent 70%),
+    radial-gradient(ellipse 64% 58% at 86% 82%, #d63d1028 0%, transparent 72%),
+    linear-gradient(180deg, #17040744 0%, #4e100b66 58%, #0b0304c9 100%) !important;
+  animation: ember-bloom 10s ease-in-out infinite alternate !important;
+}
+@keyframes ember-bloom {
+  0% { opacity: .72; transform: scale(1); }
+  50% { opacity: .96; transform: scale(1.025); }
+  100% { opacity: .78; transform: scale(1.01); }
+}
