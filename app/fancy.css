@@ -60,7 +60,7 @@ body:after {
 .pixel-sky,
 .pixel-fire { display: none !important; }
 main { isolation: isolate; }
-.rankings { position: relative; z-index: 2; background: #090a0c !important; }
+.rankings { position: relative; z-index: 2; background: transparent !important; }
 .nav {
   min-height: 64px !important;
   height: auto !important;
