@@ -44,15 +44,18 @@ body:before {
   opacity: 1 !important;
 }
 body:after {
-  height: 660px !important;
-  top: 0 !important;
+  position: fixed !important;
+  height: 48vh !important;
+  min-height: 260px !important;
+  top: auto !important;
   right: 0 !important;
-  bottom: auto !important;
+  bottom: 0 !important;
   left: 0 !important;
-  background: url('/assets/element-bg.gif') center 78% / min(100vw, 760px) auto no-repeat !important;
+  background: url('/assets/element-bg.gif') center bottom / cover no-repeat !important;
   opacity: 1 !important;
   mix-blend-mode: screen !important;
   filter: saturate(1) contrast(1.08) !important;
+  pointer-events: none !important;
 }
 .pixel-sky,
 .pixel-fire { display: none !important; }
