@@ -1,0 +1,101 @@
+import { mkdir, rm, writeFile } from "node:fs/promises";
+import { resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import { page } from "../worker/index.js";
+
+const API = "https://ps99.biggamesapi.io";
+const projectRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
+const output = process.env.PS99_OUTPUT_DIR
+  ? resolve(process.cwd(), process.env.PS99_OUTPUT_DIR)
+  : resolve(projectRoot, "dist-pages");
+
+async function fetchJson(url) {
+  const response = await fetch(url, {
+    headers: { accept: "application/json" },
+    signal: AbortSignal.timeout(30_000),
+  });
+  if (!response.ok) throw new Error(`${url} returned ${response.status}`);
+  return response.json();
+}
+
+async function fetchThumbnailBatch(ids) {
+  const url = "https://thumbnails.roblox.com/v1/assets?assetIds=" + encodeURIComponent(ids.join(",")) + "&size=420x420&format=Png&isCircular=false";
+  let lastError;
+  for (let attempt = 0; attempt < 4; attempt++) {
+    try {
+      const response = await fetch(url, {
+        headers: { accept: "application/json" },
+        signal: AbortSignal.timeout(30_000),
+      });
+      if (response.ok) return await response.json();
+      lastError = new Error(`Roblox thumbnails returned ${response.status}`);
+      if (response.status !== 429 && response.status < 500) break;
+    } catch (error) {
+      lastError = error;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 1000 * (attempt + 1)));
+  }
+  throw lastError || new Error("Roblox thumbnails request failed");
+}
+
+function collectAssetIds(value, ids = new Set()) {
+  if (!value || typeof value !== "object") return ids;
+  if (Array.isArray(value)) {
+    value.forEach((item) => collectAssetIds(item, ids));
+    return ids;
+  }
+  for (const [key, item] of Object.entries(value)) {
+    if (/thumbnail|icon/i.test(key)) {
+      const matches = String(item || "").match(/\d{5,}/g) || [];
+      matches.forEach((id) => ids.add(id));
+    }
+    collectAssetIds(item, ids);
+  }
+  return ids;
+}
+
+const [eggs, pets, enchants, lootboxes, releases] = await Promise.all([
+  fetchJson(`${API}/api/collection/Eggs`),
+  fetchJson(`${API}/api/collection/Pets`),
+  fetchJson(`${API}/api/collection/Enchants`),
+  fetchJson(`${API}/api/collection/Lootboxes`),
+  fetchJson(`${API}/v1/releases?pageSize=20`),
+]);
+
+const assetIds = Array.from(collectAssetIds([eggs, pets, enchants, lootboxes]));
+const thumbnails = {};
+const batches = [];
+for (let index = 0; index < assetIds.length; index += 100) batches.push(assetIds.slice(index, index + 100));
+for (let index = 0; index < batches.length; index += 4) {
+  const group = batches.slice(index, index + 4);
+  const results = await Promise.all(group.map(async (batch) => {
+    try {
+      return await fetchThumbnailBatch(batch);
+    } catch (error) {
+      console.warn(`Skipping ${batch.length} thumbnail IDs: ${error.message}`);
+      return { data: [] };
+    }
+  }));
+  results.forEach((result) => {
+    (Array.isArray(result?.data) ? result.data : []).forEach((item) => {
+      if (item?.targetId && item?.imageUrl) thumbnails[String(item.targetId)] = item.imageUrl;
+    });
+  });
+}
+
+await rm(output, { recursive: true, force: true });
+await mkdir(output, { recursive: true });
+const generatedAt = new Date().toISOString();
+const settings = '<script>window.PS99_STATIC_MODE=true;window.PS99_DATA_URL="./data.json";window.PS99_THUMBNAILS_URL="./thumbnails.json";</script>';
+const staticPage = page.replace("</head>", `${settings}\n</head>`);
+if (staticPage === page) throw new Error("Could not inject GitHub Pages data settings into the page.");
+
+await Promise.all([
+  writeFile(resolve(output, "index.html"), staticPage, "utf8"),
+  writeFile(resolve(output, "data.json"), JSON.stringify({ eggs, pets, enchants, lootboxes, releases, generated_at: generatedAt }), "utf8"),
+  writeFile(resolve(output, "thumbnails.json"), JSON.stringify(thumbnails), "utf8"),
+  writeFile(resolve(output, ".nojekyll"), "", "utf8"),
+]);
+
+console.log(`Built GitHub Pages snapshot at ${generatedAt} with ${assetIds.length} asset IDs and ${Object.keys(thumbnails).length} thumbnails.`);
+
