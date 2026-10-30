@@ -1,4 +1,4 @@
-name: Deploy Inferno Rankings
+name: Deploy Main Site and PS99 Odds Atlas
 on:
   push:
     branches: [main]
@@ -26,10 +26,18 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec next build
+      - name: Keep the Element SMP tier list at /tierlist/
+        run: |
+          mkdir -p out/tierlist
+          cp out/index.html out/tierlist/index.html
       - name: Build the PS99 odds snapshot
         run: node ps99-odds-atlas/scripts/build-pages.mjs
         env:
-          PS99_OUTPUT_DIR: out/ps99-odds-atlas
+          PS99_OUTPUT_DIR: .ps99-build
+      - name: Publish Odds Atlas at the site root
+        run: |
+          cp -a .ps99-build/. out/
+          rm -rf .ps99-build
       - uses: actions/upload-pages-artifact@v3
         with:
           path: ./out
