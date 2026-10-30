@@ -1,0 +1,964 @@
+const API = "https://ps99.biggamesapi.io";
+
+const page = String.raw`<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1020">
+  <meta name="description" content="Search current Pet Simulator 99 Huge, Titanic, and Gargantuan odds across egg pools, gift bags, chests, and enchant modifiers.">
+  <title>PS99 Odds Atlas</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b1020;
+      --panel: rgba(17, 25, 46, .86);
+      --panel-2: #141e36;
+      --line: rgba(178, 198, 237, .12);
+      --muted: #94a2c0;
+      --text: #f4f7ff;
+      --cyan: #5ce4df;
+      --blue: #77a8ff;
+      --gold: #ffd982;
+      --pink: #eea5ff;
+      --green: #9af0c5;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html { min-height: 100%; scroll-behavior: smooth; }
+    body {
+      min-height: 100vh;
+      margin: 0;
+      color: var(--text);
+      background:
+        radial-gradient(ellipse at 78% 4%, rgba(56, 87, 174, .22), transparent 33rem),
+        radial-gradient(ellipse at 12% 18%, rgba(40, 173, 168, .12), transparent 28rem),
+        linear-gradient(180deg, #0b1020 0%, #0d1427 55%, #0b1020 100%);
+      -webkit-font-smoothing: antialiased;
+    }
+    body::before {
+      position: fixed; inset: 0; pointer-events: none; content: ""; opacity: .12;
+      background-image: radial-gradient(rgba(195, 215, 255, .28) .7px, transparent .7px);
+      background-size: 22px 22px; mask-image: linear-gradient(to bottom, black, transparent 80%);
+    }
+    button, input { font: inherit; }
+    button { color: inherit; }
+    .shell { width: min(1220px, calc(100% - 36px)); margin: 0 auto; position: relative; }
+    .topbar { height: 76px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); }
+    .brand { display: flex; align-items: center; gap: 12px; color: var(--text); text-decoration: none; font-weight: 800; letter-spacing: .08em; font-size: 13px; }
+    .brand-mark { width: 34px; height: 34px; border-radius: 11px; display: grid; place-items: center; color: #071318; background: linear-gradient(135deg, #91fff0, #73b8ff 72%); box-shadow: 0 0 28px rgba(92, 228, 223, .2); font-size: 13px; letter-spacing: -.06em; }
+    .brand small { display: block; color: var(--muted); font-weight: 600; letter-spacing: .14em; font-size: 9px; margin-top: 3px; }
+    .top-meta { display: flex; align-items: center; gap: 14px; color: var(--muted); font-size: 12px; }
+    .live-pill { display: inline-flex; align-items: center; gap: 7px; padding: 7px 10px; border: 1px solid rgba(154, 240, 197, .2); border-radius: 999px; color: #b5f7d5; background: rgba(80, 196, 139, .07); font-size: 10px; letter-spacing: .12em; font-weight: 800; text-transform: uppercase; }
+    .live-dot { width: 6px; height: 6px; border-radius: 50%; background: #6ef0aa; box-shadow: 0 0 10px #6ef0aa; }
+    .hero { padding: 60px 0 32px; display: grid; grid-template-columns: minmax(0, 1fr) 250px; gap: 30px; align-items: end; }
+    .eyebrow { display: flex; align-items: center; gap: 9px; color: var(--cyan); letter-spacing: .17em; text-transform: uppercase; font-size: 10px; font-weight: 800; }
+    .eyebrow::before { width: 22px; height: 1px; background: var(--cyan); content: ""; }
+    h1 { margin: 17px 0 14px; font-size: clamp(36px, 5.5vw, 64px); line-height: .99; letter-spacing: -.055em; font-weight: 800; max-width: 720px; }
+    h1 span { color: var(--cyan); }
+    .hero-copy { max-width: 650px; margin: 0; color: #aab7d1; font-size: 15px; line-height: 1.7; }
+    .hero-side { padding: 16px 17px; border: 1px solid var(--line); border-radius: 15px; background: rgba(18, 28, 51, .76); }
+    .side-label { color: var(--muted); font-size: 10px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+    .release-line { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; gap: 10px; }
+    .release-number { font-size: 17px; font-weight: 750; letter-spacing: -.02em; }
+    .release-state { color: var(--green); font-size: 11px; }
+    .release-time { margin-top: 6px; color: var(--muted); font-size: 11px; }
+    .toolbar { display: flex; gap: 12px; align-items: center; margin: 7px 0 18px; }
+    .searchbox { min-width: 0; flex: 1; position: relative; }
+    .searchbox svg { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; stroke: #8fa0c4; }
+    .searchbox input { width: 100%; height: 50px; padding: 0 48px; border-radius: 13px; color: var(--text); background: rgba(17, 25, 46, .92); border: 1px solid var(--line); outline: none; transition: border-color .18s, box-shadow .18s; }
+    .searchbox input::placeholder { color: #7584a4; }
+    .searchbox input:focus { border-color: rgba(92, 228, 223, .55); box-shadow: 0 0 0 3px rgba(92, 228, 223, .09); }
+    .search-hint { position: absolute; right: 13px; top: 50%; transform: translateY(-50%); color: #73809f; border: 1px solid rgba(178, 198, 237, .14); border-radius: 6px; padding: 3px 6px; font-size: 10px; }
+    .refresh-btn { height: 50px; min-width: 116px; display: inline-flex; justify-content: center; align-items: center; gap: 9px; padding: 0 16px; border: 1px solid rgba(92, 228, 223, .25); border-radius: 13px; color: var(--cyan); background: rgba(92, 228, 223, .07); cursor: pointer; font-size: 12px; font-weight: 750; transition: background .18s, transform .18s; }
+    .refresh-btn:hover { background: rgba(92, 228, 223, .13); transform: translateY(-1px); }
+    .refresh-btn svg { width: 15px; height: 15px; stroke: currentColor; }
+    .refresh-btn.spinning svg { animation: spin .8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 11px; margin: 0 0 26px; }
+    .stat { min-height: 77px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 14px; background: linear-gradient(135deg, rgba(22, 32, 58, .82), rgba(15, 23, 42, .64)); }
+    .stat-label { color: var(--muted); font-size: 10px; font-weight: 750; letter-spacing: .12em; text-transform: uppercase; }
+    .stat-value { margin-top: 7px; font-size: 22px; line-height: 1; letter-spacing: -.04em; font-weight: 800; }
+    .stat-value.cyan { color: var(--cyan); }
+    .stat-value.gold { color: var(--gold); }
+    .coverage-note { display: flex; gap: 12px; padding: 14px 16px; margin-bottom: 25px; border: 1px solid rgba(255, 217, 130, .17); border-radius: 13px; background: rgba(125, 92, 33, .09); color: #d8c89e; font-size: 12px; line-height: 1.6; }
+    .coverage-note strong { color: #ffe5a6; }
+    .coverage-icon { flex: 0 0 22px; width: 22px; height: 22px; display: grid; place-items: center; border-radius: 7px; color: var(--gold); background: rgba(255, 217, 130, .12); font-weight: 900; }
+    .section-head { display: flex; justify-content: space-between; align-items: end; gap: 16px; margin: 29px 0 15px; }
+    .section-title { margin: 0; font-size: 21px; letter-spacing: -.035em; }
+    .section-subtitle { margin: 5px 0 0; color: var(--muted); font-size: 12px; }
+    .result-count { color: var(--muted); font-size: 11px; }
+    .filter-groups { display: grid; gap: 11px; padding: 13px 15px; margin: 8px 0 16px; border: 1px solid var(--line); border-radius: 15px; background: rgba(17, 25, 46, .68); }
+    .filter-group { display: grid; grid-template-columns: 72px minmax(0, 1fr); align-items: center; gap: 10px; }
+    .filter-label { color: #8594b2; font-size: 9px; font-weight: 850; letter-spacing: .14em; }
+    .filters { display: flex; gap: 7px; overflow-x: auto; padding: 1px 0; scrollbar-width: none; }
+    .filters::-webkit-scrollbar { display: none; }
+    .filter-btn { flex: 0 0 auto; border: 1px solid rgba(178, 198, 237, .15); background: rgba(31, 43, 69, .68); color: #a8b4ce; padding: 8px 11px; border-radius: 8px; cursor: pointer; font-size: 10px; font-weight: 750; transition: all .16s; }
+    .filter-btn:hover { color: var(--text); border-color: rgba(92, 228, 223, .28); }
+    .filter-btn.active { color: #09251f; background: linear-gradient(180deg, #b2ffe0, #6be6b8); border-color: #a4f8d6; box-shadow: 0 2px 0 rgba(255,255,255,.16) inset, 0 3px 12px rgba(64, 220, 163, .13); }
+    [data-kind="titanic"].active { color: #332409; background: linear-gradient(180deg, #fff0ae, #f1bd53); border-color: #ffe6a0; box-shadow: 0 2px 0 rgba(255,255,255,.2) inset, 0 3px 12px rgba(243, 184, 70, .16); }
+    [data-kind="gargantuan"].active { color: #231139; background: linear-gradient(180deg, #f3c8ff, #bc82f4); border-color: #e2b4ff; box-shadow: 0 2px 0 rgba(255,255,255,.2) inset, 0 3px 12px rgba(181, 110, 255, .2); }
+    .cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 13px; }
+    .pet-card { position: relative; padding: 15px; border: 1px solid var(--line); border-radius: 16px; background: linear-gradient(160deg, rgba(23, 34, 61, .93), rgba(15, 23, 42, .96)); min-width: 0; transition: transform .18s, border-color .18s, box-shadow .18s; }
+    .pet-card:hover { transform: translateY(-3px); border-color: rgba(92, 228, 223, .3); box-shadow: 0 14px 40px rgba(0, 0, 0, .18); }
+    .pet-top { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .pet-open { display: block; width: 64px; height: 64px; flex: 0 0 64px; padding: 0; border: 0; border-radius: 0; overflow: hidden; background: radial-gradient(circle at 36% 26%, #254766, #12253c 75%); cursor: pointer; box-shadow: inset 0 0 0 1px rgba(163, 228, 246, .14); }
+    .pet-open img { width: 100%; height: 100%; object-fit: contain; transition: transform .2s; }
+    .pet-open:hover img { transform: scale(1.1); }
+    .pet-placeholder { width: 100%; height: 100%; display: grid; place-items: center; color: var(--cyan); font-size: 24px; font-weight: 800; }
+    .pet-title-wrap { min-width: 0; flex: 1; }
+    .pet-name { margin: 0; font-size: 14px; line-height: 1.3; letter-spacing: -.015em; overflow-wrap: anywhere; }
+    .pet-kind { display: inline-flex; margin-top: 7px; padding: 4px 7px; border-radius: 999px; font-size: 9px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+    .pet-kind.huge { color: #a4f6dc; background: rgba(81, 209, 158, .11); border: 1px solid rgba(81, 209, 158, .16); }
+    .pet-kind.titanic { color: #ffe39f; background: rgba(255, 217, 130, .11); border: 1px solid rgba(255, 217, 130, .17); }
+    .pet-kind.gargantuan { color: #edc8ff; background: rgba(184, 112, 244, .15); border: 1px solid rgba(210, 162, 255, .25); }
+    .pet-kind.egg { color: #a6efff; background: rgba(88, 185, 218, .12); border: 1px solid rgba(88, 185, 218, .2); }
+    .pet-kind.gift { color: #ffe2a3; background: rgba(225, 169, 70, .13); border: 1px solid rgba(225, 169, 70, .2); }
+    .pet-kind.chest { color: #d6c0ff; background: rgba(150, 106, 218, .13); border: 1px solid rgba(150, 106, 218, .2); }
+    .pet-kind.other { color: #cad7ef; background: rgba(130, 153, 196, .12); border: 1px solid rgba(130, 153, 196, .18); }
+    .pet-name.huge { color: #b8ffe4; }
+    .pet-name.titanic { color: #ffe5a0; text-shadow: 0 0 14px rgba(255, 218, 122, .15); }
+    .pet-name.gargantuan { color: #eccaff; text-shadow: 0 0 14px rgba(192, 118, 255, .2); }
+    .pool-count { margin-left: auto; align-self: flex-start; white-space: nowrap; color: #8d9bb8; font-size: 10px; }
+    .card-divider { height: 1px; margin: 14px 0 10px; background: var(--line); }
+    .source-list { display: grid; gap: 7px; }
+    .source-row { width: 100%; display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; align-items: center; gap: 9px; padding: 5px; margin: 0; text-align: left; border: 1px solid transparent; border-radius: 10px; background: transparent; cursor: pointer; transition: background .15s, border-color .15s; }
+    .source-row:hover, .source-row:focus-visible { outline: none; background: rgba(100, 143, 196, .1); border-color: rgba(132, 170, 217, .16); }
+    .source-thumb { position: relative; width: 34px; height: 34px; display: grid; place-items: center; overflow: visible; border-radius: 10px; background: linear-gradient(145deg, rgba(98, 127, 189, .22), rgba(48, 66, 107, .22)); }
+    .source-thumb img { width: 100%; height: 100%; object-fit: contain; border-radius: 9px; }
+    .source-fallback { color: #a8d6ed; font-size: 15px; }
+    .source-thumb { border: 1px solid rgba(178, 198, 237, .17); cursor: help; }
+    .source-meta { min-width: 0; }
+    .source-name { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #d8e1f2; font-size: 11px; font-weight: 700; }
+    .source-status { display: block; margin-top: 4px; color: #8392af; font-size: 9px; }
+    .source-odds { color: var(--cyan); white-space: nowrap; text-align: right; font-size: 11px; font-weight: 800; }
+    .source-odds small { display: block; margin-top: 3px; color: #8a9aba; font-size: 9px; font-weight: 600; }
+    .more-sources { margin: 4px 0 0 5px; color: #7e8daa; font-size: 10px; }
+    .empty { grid-column: 1 / -1; padding: 40px 20px; border: 1px dashed rgba(178, 198, 237, .2); border-radius: 16px; color: var(--muted); text-align: center; background: rgba(18, 28, 51, .35); }
+    .empty strong { display: block; color: #e8eefb; font-size: 14px; margin-bottom: 7px; }
+    .no-odds { padding: 10px 11px; border: 1px dashed rgba(178, 198, 237, .16); border-radius: 10px; color: #9ba9c4; background: rgba(8, 14, 27, .26); font-size: 10px; line-height: 1.5; }
+    .load-more { display: block; margin: 18px auto 0; padding: 11px 16px; border: 1px solid rgba(92, 228, 223, .25); border-radius: 10px; color: var(--cyan); background: rgba(92, 228, 223, .07); cursor: pointer; font-size: 11px; font-weight: 800; }
+    .load-more:hover { background: rgba(92, 228, 223, .13); }
+    .source-panel { display: none; }
+    .source-panel.visible { display: block; }
+    .panel-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 13px; }
+    .modifier-card { min-height: 180px; display: flex; flex-direction: column; padding: 16px; border: 1px solid var(--line); border-radius: 16px; background: linear-gradient(155deg, rgba(23, 34, 61, .9), rgba(15, 23, 42, .96)); cursor: pointer; transition: transform .18s, border-color .18s; }
+    .modifier-card:hover { transform: translateY(-3px); border-color: rgba(238, 165, 255, .34); }
+    .modifier-top { display: flex; align-items: center; gap: 11px; }
+    .modifier-icon { width: 48px; height: 48px; display: grid; place-items: center; flex: 0 0 48px; border-radius: 14px; background: rgba(191, 126, 229, .11); overflow: hidden; }
+    .modifier-icon img { width: 100%; height: 100%; object-fit: contain; }
+    .modifier-icon span { font-size: 21px; color: var(--pink); }
+    .modifier-name { margin: 0; font-size: 13px; line-height: 1.3; }
+    .modifier-class { margin-top: 5px; color: #c6a7df; font-size: 9px; text-transform: uppercase; font-weight: 800; letter-spacing: .11em; }
+    .modifier-copy { margin: 14px 0 12px; color: #aab7d1; font-size: 11px; line-height: 1.55; }
+    .modifier-value { margin-top: auto; color: var(--pink); font-size: 11px; font-weight: 800; }
+    .unavailable-card { padding: 21px; display: flex; gap: 14px; border-radius: 16px; border: 1px solid rgba(255, 217, 130, .16); background: rgba(125, 92, 33, .08); }
+    .unavailable-icon { width: 42px; height: 42px; flex: 0 0 42px; display: grid; place-items: center; border-radius: 13px; color: var(--gold); background: rgba(255, 217, 130, .1); font-size: 20px; }
+    .unavailable-card h3 { margin: 1px 0 7px; font-size: 14px; }
+    .unavailable-card p { max-width: 760px; margin: 0; color: #b8aa89; font-size: 11px; line-height: 1.6; }
+    .unavailable-card strong { color: #f3dda9; }
+    .section-foot { margin: 13px 0 0; color: #7887a4; font-size: 10px; line-height: 1.6; }
+    .footer { display: flex; align-items: center; justify-content: space-between; gap: 15px; margin-top: 46px; padding: 19px 0 26px; border-top: 1px solid var(--line); color: #7786a4; font-size: 10px; }
+    .footer a { color: #8fd7dc; text-decoration: none; }
+    .footer a:hover { text-decoration: underline; }
+    .loading { display: grid; grid-template-columns: repeat(3, 1fr); gap: 13px; }
+    .skeleton { height: 154px; border: 1px solid var(--line); border-radius: 16px; background: linear-gradient(100deg, rgba(21, 31, 56, .6) 25%, rgba(42, 56, 89, .45) 38%, rgba(21, 31, 56, .6) 62%); background-size: 400% 100%; animation: shimmer 1.4s ease infinite; }
+    @keyframes shimmer { 0% { background-position: 100% 0; } 100% { background-position: 0 0; } }
+    dialog { width: min(590px, calc(100% - 28px)); max-height: min(82vh, 760px); padding: 0; color: var(--text); border: 1px solid rgba(178, 198, 237, .2); border-radius: 19px; background: #111a30; box-shadow: 0 28px 100px rgba(0, 0, 0, .65); }
+    dialog::backdrop { background: rgba(2, 5, 12, .73); backdrop-filter: blur(7px); }
+    .modal-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 15px; padding: 19px 20px 14px; border-bottom: 1px solid var(--line); }
+    .modal-kicker { color: var(--cyan); font-size: 9px; font-weight: 850; letter-spacing: .15em; text-transform: uppercase; }
+    .modal-title { margin: 7px 0 0; font-size: 20px; letter-spacing: -.035em; }
+    .modal-close { width: 31px; height: 31px; flex: 0 0 31px; border: 1px solid var(--line); border-radius: 9px; color: #aab7d1; background: rgba(108, 126, 162, .1); cursor: pointer; font-size: 17px; }
+    .modal-content { padding: 17px 20px 22px; overflow: auto; }
+    .modal-hero { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+    .modal-image { width: 78px; height: 78px; flex: 0 0 78px; display: grid; place-items: center; overflow: hidden; border-radius: 0; background: radial-gradient(circle at 35% 30%, #254766, #12253c 75%); }
+    .modal-image img { width: 100%; height: 100%; object-fit: contain; }
+    .modal-desc { color: #aab7d1; font-size: 12px; line-height: 1.6; }
+    .modal-label { margin: 17px 0 8px; color: #8796b4; font-size: 9px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+    .modal-source { display: grid; grid-template-columns: 38px 1fr auto; gap: 10px; align-items: center; padding: 8px; border-bottom: 1px solid rgba(178, 198, 237, .08); }
+    .modal-source img { width: 38px; height: 38px; object-fit: contain; border-radius: 10px; background: rgba(91, 117, 169, .12); }
+    .modal-source-name { font-size: 11px; font-weight: 750; }
+    .modal-source-sub { margin-top: 4px; color: #8090ad; font-size: 9px; }
+    .modal-odds { color: var(--cyan); text-align: right; font-size: 11px; font-weight: 850; white-space: nowrap; }
+    .game-tip[hidden] { display: none; }
+    .game-tip { position: fixed; z-index: 1000; width: min(318px, calc(100vw - 24px)); padding: 0; overflow: hidden; border: 2px solid #b5becd; border-radius: 9px; color: #f6f7fb; background: linear-gradient(145deg, #24324a, #131c2d 72%); box-shadow: 0 10px 30px rgba(0, 0, 0, .62), 0 0 0 2px rgba(12, 17, 28, .9); pointer-events: none; font-family: Inter, ui-sans-serif, system-ui, sans-serif; }
+    .game-tip.kind-huge { border-color: #9be8c8; }
+    .game-tip.kind-titanic { border-color: #f3cf77; }
+    .game-tip.kind-gargantuan { border-color: #d19aff; }
+    .game-tip.kind-enchant { border-color: #d19aff; }
+    .game-tip.kind-huge .game-tip-image, .game-tip.kind-titanic .game-tip-image, .game-tip.kind-gargantuan .game-tip-image { border-radius: 0; }
+    .game-tip-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 7px 10px; border-bottom: 1px solid rgba(255,255,255,.16); background: linear-gradient(90deg, rgba(61, 82, 115, .94), rgba(34, 47, 70, .96)); }
+    .game-tip.kind-huge .game-tip-head { background: linear-gradient(90deg, #217b64, #245846); }
+    .game-tip.kind-titanic .game-tip-head { background: linear-gradient(90deg, #9b6824, #584420); }
+    .game-tip.kind-gargantuan .game-tip-head { background: linear-gradient(90deg, #773eb0, #442465); }
+    .game-tip.kind-enchant .game-tip-head { background: linear-gradient(90deg, #773eb0, #442465); }
+    .game-tip-title { min-width: 0; font-size: 12px; font-weight: 900; line-height: 1.25; text-shadow: 0 1px 2px #111; }
+    .game-tip-rarity { flex: 0 0 auto; padding: 3px 6px; border: 1px solid rgba(255,255,255,.24); border-radius: 5px; background: rgba(9, 13, 23, .42); color: #fff; font-size: 8px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+    .game-tip-body { display: grid; grid-template-columns: 72px minmax(0,1fr); gap: 10px; padding: 10px; }
+    .game-tip-image { width: 72px; height: 72px; display: grid; place-items: center; overflow: hidden; border: 1px solid rgba(255,255,255,.18); border-radius: 8px; background: radial-gradient(circle at 50% 42%, #526580, #202b3e 72%); box-shadow: inset 0 1px 8px rgba(0,0,0,.3); }
+    .game-tip-image img { width: 100%; height: 100%; object-fit: contain; }
+    .game-tip-image span { color: #e6eaf2; font-size: 27px; font-weight: 950; }
+    .game-tip-copy { min-width: 0; align-self: center; }
+    .game-tip-subtitle { color: #d8deeb; font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; }
+    .game-tip-desc { margin-top: 5px; color: #bac4d5; font-size: 9px; line-height: 1.45; }
+    .game-tip-foot { display: grid; gap: 5px; padding: 7px 10px 9px; border-top: 1px solid rgba(255,255,255,.13); background: rgba(5, 9, 17, .27); }
+    .game-tip-line { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; color: #b9c4d4; font-size: 9px; line-height: 1.35; }
+    .game-tip-line span:first-child { flex: 0 0 auto; color: #8797ad; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; }
+    .game-tip-line strong { color: #fff; text-align: right; font-size: 9px; font-weight: 850; }
+    .game-tip-line strong.chance { color: #ffe083; }
+    .game-tip-line strong.gargantuan { color: #e1b7ff; }
+    .error-line { margin: 0 0 14px; padding: 11px 13px; border-radius: 11px; color: #ffc8cb; background: rgba(181, 65, 76, .11); border: 1px solid rgba(255, 127, 140, .15); font-size: 11px; }
+    .muted { color: var(--muted); }
+    @media (max-width: 900px) { .cards, .panel-grid, .loading { grid-template-columns: repeat(2, minmax(0, 1fr)); } .hero { grid-template-columns: 1fr 220px; } }
+    @media (max-width: 650px) {
+      .shell { width: min(100% - 26px, 580px); }
+      .topbar { height: 65px; }
+      .top-meta { gap: 7px; font-size: 10px; }
+      .top-meta .data-source { display: none; }
+      .hero { display: block; padding: 43px 0 25px; }
+      h1 { font-size: clamp(38px, 12vw, 54px); }
+      .hero-copy { font-size: 13px; }
+      .hero-side { margin-top: 19px; }
+      .toolbar { gap: 8px; }
+      .refresh-btn { min-width: 48px; width: 48px; padding: 0; font-size: 0; }
+      .refresh-btn svg { width: 18px; height: 18px; }
+      .stats { grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 18px; }
+      .stat { min-height: 68px; padding: 12px; }
+      .stat-value { font-size: 20px; }
+      .coverage-note { font-size: 11px; }
+      .cards, .panel-grid, .loading { grid-template-columns: 1fr; }
+      .pet-card { padding: 13px; }
+      .filter-group { grid-template-columns: 1fr; gap: 6px; }
+      .game-tip { width: min(300px, calc(100vw - 18px)); }
+      .footer { align-items: flex-start; flex-direction: column; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; } }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <a class="brand" href="#top" aria-label="PS99 Odds Atlas home">
+        <span class="brand-mark">99</span>
+        <span>ODDS ATLAS<small>PET SIMULATOR 99</small></span>
+      </a>
+      <div class="top-meta">
+        <span class="data-source">BIG Games public game data</span>
+        <span class="live-pill" id="livePill"><i class="live-dot"></i><span>Connecting</span></span>
+      </div>
+    </header>
+
+    <main id="top">
+      <section class="hero">
+        <div>
+          <div class="eyebrow">The rare pet field guide</div>
+          <h1>Find the odds.<br><span>Pick your hunt.</span></h1>
+          <p class="hero-copy">Search every Huge, Titanic, and Gargantuan listed in the game feed. See odds where they’re published, plus game source notes for pets without a public chance table.</p>
+        </div>
+        <aside class="hero-side" aria-label="Latest game data update">
+          <div class="side-label">Latest game data</div>
+          <div class="release-line"><span class="release-number" id="releaseNumber">Checking…</span><span class="release-state" id="releaseState">Live feed</span></div>
+          <div class="release-time" id="releaseTime">Waiting for the public API</div>
+        </aside>
+      </section>
+
+      <div class="toolbar">
+        <label class="searchbox">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"></circle><path d="m16 16 5 5"></path></svg>
+          <input id="search" type="search" autocomplete="off" placeholder="Search a pet, egg, gift bag, or enchant…" aria-label="Search pets and odds sources">
+          <span class="search-hint">/</span>
+        </label>
+        <button class="refresh-btn" id="refresh" type="button" aria-label="Refresh game data" title="Refresh now">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5"></path><path d="M5.5 9a7 7 0 0 1 11.8-2L20 12M4 12l2.7 5a7 7 0 0 0 11.8-2"></path></svg>
+          Refresh
+        </button>
+      </div>
+
+      <section class="stats" aria-label="Tracker overview">
+        <div class="stat"><div class="stat-label">Rare pet records</div><div class="stat-value cyan" id="statPets">—</div></div>
+        <div class="stat"><div class="stat-label">Odds pools</div><div class="stat-value" id="statPools">—</div></div>
+        <div class="stat"><div class="stat-label">Gift pools</div><div class="stat-value gold" id="statGifts">—</div></div>
+        <div class="stat"><div class="stat-label">Modifiers</div><div class="stat-value" id="statModifiers">—</div></div>
+      </section>
+
+      <div class="coverage-note" role="note">
+        <span class="coverage-icon">i</span>
+        <span><strong>Odds are base pool chances.</strong> The catalog includes every Huge, Titanic, and Gargantuan record in the public pet feed, except pets whose only listed source is an Exclusive Egg. Exclusive Eggs and their odds are excluded. Pet Simulator 99’s public feed does not reliably say which timed sources are still active, so older odds are marked unconfirmed; pets with no published non-exclusive odds remain listed with their game source notes.</span>
+      </div>
+
+      <section aria-labelledby="catalogTitle">
+        <div class="section-head">
+          <div><h2 class="section-title" id="catalogTitle">Huge, Titanic &amp; Gargantuan catalog</h2><p class="section-subtitle" id="catalogSubtitle">Loading the latest game config…</p></div>
+          <span class="result-count" id="resultCount"></span>
+        </div>
+        <div class="filter-groups" id="sourceFilters">
+          <div class="filter-group"><span class="filter-label">SOURCE</span><nav class="filters" aria-label="Filter by source">
+            <button class="filter-btn active" type="button" data-tab="all">All sources</button>
+            <button class="filter-btn" type="button" data-tab="active">Active Huges</button>
+            <button class="filter-btn" type="button" data-tab="egg">Eggs</button>
+            <button class="filter-btn" type="button" data-tab="gift">Gift bags</button>
+            <button class="filter-btn" type="button" data-tab="chest">Chests &amp; drops</button>
+            <button class="filter-btn" type="button" data-tab="other">Other</button>
+            <button class="filter-btn" type="button" data-tab="enchant">Enchants</button>
+          </nav></div>
+          <div class="filter-group"><span class="filter-label">PET TYPE</span><nav class="filters" aria-label="Filter by pet type">
+            <button class="filter-btn active" type="button" data-kind="all" id="allKindFilter">All rare pets</button>
+            <button class="filter-btn" type="button" data-kind="huge" id="hugeKindFilter">Huge</button>
+            <button class="filter-btn" type="button" data-kind="titanic" id="titanicKindFilter">Titanic</button>
+            <button class="filter-btn" type="button" data-kind="gargantuan" id="gargantuanKindFilter">Gargantuan</button>
+          </nav></div>
+        </div>
+        <div id="errorBox"></div>
+        <div class="cards" id="cards" aria-live="polite"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>
+        <button class="load-more" id="loadMore" type="button" hidden>Show more pets</button>
+        <div class="source-panel" id="specialPanel"></div>
+        <p class="section-foot" id="dataFoot"></p>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span>Odds Atlas is a fan-made reference. Pet Simulator 99 and its assets belong to BIG Games.</span>
+      <span>Data: <a href="https://ps99.biggamesapi.io/" target="_blank" rel="noreferrer">BIG Games API</a> · <span id="lastChecked">Not synced yet</span></span>
+    </footer>
+  </div>
+
+  <dialog id="detailModal" aria-labelledby="modalTitle">
+    <div class="modal-head"><div><div class="modal-kicker" id="modalKicker">Odds details</div><h2 class="modal-title" id="modalTitle">Details</h2></div><button class="modal-close" id="closeModal" type="button" aria-label="Close details">×</button></div>
+    <div class="modal-content" id="modalContent"></div>
+  </dialog>
+  <div id="gameTip" class="game-tip" role="tooltip" hidden></div>
+
+  <script>
+    const state = { pools: [], pets: [], modifiers: [], missingChests: [], thumbs: {}, thumbIndex: null, tab: "all", kind: "all", query: "", showLimit: 90, data: null, lastChecked: null, busy: false };
+    const apiCacheKey = "ps99-odds-atlas-cache-v1";
+    const recentDays = 60;
+    const pageSize = 90;
+    let activeGameTip = null;
+    const $ = (id) => document.getElementById(id);
+
+    function esc(value) {
+      return String(value == null ? "" : value).replace(/[&<>"']/g, function(ch) { return ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"})[ch]; });
+    }
+    function assetId(value) {
+      const match = String(value || "").match(/(\d{5,})/);
+      return match ? match[1] : "";
+    }
+    function readData(result) { return result && result.status === "ok" ? result.data : null; }
+    function asArray(value) { return Array.isArray(value) ? value : []; }
+    function parseApiDate(value) { const date = value ? new Date(value) : null; return date && !Number.isNaN(date.getTime()) ? date : null; }
+    function ageInDays(value) {
+      const date = parseApiDate(value);
+      if (!date) return Infinity;
+      return Math.max(0, (Date.now() - date.getTime()) / 86400000);
+    }
+    function labelKind(name, pet) {
+      const config = pet && pet.configData ? pet.configData : {};
+      if (config.gargantuan || /gargantuan/i.test(name)) return "Gargantuan";
+      if (config.titanic || /titanic/i.test(name)) return "Titanic";
+      return "Huge";
+    }
+    function isRarePet(pet) {
+      const config = pet && pet.configData ? pet.configData : {};
+      const name = String(config.name || (pet && pet.configName) || "");
+      return !!(config.huge || config.titanic || config.gargantuan || /\b(Huge|Titanic|Gargantuan)\b/i.test(name));
+    }
+    function hasExclusiveEggOnlyDescription(pet) {
+      const config = pet && pet.configData ? pet.configData : {};
+      const description = String(config.indexDesc || "");
+      return /exclusive\b[^.!\n]*\begg\b|\begg\b[^.!\n]*\bexclusive\b/i.test(description);
+    }
+    function sourceType(entry) {
+      const text = ((entry.configData && entry.configData.name) || entry.configName || "") + " " + (entry.category || "");
+      if (/gift|present|bag|parcel/i.test(text)) return "gift";
+      if (/chest|lootbox|breakable|drop table/i.test(text)) return "chest";
+      if (/\begg\b|hatch/i.test(text)) return "egg";
+      return "other";
+    }
+    function sourceEligibility(entry) {
+      const category = String(entry.category || "");
+      const name = String((entry.configData && entry.configData.name) || entry.configName || "");
+      if (/exclusive eggs/i.test(category) || /^exclusive\b.*\begg\b/i.test(name)) return null;
+      const source = sourceType(entry);
+      const age = ageInDays(entry.dateModified || entry.dateCreated);
+      if (/\bworld\s*\d+\b/i.test(category) || /diamondmountain/i.test(category)) {
+        return age <= recentDays ? { status: "World pool · recently updated", confidence: "recent" } : { status: "World pool in feed · activity unconfirmed", confidence: "unconfirmed" };
+      }
+      if (/hatchwar/i.test(category) && age <= recentDays) return { status: "Seasonal · recently updated", confidence: "recent" };
+      if (/active huge egg/i.test(name) && age <= 120) return { status: "Active Huge pool · recently updated", confidence: "recent" };
+      if (age <= recentDays) return { status: "Recent game config", confidence: "recent" };
+      return { status: "Odds in feed · activity unconfirmed", confidence: "unconfirmed" };
+    }
+    function pctLabel(value) {
+      if (!Number.isFinite(value) || value <= 0) return "—";
+      if (value >= 10) return value.toFixed(1).replace(/\.0$/, "") + "%";
+      if (value >= 0.1) return value.toFixed(2).replace(/0+$/, "").replace(/\.$/, "") + "%";
+      const precise = value.toPrecision(3);
+      if (precise.includes("e")) return precise.replace(/\.?0+(?=e)/, "").replace("e", " × 10^") + "%";
+      return precise.replace(/0+$/, "").replace(/\.$/, "") + "%";
+    }
+    function oneInLabel(value) {
+      if (!Number.isFinite(value) || value < 1) return "";
+      return "1 in " + Math.round(value).toLocaleString("en-US");
+    }
+    function isActiveHugeSource(source) {
+      return /active huge/i.test(source && source.pool && source.pool.name || "");
+    }
+    function sourceMatchesTab(source) {
+      return state.tab === "all" || (state.tab === "active" ? isActiveHugeSource(source) : source.pool.type === state.tab);
+    }
+    function oddsSubLabel(source, item) {
+      return isActiveHugeSource(source) ? "of listed active pool" : oneInLabel(item.oneIn);
+    }
+    function niceDate(value) {
+      const date = parseApiDate(value);
+      if (!date) return "date not supplied";
+      return new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric", year: "numeric" }).format(date);
+    }
+    function getPoolRecords(api) {
+      const eggs = asArray(readData(api.eggs));
+      const pets = asArray(readData(api.pets));
+      const petMap = new Map();
+      pets.forEach(function(pet) {
+        const data = pet.configData || {};
+        const petName = data.name || pet.configName;
+        if (petName) petMap.set(String(petName).toLowerCase(), pet);
+      });
+      const pools = [];
+      eggs.forEach(function(entry) {
+        const availability = sourceEligibility(entry);
+        if (!availability) return;
+        const data = entry.configData || {};
+        const entries = asArray(data.pets).map(function(row) {
+          if (!Array.isArray(row) || row.length < 2) return null;
+          const name = String(row[0] || "");
+          const weight = Number(row[1]);
+          if (!name || !Number.isFinite(weight) || weight <= 0) return null;
+          const pet = petMap.get(name.toLowerCase());
+          if (!/\b(Huge|Titanic|Gargantuan)\b/i.test(name) && !isRarePet(pet)) return null;
+          const kind = labelKind(name, pet);
+          return { name: name, weight: weight, kind: kind, pet: pet || null };
+        }).filter(Boolean);
+        const allRows = asArray(data.pets).filter(function(row) { return Array.isArray(row) && Number(row[1]) > 0; });
+        const total = allRows.reduce(function(sum, row) { return sum + Number(row[1] || 0); }, 0);
+        if (!entries.length || !total) return;
+        const sourceName = String(data.name || entry.configName || "Odds pool");
+        const type = sourceType(entry);
+        const icon = assetId(data.icon || data.Icon || "");
+        const pool = {
+          id: String(entry.configName || sourceName),
+          name: sourceName,
+          category: String(entry.category || "Game pool"),
+          type: type,
+          icon: icon,
+          availability: availability,
+          updated: entry.dateModified || entry.dateCreated || null,
+          total: total,
+          odds: entries.map(function(item) { return Object.assign(item, { pct: item.weight / total * 100, oneIn: total / item.weight }); }),
+          modifiers: { gold: data.goldChance, rainbow: data.rainbowChance, shiny: data.shinyChance, goldDisabled: data.disableGold, rainbowDisabled: data.disableRainbow, shinyDisabled: data.disableModifiers }
+        };
+        pools.push(pool);
+      });
+      pools.sort(function(a, b) { return a.name.localeCompare(b.name); });
+      return pools;
+    }
+    function getModifierRecords(api) {
+      const enchants = asArray(readData(api.enchants));
+      const records = [];
+      enchants.forEach(function(entry) {
+        const config = entry.configData || {};
+        const tiers = asArray(config.Tiers);
+        tiers.forEach(function(tier) {
+          const title = String(tier.DisplayName || entry.configName || "Enchant");
+          const desc = String(tier.Desc || "");
+          if (!/huge|titanic|gargantuan/i.test(title + " " + desc) || !/odds|chance|luck|hatch|roll|random|adds?\s+\d+\s+rare/i.test(desc + " " + title)) return;
+          records.push({
+            id: title,
+            name: title,
+            group: String(entry.category || "Enchant"),
+            description: desc,
+            icon: assetId(tier.Icon || config.PageIcon || ""),
+            value: /breakable mayhem/i.test(title) ? "Rare pet roll · exact rate not published" : /active huge overload/i.test(title) ? "Adds 1 rare Active Huge · +40% Active Huge luck" : /huge hunter/i.test(title) ? "+25% Active Huge hatch odds" : "Chance modifier · see in-game description"
+          });
+        });
+      });
+      const unique = new Map();
+      records.forEach(function(record) { unique.set(record.name, record); });
+      return Array.from(unique.values()).sort(function(a, b) { return a.name.localeCompare(b.name); });
+    }
+    function createCatalog(api, resolveIcons) {
+      state.data = api;
+      state.pools = getPoolRecords(api);
+      state.modifiers = getModifierRecords(api);
+      const petMap = new Map();
+      state.pools.forEach(function(pool) { pool.odds.forEach(function(item) {
+        const key = item.name.toLowerCase();
+        if (!petMap.has(key)) petMap.set(key, { name: item.name, kind: item.kind, pet: item.pet, sources: [] });
+        petMap.get(key).sources.push({ pool: pool, odds: item });
+      }); });
+      asArray(readData(api.pets)).forEach(function(pet) {
+        if (!isRarePet(pet)) return;
+        const config = pet.configData || {};
+        const name = String(config.name || pet.configName || "");
+        if (!name) return;
+        const key = name.toLowerCase();
+        const record = petMap.get(key);
+        if (hasExclusiveEggOnlyDescription(pet) && (!record || !record.sources.length)) return;
+        if (record) { record.pet = pet; record.kind = labelKind(name, pet); }
+        else petMap.set(key, { name: name, kind: labelKind(name, pet), pet: pet, sources: [] });
+      });
+      state.pets = Array.from(petMap.values()).sort(function(a, b) {
+        const rank = { Gargantuan: 0, Titanic: 1, Huge: 2 };
+        if (a.kind !== b.kind) return rank[a.kind] - rank[b.kind];
+        return a.name.localeCompare(b.name);
+      });
+      state.missingChests = [];
+      updateStats();
+      render();
+    }
+    function releaseInfo(api) {
+      const body = readData(api.releases);
+      const releases = body && Array.isArray(body.releases) ? body.releases : [];
+      return releases.find(function(item) { return Number(item.added || 0) + Number(item.changed || 0) > 0; }) || releases[0] || null;
+    }
+    function updateRelease(api) {
+      const release = releaseInfo(api);
+      $("releaseNumber").textContent = release ? "Update " + release.version : "Game data loaded";
+      $("releaseState").textContent = release ? (Number(release.added || 0) + Number(release.changed || 0) > 0 ? "Odds feed" : "Live feed") : "Live feed";
+      $("releaseTime").textContent = release ? "Synced " + niceDate(release.importedAt || release.publishedAt) : "Latest release info unavailable";
+    }
+    function updateStats() {
+      $("statPets").textContent = String(state.pets.length);
+      $("statPools").textContent = String(state.pools.length);
+      $("statGifts").textContent = String(state.pools.filter(function(pool) { return pool.type === "gift"; }).length);
+      $("statModifiers").textContent = String(state.modifiers.length);
+      const counts = { Huge: 0, Titanic: 0, Gargantuan: 0 };
+      state.pets.forEach(function(pet) { counts[pet.kind] = (counts[pet.kind] || 0) + 1; });
+      $("allKindFilter").textContent = "All rare pets · " + state.pets.length;
+      $("hugeKindFilter").textContent = "Huge · " + counts.Huge;
+      $("titanicKindFilter").textContent = "Titanic · " + counts.Titanic;
+      $("gargantuanKindFilter").textContent = "Gargantuan · " + counts.Gargantuan;
+    }
+    function thumb(asset) { return asset && state.thumbs[asset] ? state.thumbs[asset] : ""; }
+    function iconHtml(asset, label, className) {
+      const url = thumb(asset);
+      if (url) return '<img class="' + (className || "") + '" src="' + esc(url) + '" alt="' + esc(label) + '" loading="lazy">';
+      return '<span class="' + (className || "source-fallback") + '" aria-hidden="true">✦</span>';
+    }
+    function getPetAsset(pet) {
+      const config = pet && pet.configData ? pet.configData : {};
+      return assetId(config.thumbnail || config.Thumbnail || config.icon || "");
+    }
+    function uniqueAssetIds() {
+      const ids = new Set();
+      getVisiblePets().slice(0, state.showLimit).forEach(function(pet) {
+        const id = getPetAsset(pet.pet);
+        if (id) ids.add(id);
+        pet.sources.forEach(function(source) { if (source.pool.icon) ids.add(source.pool.icon); });
+      });
+      state.modifiers.forEach(function(item) { if (item.icon) ids.add(item.icon); });
+      return Array.from(ids);
+    }
+    async function resolveVisibleThumbs() {
+      const ids = uniqueAssetIds().filter(function(id) { return !state.thumbs[id]; });
+      if (!ids.length) return;
+      if (window.PS99_THUMBNAILS_URL) {
+        try {
+          if (!state.thumbIndex) {
+            const response = await fetch(window.PS99_THUMBNAILS_URL, { cache: "force-cache" });
+            if (!response.ok) return;
+            state.thumbIndex = await response.json();
+          }
+          ids.forEach(function(id) { if (state.thumbIndex[id]) state.thumbs[id] = state.thumbIndex[id]; });
+          render();
+        } catch (_) { /* Icons fall back to the atlas mark. */ }
+        return;
+      }
+      const chunks = [];
+      for (let i = 0; i < ids.length; i += 100) chunks.push(ids.slice(i, i + 100));
+      await Promise.all(chunks.map(async function(chunk) {
+        try {
+          const response = await fetch("/api/thumbs?ids=" + encodeURIComponent(chunk.join(",")), { cache: "force-cache" });
+          if (!response.ok) return;
+          const body = await response.json();
+          asArray(body.data).forEach(function(item) { if (item && item.targetId && item.imageUrl) state.thumbs[String(item.targetId)] = item.imageUrl; });
+        } catch (_) { /* Icons fall back to the atlas mark. */ }
+      }));
+      render();
+    }
+    function sourceAsset(pool) { return pool.icon || ""; }
+    function sourceRowHtml(source) {
+      const pool = source.pool;
+      const item = source.odds;
+      const icon = sourceAsset(pool);
+      return '<button class="source-row" type="button" data-source-key="' + esc(encodeURIComponent(pool.id)) + '" data-tip-type="source" data-tip-key="' + esc(encodeURIComponent(pool.id)) + '" data-tip-pet="' + esc(encodeURIComponent(item.name)) + '" aria-label="Open ' + esc(pool.name) + ' odds details">' +
+        '<span class="source-thumb">' + iconHtml(icon, pool.name, "") + '</span>' +
+        '<span class="source-meta"><span class="source-name">' + esc(pool.name) + '</span><span class="source-status">' + esc(pool.availability.status) + '</span></span>' +
+        '<span class="source-odds">' + esc(pctLabel(item.pct)) + '<small>' + esc(oddsSubLabel(source, item)) + '</small></span></button>';
+    }
+    function getVisiblePets() {
+      const lower = state.query;
+      return state.pets.filter(function(pet) {
+        if (state.kind !== "all" && state.kind !== pet.kind.toLowerCase()) return false;
+        const sources = pet.sources.filter(sourceMatchesTab);
+        if (state.tab !== "all" && !sources.length) return false;
+        if (!lower) return true;
+        const config = pet.pet && pet.pet.configData ? pet.pet.configData : {};
+        return (pet.name + " " + String(config.indexDesc || "") + " " + sources.map(function(source) { return source.pool.name + " " + source.pool.category; }).join(" ")).toLowerCase().includes(lower);
+      });
+    }
+    function renderPetCards() {
+      const matches = getVisiblePets();
+      const pets = matches.slice(0, state.showLimit);
+      $("resultCount").textContent = matches.length > state.showLimit ? "Showing " + pets.length + " of " + matches.length + " pets" : matches.length + (matches.length === 1 ? " pet" : " pets");
+      $("catalogSubtitle").textContent = state.tab === "active" ? "Rare pets in the published Active Huge pool · pool shares shown where configured" : "All Huge, Titanic & Gargantuan game-data records · odds appear where the public feed publishes them";
+      if (!matches.length) {
+        $("cards").innerHTML = '<div class="empty"><strong>No matching rare pet records</strong>Try a different name or source filter. Exclusive Egg-only pets and odds are intentionally left out.</div>';
+        $("loadMore").hidden = true;
+        return;
+      }
+      $("cards").innerHTML = pets.map(function(pet) {
+        const petSources = pet.sources.filter(sourceMatchesTab);
+        const shown = petSources.slice(0, 3);
+        const asset = getPetAsset(pet.pet);
+        const config = pet.pet && pet.pet.configData ? pet.pet.configData : {};
+        const sourceSummary = String(config.indexDesc || "").split(/\n+/)[0].trim();
+        const oddsHtml = shown.length ? shown.map(sourceRowHtml).join("") : '<div class="no-odds" title="' + esc(sourceSummary) + '">No non-exclusive odds published · current availability unconfirmed.' + (sourceSummary ? ' Game index note: ' + esc(sourceSummary) : ' No source detail in feed.') + '</div>';
+        return '<article class="pet-card">' +
+          '<div class="pet-top"><button class="pet-open" type="button" data-pet-key="' + esc(encodeURIComponent(pet.name)) + '" data-tip-type="pet" data-tip-key="' + esc(encodeURIComponent(pet.name)) + '" aria-label="Open details for ' + esc(pet.name) + '">' + (thumb(asset) ? iconHtml(asset, pet.name, "") : '<span class="pet-placeholder">' + esc(pet.kind === "Titanic" ? "T" : pet.kind === "Gargantuan" ? "G" : "H") + '</span>') + '</button>' +
+          '<div class="pet-title-wrap"><h3 class="pet-name ' + esc(pet.kind.toLowerCase()) + '">' + esc(pet.name) + '</h3><span class="pet-kind ' + esc(pet.kind.toLowerCase()) + '">' + esc(pet.kind) + '</span></div><span class="pool-count">' + (petSources.length ? petSources.length + (petSources.length === 1 ? " pool" : " pools") : "No odds") + '</span></div>' +
+          '<div class="card-divider"></div><div class="source-list">' + oddsHtml + '</div>' +
+          (petSources.length > shown.length ? '<div class="more-sources">+' + (petSources.length - shown.length) + ' more pool' + (petSources.length - shown.length === 1 ? "" : "s") + ' · open pet details</div>' : '') +
+          '</article>';
+      }).join("");
+      const loadMore = $("loadMore");
+      loadMore.hidden = matches.length <= state.showLimit;
+      if (!loadMore.hidden) loadMore.textContent = "Show more pets · " + state.showLimit + " of " + matches.length;
+      resolveVisibleThumbs();
+    }
+    function renderModifiers() {
+      $("loadMore").hidden = true;
+      const query = state.query;
+      const modifiers = state.modifiers.filter(function(item) { return !query || (item.name + " " + item.description + " " + item.group).toLowerCase().includes(query); });
+      $("resultCount").textContent = modifiers.length + (modifiers.length === 1 ? " modifier" : " modifiers");
+      $("catalogSubtitle").textContent = "Chance modifiers for Huge, Titanic, or Gargantuan rolls · separate from base pool odds";
+      $("cards").innerHTML = "";
+      $("specialPanel").className = "source-panel visible";
+      $("specialPanel").innerHTML = '<div class="panel-grid">' + (modifiers.length ? modifiers.map(function(item) {
+        return '<button class="modifier-card" type="button" data-enchant-key="' + esc(encodeURIComponent(item.id)) + '" data-tip-type="enchant" data-tip-key="' + esc(encodeURIComponent(item.id)) + '"><span class="modifier-top"><span class="modifier-icon">' + iconHtml(item.icon, item.name, "") + '</span><span><h3 class="modifier-name">' + esc(item.name) + '</h3><span class="modifier-class">' + esc(item.group || "Enchant") + '</span></span></span><span class="modifier-copy">' + esc(item.description) + '</span><span class="modifier-value">' + esc(item.value) + '</span></button>';
+      }).join("") : '<div class="empty"><strong>No matching enchant effects</strong>Try a shorter search.</div>') + '</div>' +
+        '<p class="section-foot">Modifier descriptions come from the game config. They are not folded into pet pool chances because the API does not expose a complete formula for combined player boosts.</p>';
+    }
+    function renderChests() {
+      renderPetCards();
+      $("catalogSubtitle").textContent = "Published chest and breakable odds from the game feed · missing drop tables are not estimated";
+      $("specialPanel").className = "source-panel visible";
+      $("specialPanel").innerHTML = '<div class="unavailable-card"><div class="unavailable-icon">▣</div><div><h3>Some chest drop tables are not published</h3><p>Chest or breakable pools with weights in the public game feed appear above. The feed omits item-by-item odds for other rewards, so those chances remain unavailable instead of being estimated.</p></div></div>';
+    }
+    function render() {
+      if (!state.data) return;
+      $("loadMore").hidden = true;
+      $("specialPanel").className = "source-panel";
+      $("cards").style.display = "grid";
+      if (state.tab === "enchant") { renderModifiers(); return; }
+      if (state.tab === "chest") { renderChests(); return; }
+      renderPetCards();
+    }
+    function updateFilterStyles() {
+      document.querySelectorAll("[data-tab]").forEach(function(button) { button.classList.toggle("active", button.dataset.tab === state.tab); });
+      document.querySelectorAll("[data-kind]").forEach(function(button) { button.classList.toggle("active", button.dataset.kind === state.kind); });
+    }
+    function cacheFallback() {
+      try {
+        const cached = JSON.parse(localStorage.getItem(apiCacheKey) || "null");
+        if (cached && cached.data) { createCatalog(cached.data, true); updateRelease(cached.data); state.lastChecked = new Date(cached.savedAt || Date.now()); setLive(false, "Cached data"); $("errorBox").innerHTML = '<div class="error-line">Could not reach the live odds feed. Showing the last saved snapshot.</div>'; updateLastChecked(); return true; }
+      } catch (_) { /* Ignore malformed browser cache. */ }
+      return false;
+    }
+    function setLive(ok, label) {
+      const pill = $("livePill");
+      pill.innerHTML = '<i class="live-dot" style="background:' + (ok ? "#6ef0aa" : "#ffd982") + ';box-shadow:0 0 10px ' + (ok ? "#6ef0aa" : "#ffd982") + '"></i><span>' + esc(label) + '</span>';
+    }
+    function updateLastChecked() {
+      if (!state.lastChecked) return;
+      $("lastChecked").textContent = "checked " + new Intl.DateTimeFormat(undefined, { hour: "numeric", minute: "2-digit" }).format(state.lastChecked);
+      const freshnessNote = window.PS99_STATIC_MODE
+        ? " GitHub Pages refreshes its game-feed snapshot about every 15 minutes. The public feed may cache config briefly and does not confirm current availability for every source."
+        : " The public game feed may cache config for up to a minute and does not reliably confirm current availability.";
+      $("dataFoot").textContent = "Last checked " + new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(state.lastChecked) + "." + freshnessNote + " Older source odds are kept for reference and marked unconfirmed.";
+    }
+    async function loadData(force) {
+      if (state.busy) return;
+      state.busy = true;
+      $("refresh").classList.add("spinning");
+      $("errorBox").innerHTML = "";
+      if (!state.data) $("cards").innerHTML = '<div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>';
+      try {
+        const endpoint = window.PS99_DATA_URL || "/api/data";
+        const suffix = force && !window.PS99_DATA_URL ? "?fresh=" + Date.now() : "";
+        const response = await fetch(endpoint + suffix, { cache: "no-store" });
+        if (!response.ok) throw new Error("API request returned " + response.status);
+        const api = await response.json();
+        if (!api.eggs || !api.pets) throw new Error("The live feed response was incomplete.");
+        localStorage.setItem(apiCacheKey, JSON.stringify({ data: api, savedAt: Date.now() }));
+        createCatalog(api, true);
+        updateRelease(api);
+        state.lastChecked = api.generated_at ? new Date(api.generated_at) : new Date();
+        updateLastChecked();
+        setLive(true, window.PS99_STATIC_MODE ? "Scheduled snapshot" : "Live data");
+      } catch (error) {
+        if (!state.data) {
+          const hadCache = cacheFallback();
+          if (!hadCache) {
+            $("cards").innerHTML = '<div class="empty"><strong>Live odds are temporarily unavailable</strong>Try refresh in a moment. The page will check the feed again automatically.</div>';
+            $("resultCount").textContent = "";
+            setLive(false, "Feed offline");
+          }
+        } else {
+          $("errorBox").innerHTML = '<div class="error-line">Live refresh failed; the last loaded odds are still shown.</div>';
+          setLive(false, "Using last data");
+        }
+      } finally {
+        state.busy = false;
+        $("refresh").classList.remove("spinning");
+      }
+    }
+    function sourceMap() { const map = new Map(); state.pools.forEach(function(pool) { map.set(pool.id, pool); }); return map; }
+    function petMap() { const map = new Map(); state.pets.forEach(function(pet) { map.set(pet.name, pet); }); return map; }
+    function tipLine(label, value, accent) {
+      return '<div class="game-tip-line"><span>' + esc(label) + '</span><strong' + (accent ? ' class="' + esc(accent) + '"' : '') + '>' + esc(value) + '</strong></div>';
+    }
+    function gameTipHtml(title, badge, kind, asset, mark, subtitle, description, lines) {
+      const image = thumb(asset) ? iconHtml(asset, title, "") : '<span>' + esc(mark || "✦") + '</span>';
+      return '<div class="game-tip kind-' + esc(String(kind || "item").toLowerCase()) + '">' +
+        '<div class="game-tip-head"><strong class="game-tip-title">' + esc(title) + '</strong><span class="game-tip-rarity">' + esc(badge) + '</span></div>' +
+        '<div class="game-tip-body"><div class="game-tip-image">' + image + '</div><div class="game-tip-copy"><div class="game-tip-subtitle">' + esc(subtitle || "") + '</div><div class="game-tip-desc">' + esc(description || "") + '</div></div></div>' +
+        (lines && lines.length ? '<div class="game-tip-foot">' + lines.join("") + '</div>' : '') + '</div>';
+    }
+    function gameTipMarkup(target) {
+      const type = target.dataset.tipType;
+      const key = decodeURIComponent(target.dataset.tipKey || "");
+      if (type === "pet") {
+        const pet = petMap().get(key);
+        if (!pet) return "";
+        const config = pet.pet && pet.pet.configData ? pet.pet.configData : {};
+        const description = String(config.indexDesc || "").split(/\n+/)[0].trim() || "Hover preview of this rare pet. Click for its full odds.";
+        const sources = pet.sources.slice().sort(function(a, b) { return a.odds.pct - b.odds.pct; }).slice(0, 2);
+        const lines = sources.map(function(source) {
+          return tipLine(source.pool.name, pctLabel(source.odds.pct) + (isActiveHugeSource(source) ? " · share of listed pool" : " · " + oneInLabel(source.odds.oneIn)), "chance");
+        });
+        lines.push(tipLine("Odds sources", pet.sources.length ? String(pet.sources.length) : "Not published in public feed"));
+        if (pet.sources.some(function(source) { return source.pool.availability.confidence === "unconfirmed"; })) lines.push(tipLine("Availability", "Activity unconfirmed"));
+        return gameTipHtml(pet.name, pet.kind, pet.kind.toLowerCase(), getPetAsset(pet.pet), pet.kind.charAt(0), "Rare pet · hover preview", description, lines);
+      }
+      if (type === "source") {
+        const pool = sourceMap().get(key);
+        if (!pool) return "";
+        const petName = decodeURIComponent(target.dataset.tipPet || "");
+        const item = pool.odds.find(function(odds) { return odds.name === petName; });
+        if (!item) return "";
+        const typeLabel = pool.type === "egg" ? "Egg" : pool.type === "gift" ? "Gift bag" : pool.type === "chest" ? "Chest / drop" : "Game source";
+        const lines = [
+          tipLine("Pet outcome", item.name),
+          tipLine("Chance", pctLabel(item.pct) + (isActiveHugeSource({ pool: pool }) ? " · share of listed pool" : " · " + oneInLabel(item.oneIn)), "chance"),
+          tipLine("Availability", pool.availability.status)
+        ];
+        return gameTipHtml(pool.name, typeLabel, item.kind.toLowerCase(), pool.icon, "✦", pool.category, "Configured chance for " + item.name + ".", lines);
+      }
+      if (type === "enchant") {
+        const item = state.modifiers.find(function(value) { return value.id === key; });
+        if (!item) return "";
+        return gameTipHtml(item.name, "Enchant", "enchant", item.icon, "✦", item.group || "Chance modifier", item.description, [
+          tipLine("Effect", item.value, "gargantuan"),
+          tipLine("Odds formula", "Not fully exposed by the game feed")
+        ]);
+      }
+      return "";
+    }
+    function positionGameTip(target) {
+      if (!target || $("gameTip").hidden) return;
+      const tip = $("gameTip");
+      const rect = target.getBoundingClientRect();
+      const width = tip.getBoundingClientRect().width;
+      const height = tip.getBoundingClientRect().height;
+      let left = rect.right + 11;
+      if (left + width > window.innerWidth - 10) left = rect.left - width - 11;
+      if (left < 10) left = Math.max(9, (window.innerWidth - width) / 2);
+      const top = Math.min(Math.max(10, rect.top + rect.height / 2 - height / 2), window.innerHeight - height - 10);
+      tip.style.left = left + "px";
+      tip.style.top = top + "px";
+    }
+    function hideGameTip() {
+      if (activeGameTip) activeGameTip.removeAttribute("aria-describedby");
+      activeGameTip = null;
+      $("gameTip").hidden = true;
+    }
+    function showGameTip(target) {
+      const markup = gameTipMarkup(target);
+      if (!markup) return;
+      const tip = $("gameTip");
+      tip.innerHTML = markup;
+      tip.hidden = false;
+      if (activeGameTip && activeGameTip !== target) activeGameTip.removeAttribute("aria-describedby");
+      activeGameTip = target;
+      target.setAttribute("aria-describedby", "gameTip");
+      requestAnimationFrame(function() { positionGameTip(target); });
+    }
+    function bindGameTips(root) {
+      root.addEventListener("pointerover", function(event) {
+        if (event.pointerType === "touch") return;
+        const target = event.target.closest && event.target.closest("[data-tip-type]");
+        if (!target || !root.contains(target) || target.contains(event.relatedTarget)) return;
+        showGameTip(target);
+      });
+      root.addEventListener("pointerout", function(event) {
+        if (!activeGameTip || !root.contains(activeGameTip) || !activeGameTip.contains(event.target) || activeGameTip.contains(event.relatedTarget)) return;
+        hideGameTip();
+      });
+      root.addEventListener("focusin", function(event) {
+        const target = event.target.closest && event.target.closest("[data-tip-type]");
+        if (target && root.contains(target)) showGameTip(target);
+      });
+      root.addEventListener("focusout", function(event) {
+        if (activeGameTip && root.contains(activeGameTip) && activeGameTip.contains(event.target) && !activeGameTip.contains(event.relatedTarget)) hideGameTip();
+      });
+    }
+    bindGameTips($("cards"));
+    bindGameTips($("specialPanel"));
+    window.addEventListener("scroll", hideGameTip, true);
+    window.addEventListener("resize", hideGameTip);
+    function showPet(name) {
+      const pet = petMap().get(name);
+      if (!pet) return;
+      hideGameTip();
+      $("modalKicker").textContent = pet.kind + " · base chances";
+      $("modalTitle").textContent = pet.name;
+      const image = getPetAsset(pet.pet);
+      const sources = pet.sources.slice().sort(function(a, b) { return a.odds.pct - b.odds.pct; });
+      const config = pet.pet && pet.pet.configData ? pet.pet.configData : {};
+      const description = String(config.indexDesc || "Game source details are not provided in the public feed.");
+      const sourceBody = sources.length ? sources.map(function(source) { return '<div class="modal-source"><div class="source-thumb">' + iconHtml(source.pool.icon, source.pool.name, "") + '</div><div><div class="modal-source-name">' + esc(source.pool.name) + '</div><div class="modal-source-sub">' + esc(source.pool.category) + ' · ' + esc(source.pool.availability.status) + '</div></div><div class="modal-odds">' + esc(pctLabel(source.odds.pct)) + '<br><span class="muted">' + esc(oddsSubLabel(source, source.odds)) + '</span></div></div>'; }).join("") : '<div class="no-odds">No non-exclusive odds are published for this pet. The game index source note is shown above; current availability and exact chances cannot be confirmed from the public feed.</div>';
+      const hasActivePool = sources.some(isActiveHugeSource);
+      const activeNote = hasActivePool ? ' For Active Huge Egg, the feed exposes relative weights among the listed Active Huge outcomes, not the chance that a hatch produces an Active Huge.' : '';
+      $("modalContent").innerHTML = '<div class="modal-hero"><div class="modal-image">' + (thumb(image) ? iconHtml(image, pet.name, "") : '<span class="pet-placeholder">' + esc(pet.kind === "Titanic" ? "T" : pet.kind === "Gargantuan" ? "G" : "H") + '</span>') + '</div><div><span class="pet-kind ' + esc(pet.kind.toLowerCase()) + '">' + esc(pet.kind) + '</span><p class="modal-desc">' + esc(description) + '</p></div></div><div class="modal-label">Non-exclusive sources with published pool weights</div>' + sourceBody + '<p class="section-foot">Pool odds are calculated from weights in the public game config. Exclusive Eggs and their odds are excluded. Public data does not confirm current availability for every source.' + activeNote + '</p>';
+      $("detailModal").showModal();
+    }
+    function showPool(id) {
+      const pool = sourceMap().get(id);
+      if (!pool) return;
+      hideGameTip();
+      $("modalKicker").textContent = pool.type === "gift" ? "Gift odds pool" : pool.type === "egg" ? "Egg odds pool" : pool.type === "chest" ? "Chest & drop odds pool" : "Game odds pool";
+      $("modalTitle").textContent = pool.name;
+      const oddsRows = pool.odds.slice().sort(function(a, b) { return a.pct - b.pct; });
+      const petBody = oddsRows.map(function(item) { const image = getPetAsset(item.pet); return '<div class="modal-source"><div class="source-thumb">' + iconHtml(image, item.name, "") + '</div><div><div class="modal-source-name">' + esc(item.name) + '</div><div class="modal-source-sub">' + esc(item.kind) + ' · weight ' + esc(item.weight) + '</div></div><div class="modal-odds">' + esc(pctLabel(item.pct)) + '<br><span class="muted">' + esc(isActiveHugeSource({ pool: pool }) ? "of listed active pool" : oneInLabel(item.oneIn)) + '</span></div></div>'; }).join("");
+      const chance = pool.modifiers;
+      const modifiers = [chance.goldDisabled ? "Gold disabled" : (chance.gold != null ? "Gold roll " + chance.gold + "%" : ""), chance.rainbowDisabled ? "Rainbow disabled" : (chance.rainbow != null ? "Rainbow roll " + chance.rainbow + "%" : ""), chance.shiny != null ? "Shiny roll " + chance.shiny + "%" : ""].filter(Boolean).join(" · ");
+      const activePoolNote = isActiveHugeSource({ pool: pool }) ? ' For Active Huge Egg, these percentages show each listed pet’s share of the published Active Huge pool. The public feed does not provide the overall chance of hatching an Active Huge.' : '';
+      $("modalContent").innerHTML = '<div class="modal-hero"><div class="modal-image">' + (thumb(pool.icon) ? iconHtml(pool.icon, pool.name, "") : '<span class="pet-placeholder">✦</span>') + '</div><div><span class="pet-kind ' + esc(pool.type) + '">' + esc(pool.availability.status) + '</span><p class="modal-desc">' + esc(pool.category) + ' · config updated ' + esc(niceDate(pool.updated)) + '</p></div></div><div class="modal-label">Huge, Titanic, and Gargantuan outcomes in this pool</div>' + petBody + (modifiers ? '<p class="section-foot">' + esc(modifiers) + '</p>' : '') + '<p class="section-foot">Chance is calculated from the configured weights across the listed pool. Effective odds may be changed by player buffs or hidden server rules.' + activePoolNote + '</p>';
+      $("detailModal").showModal();
+    }
+    function showEnchant(id) {
+      const item = state.modifiers.find(function(value) { return value.id === id; });
+      if (!item) return;
+      hideGameTip();
+      $("modalKicker").textContent = item.group + " · chance modifier";
+      $("modalTitle").textContent = item.name;
+      $("modalContent").innerHTML = '<div class="modal-hero"><div class="modal-image">' + (thumb(item.icon) ? iconHtml(item.icon, item.name, "") : '<span class="pet-placeholder">✦</span>') + '</div><div><div class="modifier-value">' + esc(item.value) + '</div><p class="modal-desc">' + esc(item.description) + '</p></div></div><div class="coverage-note"><span class="coverage-icon">i</span><span>This is the configured enchant description, not a complete formula for combining it with an egg or event pool. Exact effective odds are not available in the public data.</span></div>';
+      $("detailModal").showModal();
+    }
+    document.querySelectorAll("[data-tab]").forEach(function(button) { button.addEventListener("click", function() { state.tab = button.dataset.tab; state.showLimit = pageSize; updateFilterStyles(); if (state.data) createCatalog(state.data); }); });
+    document.querySelectorAll("[data-kind]").forEach(function(button) { button.addEventListener("click", function() { state.kind = button.dataset.kind; state.showLimit = pageSize; updateFilterStyles(); if (state.data) { createCatalog(state.data); } }); });
+    $("search").addEventListener("input", function(event) { state.query = event.target.value.trim().toLowerCase(); state.showLimit = pageSize; if (state.data) { createCatalog(state.data); } });
+    $("refresh").addEventListener("click", function() { loadData(true); });
+    $("loadMore").addEventListener("click", function() { state.showLimit += pageSize; render(); });
+    $("cards").addEventListener("click", function(event) {
+      const pet = event.target.closest("[data-pet-key]");
+      const source = event.target.closest("[data-source-key]");
+      if (pet) { event.stopPropagation(); showPet(decodeURIComponent(pet.dataset.petKey)); }
+      else if (source) { event.stopPropagation(); showPool(decodeURIComponent(source.dataset.sourceKey)); }
+    });
+    $("specialPanel").addEventListener("click", function(event) { const item = event.target.closest("[data-enchant-key]"); if (item) showEnchant(decodeURIComponent(item.dataset.enchantKey)); });
+    $("closeModal").addEventListener("click", function() { $("detailModal").close(); });
+    $("detailModal").addEventListener("click", function(event) { if (event.target === $("detailModal")) $("detailModal").close(); });
+    document.addEventListener("keydown", function(event) { if (event.key === "/" && !/input|textarea/i.test(document.activeElement.tagName)) { event.preventDefault(); $("search").focus(); } });
+    updateFilterStyles();
+    loadData(false);
+    window.setInterval(function() { loadData(false); }, 5 * 60 * 1000);
+  </script>
+</body>
+</html>`;
+
+export { page };
+
+export default {
+  async fetch(request, env, ctx) {
+    void env;
+    const url = new URL(request.url);
+    if (url.pathname === "/api/data") return getLiveData(ctx, url.searchParams.has("fresh"));
+    if (url.pathname === "/api/thumbs") return getThumbnails(url, ctx);
+    if (url.pathname !== "/") return new Response("Not found", { status: 404 });
+    return new Response(page, {
+      headers: {
+        "content-type": "text/html; charset=utf-8",
+        "cache-control": "public, max-age=60",
+        "x-content-type-options": "nosniff",
+        "referrer-policy": "strict-origin-when-cross-origin",
+      },
+    });
+  },
+};
+
+async function getLiveData(ctx, force) {
+  const cacheKey = new Request("https://ps99-odds-atlas-cache.invalid/live-data-v1");
+  const cache = globalThis.caches && globalThis.caches.default;
+  if (cache && !force) {
+    const cached = await cache.match(cacheKey);
+    if (cached) return cached;
+  }
+  try {
+    const [eggs, pets, enchants, lootboxes, releases] = await Promise.all([
+      fetchJson(API + "/api/collection/Eggs"),
+      fetchJson(API + "/api/collection/Pets"),
+      fetchJson(API + "/api/collection/Enchants"),
+      fetchJson(API + "/api/collection/Lootboxes"),
+      fetchJson(API + "/v1/releases?pageSize=20"),
+    ]);
+    const response = Response.json({ eggs, pets, enchants, lootboxes, releases }, {
+      headers: { "cache-control": "public, max-age=60, stale-while-revalidate=300" },
+    });
+    if (cache && ctx && typeof ctx.waitUntil === "function") ctx.waitUntil(cache.put(cacheKey, response.clone()));
+    return response;
+  } catch (_) {
+    return Response.json({ error: "The PS99 data feed is temporarily unavailable." }, {
+      status: 502,
+      headers: { "cache-control": "no-store" },
+    });
+  }
+}
+
+async function getThumbnails(url, ctx) {
+  const ids = Array.from(new Set((url.searchParams.get("ids") || "").split(",").filter((id) => /^\d{5,}$/.test(id)))).slice(0, 100);
+  if (!ids.length) return Response.json({ data: [] }, { headers: { "cache-control": "public, max-age=86400" } });
+  const cacheKey = new Request("https://ps99-odds-atlas-cache.invalid/thumbs/" + ids.slice().sort().join(","));
+  const cache = globalThis.caches && globalThis.caches.default;
+  if (cache) {
+    const cached = await cache.match(cacheKey);
+    if (cached) return cached;
+  }
+  try {
+    const apiUrl = "https://thumbnails.roblox.com/v1/assets?assetIds=" + encodeURIComponent(ids.join(",")) + "&size=420x420&format=Png&isCircular=false";
+    const body = await fetchJson(apiUrl);
+    const response = Response.json(body, { headers: { "cache-control": "public, max-age=86400, stale-while-revalidate=604800" } });
+    if (cache && ctx && typeof ctx.waitUntil === "function") ctx.waitUntil(cache.put(cacheKey, response.clone()));
+    return response;
+  } catch (_) {
+    return Response.json({ data: [] }, { status: 502, headers: { "cache-control": "no-store" } });
+  }
+}
+
+async function fetchJson(url) {
+  const response = await fetch(url, { headers: { accept: "application/json" } });
+  if (!response.ok) throw new Error("Upstream returned " + response.status);
+  return response.json();
+}
+
