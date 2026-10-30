@@ -2,6 +2,8 @@ name: Deploy Inferno Rankings
 on:
   push:
     branches: [main]
+  schedule:
+    - cron: "*/15 * * * *"
   workflow_dispatch:
 permissions:
   contents: read
@@ -24,6 +26,10 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec next build
+      - name: Build the PS99 odds snapshot
+        run: node ps99-odds-atlas/scripts/build-pages.mjs
+        env:
+          PS99_OUTPUT_DIR: out/ps99-odds-atlas
       - uses: actions/upload-pages-artifact@v3
         with:
           path: ./out
