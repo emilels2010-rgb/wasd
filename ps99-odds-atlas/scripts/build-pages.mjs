@@ -54,6 +54,36 @@ function collectAssetIds(value, ids = new Set()) {
   return ids;
 }
 
+function collectionData(collection) {
+  return collection?.status === "ok" && Array.isArray(collection.data) ? collection.data : [];
+}
+
+function isRarePet(record) {
+  const config = record?.configData || {};
+  const name = String(config.name || record?.configName || "");
+  return Boolean(config.huge || config.titanic || config.gargantuan || /\b(Huge|Titanic|Gargantuan)\b/i.test(name));
+}
+
+function getAtlasAssetIds(eggs, pets, enchants) {
+  const rarePets = collectionData(pets).filter(isRarePet);
+  const rareNames = new Set(rarePets.map((pet) => String(pet.configData?.name || pet.configName || "").toLowerCase()));
+  const oddsPools = collectionData(eggs).filter((entry) => {
+    const config = entry?.configData || {};
+    const name = String(config.name || entry?.configName || "");
+    if (/exclusive eggs/i.test(String(entry?.category || "")) || /^exclusive\b.*\begg\b/i.test(name)) return false;
+    return Array.isArray(config.pets) && config.pets.some((row) => Array.isArray(row) && (rareNames.has(String(row[0] || "").toLowerCase()) || /\b(Huge|Titanic|Gargantuan)\b/i.test(String(row[0] || ""))));
+  });
+  const relevantEnchants = collectionData(enchants).filter((entry) => {
+    const config = entry?.configData || {};
+    return (Array.isArray(config.Tiers) ? config.Tiers : []).some((tier) => {
+      const title = String(tier?.DisplayName || entry?.configName || "Enchant");
+      const description = String(tier?.Desc || "");
+      return /huge|titanic|gargantuan/i.test(title + " " + description) && /odds|chance|luck|hatch|roll|random|adds?\s+\d+\s+rare/i.test(description + " " + title);
+    });
+  });
+  return Array.from(collectAssetIds([rarePets, oddsPools, relevantEnchants]));
+}
+
 const [eggs, pets, enchants, lootboxes, releases] = await Promise.all([
   fetchJson(`${API}/api/collection/Eggs`),
   fetchJson(`${API}/api/collection/Pets`),
@@ -62,7 +92,7 @@ const [eggs, pets, enchants, lootboxes, releases] = await Promise.all([
   fetchJson(`${API}/v1/releases?pageSize=20`),
 ]);
 
-const assetIds = Array.from(collectAssetIds([eggs, pets, enchants, lootboxes]));
+const assetIds = getAtlasAssetIds(eggs, pets, enchants);
 const thumbnails = {};
 const batches = [];
 for (let index = 0; index < assetIds.length; index += 100) batches.push(assetIds.slice(index, index + 100));
