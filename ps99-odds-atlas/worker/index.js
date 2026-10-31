@@ -1672,7 +1672,7 @@ const page = String.raw`<!doctype html>
     }
     function gameTipHtml(title, badge, kind, asset, mark, subtitle, description, lines, imageMarkup) {
       const image = imageMarkup || (thumb(asset) ? iconHtml(asset, title, "") : '<span>' + esc(mark || "✦") + '</span>');
-      return '<div class="game-tip kind-' + esc(String(kind || "item").toLowerCase()) + '">' +
+      return '<div class="game-tip-content kind-' + esc(String(kind || "item").toLowerCase()) + '">' +
         '<div class="game-tip-head"><strong class="game-tip-title">' + esc(title) + '</strong><span class="game-tip-rarity">' + esc(badge) + '</span></div>' +
         '<div class="game-tip-body"><div class="game-tip-image">' + image + '</div><div class="game-tip-copy">' + (subtitle ? '<div class="game-tip-subtitle">' + esc(subtitle) + '</div>' : '') + '<div class="game-tip-desc">' + esc(description || "") + '</div></div></div>' +
         (lines && lines.length ? '<div class="game-tip-foot">' + lines.join("") + '</div>' : '') + '</div>';
@@ -1755,6 +1755,8 @@ const page = String.raw`<!doctype html>
       if (!markup) return;
       gameTipPoint = Number.isFinite(pointX) && Number.isFinite(pointY) ? { x: pointX, y: pointY } : null;
       const tip = $("gameTip");
+      const panelClass = markup.match(/class="game-tip-content ([^"]+)"/);
+      tip.className = "game-tip" + (panelClass ? " " + panelClass[1] : "");
       tip.innerHTML = markup;
       tip.hidden = false;
       if (activeGameTip && activeGameTip !== target) activeGameTip.removeAttribute("aria-describedby");
