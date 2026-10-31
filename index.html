@@ -806,7 +806,7 @@
     .cards.pet-catalog .pet-kind-grid.titanic { grid-template-columns: repeat(5, minmax(0, 1fr)); }
     .cards.pet-catalog .pet-kind-grid.huge { grid-template-columns: repeat(8, minmax(0, 1fr)); }
     .cards.pet-catalog .empty { grid-column: 1 / -1; margin: 0; }
-    .cards.pet-catalog .pet-card { min-width: 0; margin: 0 5px 12px; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+    .cards.pet-catalog .pet-card { min-width: 0; margin: 0 2px 8px; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
     .cards.pet-catalog .pet-card:hover { border: 0; background: transparent; box-shadow: none; }
     .pet-open { display: grid; width: 100%; height: auto; aspect-ratio: 1; place-items: center; padding: 0; border: 0; border-radius: 0; overflow: visible; background: transparent; box-shadow: none; cursor: pointer; }
     .pet-open:hover img { transform: none; }
@@ -816,23 +816,28 @@
     .pet-art.variant-rainbow::before, .pet-art.variant-shiny-rainbow::before, .pet-art.variant-shiny::after, .pet-art.variant-shiny-gold::after, .pet-art.variant-shiny-rainbow::after { display: none !important; content: none !important; }
     .pet-visual { position: relative; display: grid; width: 100%; height: 100%; place-items: center; overflow: hidden; }
     .pet-card.gargantuan .pet-visual { width: 100%; height: 100%; }
-    .pet-card.titanic .pet-visual { width: 82%; height: 82%; }
-    .pet-card.huge .pet-visual { width: 66%; height: 66%; }
+    .pet-card.titanic .pet-visual { width: 92%; height: 92%; }
+    .pet-card.huge .pet-visual { width: 80%; height: 80%; }
     .game-tip.kind-gargantuan .pet-visual { width: 100%; height: 100%; }
-    .game-tip.kind-titanic .pet-visual { width: 82%; height: 82%; }
-    .game-tip.kind-huge .pet-visual { width: 66%; height: 66%; }
+    .game-tip.kind-titanic .pet-visual { width: 92%; height: 92%; }
+    .game-tip.kind-huge .pet-visual { width: 80%; height: 80%; }
     .pet-card .pet-art-image, .game-tip .pet-art-image { position: relative; z-index: 1; display: block; width: 100% !important; height: 100% !important; max-width: 100% !important; max-height: 100% !important; object-fit: contain; border: 0 !important; border-radius: 0 !important; background: transparent !important; box-shadow: none !important; transition: filter .16s; }
     .pet-art .pet-placeholder { position: relative; z-index: 1; width: 100%; height: 100%; display: grid; place-items: center; border: 0; color: #eee8ff; background: transparent; font-size: clamp(18px, 3vw, 38px); }
     .pet-art.variant-fallback .pet-art-image { filter: sepia(1) saturate(2) hue-rotate(350deg) brightness(1.06); }
-    .pet-art.variant-rainbow .pet-art-image { filter: saturate(1.45) contrast(1.05); }
+    .pet-art.variant-rainbow .pet-art-image { filter: saturate(2.05) contrast(1.11) brightness(1.05); }
     .pet-art.variant-shiny .pet-art-image, .pet-art.variant-shiny-gold .pet-art-image { filter: saturate(1.35) brightness(1.13) drop-shadow(0 0 8px rgba(255,239,170,.55)); }
-    .pet-art.variant-shiny-rainbow .pet-art-image { filter: saturate(1.6) contrast(1.08) drop-shadow(0 0 8px rgba(218,162,255,.42)); }
-    .pet-effect-rainbow, .pet-effect-stripes, .pet-effect-sweep { position: absolute; pointer-events: none; }
-    .pet-effect-rainbow { z-index: 2; top: 0; bottom: 0; left: 0; width: 200%; display: none; opacity: .29; mix-blend-mode: color; background: linear-gradient(90deg, #ff244d 0%, #ff9e22 7.14%, #ffeb36 14.28%, #48ef49 21.42%, #1de2e9 28.56%, #367bff 35.7%, #c32cff 42.84%, #ff244d 50%, #ff9e22 57.14%, #ffeb36 64.28%, #48ef49 71.42%, #1de2e9 78.56%, #367bff 85.7%, #c32cff 92.84%, #ff244d 100%); animation: pet-rainbow-loop 38s linear infinite; }
+    .pet-art.variant-shiny-rainbow .pet-art-image { filter: saturate(2.05) contrast(1.11) brightness(1.05) drop-shadow(0 0 9px rgba(218,162,255,.55)); }
+    .pet-effect-rainbow, .pet-effect-clouds, .pet-effect-sparkles, .pet-effect-sweep { position: absolute; pointer-events: none; }
+    .pet-effect-rainbow { z-index: 2; top: 0; bottom: 0; left: 0; width: 200%; display: none; opacity: .48; mix-blend-mode: color; background: linear-gradient(90deg, #ff244d 0%, #ff9e22 7.14%, #ffeb36 14.28%, #48ef49 21.42%, #1de2e9 28.56%, #367bff 35.7%, #c32cff 42.84%, #ff244d 50%, #ff9e22 57.14%, #ffeb36 64.28%, #48ef49 71.42%, #1de2e9 78.56%, #367bff 85.7%, #c32cff 92.84%, #ff244d 100%); animation: pet-rainbow-loop 38s linear infinite; }
     .pet-art.variant-rainbow .pet-effect-rainbow, .pet-art.variant-shiny-rainbow .pet-effect-rainbow { display: block; }
-    .pet-effect-stripes { z-index: 3; inset: 0; display: none; opacity: .24; mix-blend-mode: screen; background: repeating-linear-gradient(112deg, transparent 0 8px, rgba(255,255,255,.26) 9px 10px, transparent 11px 21px), radial-gradient(circle at 22% 26%, rgba(255,255,255,.6) 0 1px, transparent 3px), radial-gradient(circle at 73% 66%, rgba(255,255,255,.45) 0 1px, transparent 3px); }
-    .pet-art.variant-shiny .pet-effect-stripes, .pet-art.variant-shiny-gold .pet-effect-stripes, .pet-art.variant-shiny-rainbow .pet-effect-stripes { display: block; }
-    .pet-effect-sweep { z-index: 4; top: -55%; left: -95%; width: 72%; height: 210%; display: none; opacity: .8; transform: translateX(0) rotate(-9deg); mix-blend-mode: screen; background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,.16) 34%, rgba(255,255,255,.94) 50%, rgba(255,255,255,.22) 66%, transparent 100%); }
+    .pet-effect-clouds { z-index: 3; inset: 0 auto 0 0; width: 200%; display: none; opacity: .38; mix-blend-mode: screen; filter: blur(1px); background-size: 50% 100%; background-repeat: repeat-x; background-image: radial-gradient(ellipse 22% 50% at 15% 55%, rgba(255,255,255,.72) 0%, rgba(255,255,255,.34) 34%, transparent 100%), radial-gradient(ellipse 19% 43% at 48% 28%, rgba(255,255,255,.62) 0%, rgba(255,255,255,.28) 38%, transparent 100%), radial-gradient(ellipse 24% 48% at 80% 67%, rgba(255,255,255,.66) 0%, rgba(255,255,255,.3) 38%, transparent 100%); animation: pet-cloud-loop 17s linear infinite; }
+    .pet-art.variant-shiny .pet-effect-clouds, .pet-art.variant-shiny-gold .pet-effect-clouds, .pet-art.variant-shiny-rainbow .pet-effect-clouds { display: block; }
+    .pet-effect-sparkles { z-index: 4; inset: 0; display: none; overflow: hidden; color: #fff; mix-blend-mode: screen; text-shadow: 0 0 5px rgba(255,255,255,.9), 0 0 12px rgba(255,255,255,.72); }
+    .pet-effect-sparkles::before, .pet-effect-sparkles::after { position: absolute; content: "✦"; color: #fff; font-size: clamp(12px, 2vw, 23px); line-height: 1; animation: pet-sparkle-twinkle 1.45s ease-in-out infinite; }
+    .pet-effect-sparkles::before { top: 12%; left: 17%; }
+    .pet-effect-sparkles::after { right: 14%; bottom: 17%; font-size: clamp(9px, 1.5vw, 17px); animation-delay: -.72s; }
+    .pet-art.variant-shiny .pet-effect-sparkles, .pet-art.variant-shiny-gold .pet-effect-sparkles, .pet-art.variant-shiny-rainbow .pet-effect-sparkles { display: block; }
+    .pet-effect-sweep { z-index: 5; top: -55%; left: -95%; width: 72%; height: 210%; display: none; opacity: .8; transform: translateX(0) rotate(-9deg); mix-blend-mode: screen; background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,.16) 34%, rgba(255,255,255,.94) 50%, rgba(255,255,255,.22) 66%, transparent 100%); }
     .pet-art.variant-shiny .pet-effect-sweep, .pet-art.variant-shiny-gold .pet-effect-sweep, .pet-art.variant-shiny-rainbow .pet-effect-sweep { display: block; animation: pet-shine-sweep 1.05s linear infinite; }
     .game-tip { width: min(720px, calc(100vw - 20px)); max-height: min(760px, calc(100vh - 16px)); overflow-y: auto; overscroll-behavior: contain; pointer-events: auto; scrollbar-color: #655477 #211c2b; scrollbar-width: thin; }
     .game-tip-body { grid-template-columns: 166px minmax(0, 1fr); align-items: start; gap: 14px; padding: 14px; }
@@ -857,11 +862,18 @@
     .game-tip-source-odds { color: #ffe394; text-align: right; font-size: 11px; font-weight: 850; }
     .game-tip-meta-note { color: #bdb4ce; font-size: 10px; line-height: 1.4; }
     @keyframes pet-rainbow-loop { to { transform: translateX(-50%); } }
+    @keyframes pet-cloud-loop { to { transform: translateX(-50%); } }
+    @keyframes pet-sparkle-twinkle { 0%, 100% { opacity: .28; transform: scale(.72) rotate(0deg); } 50% { opacity: 1; transform: scale(1.12) rotate(45deg); } }
     @keyframes pet-shine-sweep { to { transform: translateX(480%) rotate(-9deg); } }
     @media (max-width: 840px) { .game-tip { width: min(680px, calc(100vw - 20px)); } }
     @media (max-width: 720px) { .game-tip { width: min(620px, calc(100vw - 18px)); } .game-tip.kind-gargantuan .game-tip-body, .game-tip.kind-titanic .game-tip-body, .game-tip.kind-huge .game-tip-body { grid-template-columns: 112px minmax(0, 1fr); } }
     @media (max-width: 410px) { .game-tip-body { grid-template-columns: 94px minmax(0, 1fr); gap: 9px; padding: 10px; } .game-tip-source-line { gap: 7px; } .game-tip-source-odds { font-size: 10px; } }
-    @media (prefers-reduced-motion: reduce) { .pet-effect-rainbow, .pet-effect-sweep { animation: none !important; } }
+    @media (prefers-reduced-motion: reduce) { .pet-effect-rainbow, .pet-effect-clouds, .pet-effect-sweep, .pet-effect-sparkles::before, .pet-effect-sparkles::after { animation: none !important; } }
+    /* Use the supplied Roblox cursors for the page, interactive controls, and search. */
+    body { cursor: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAQAAAAAYLlVAAAACXBIWXMAAAsTAAALEwEAmpwYAAACOUlEQVR42u2Xv2sUQRTH3+yP2+zezs7s2937kVskuTsNOcVfS0As5ARBECwsrhOj4j+RQkiZ2kb/gtgJFv4BQio1lZVVCAqWBq/3ubMeoouFEGavmc9j6vfZ77w3sGAwGAwGg8FgMBgMBoPBcDrkNn7Do2QblgIjhkfHdEyXKXkIrPH2YIGDpFAK+KhhBdV+bQWJ/lRoDmJgjT2MKoGlpMCmTj/gCdJvGp4FBg6EYQeJagqymRSIFW7Kg34lsIwUiIGLUbBaE2hwFiqBtCbQZAqsqCdQV7hHoJWaQI03FL8GG5jOGWj96woOFrVD+BZauxYwjQJ/J3BCihuEZcXq7Hfb4JC2DGpbsE93SbGnWh/GH/BVtJVyaIGlVSAZ4KI9lnVQ5TCcJ7fkFX4uWI0FeFoFoBJ4XhYSzvHrfVLsUPwivCBGWQ8jNQW6H6IvWLWXj+UzpJNqDPF7dhbzCCEAV+dr4KY866U38X18KB/gdbyN8z1SXCK8xtMshBY4OrfAycJuRwzLuK+KIiiiLXy5Th9VAiQKjMCbaX4H7NwXsZ+LEd9INsPNUuTJrwXEz50RBNXXa8UCLwt5EvSTAeYrZ8QIz8un8lPyLr7D02576vzQK6AyAK/bxigWUioRMQwn8UWciHWe6k9AwWY2uJPW2FMiUioFvhGN1Qbk/swG/RDbtaCsmV244Is46/m5P1hsgAWNYhVu7qdclpTtveoCGsaaOtBaWwEP3JlNDJYAA6ssuzzM/LQa/p+fpztjfYmJomgAAAAASUVORK5CYII=") 32 32, auto; }
+    body * { cursor: inherit; }
+    a, button, select, [role="button"], [tabindex]:not([tabindex="-1"]), .modifier-card, .pet-open { cursor: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAQAAAAAYLlVAAAACXBIWXMAAAsTAAALEwEAmpwYAAACfklEQVR42u2XvW4TQRCA536d8+56d+fufDZxsE2CExKiWHYBIk1KhJTSBRINtGnpCV0iUUCVgoaKDiGeILwAAoknCAjaGB6AwT+EUyITCUV7afYbadv5drSzmgGLxWKxWCwWi8VisVgslougWvoQCT+qFlwKLn7aJ6J90ofgQME44IKHNAVp4JEDTrECPpRyASgNvEIFdl0IM5YLpBwCcKEoyAG/EUmdC0jdiMArUiDIGE9zAfyBx/iiuBo4EAJPaycCOzSko9EZv8fjUTwvQKCW6pvl+onAEY0Z/hXBXTALvmrTBuFXpD+cEcFjcA32BD58QEMiOiCk2SBBCC45Rp7fwMOnOzTl4J8CGesHZmrgQoCPkV7TeSBdnbQlmfj/GpFq4pc2fT5XQCRQhgAMCASrnFf1PfzZpaNzBFgt5YYEEsEyuageIXVpSLMYElJSBwEGXoHTD4DxdK6t19UzTds0iz3SVK5jxUgFBh7MKRXPi47q4kukvRnpkfBNUk8EBIa6oF6ej6MFsSJ7+kN3Vvpvamv8Bsw0ojNWACYS1cI1fR/pNG3C73hXLvJq/hMYUFgNlwWvymt6/awAkt7GNdWsIERgbERxwINQy+RK0kE6HZrURnqd1bCyVPo1SW9OIRKxauq3k7R5vItXcAF0fn9TuBBiZVSDZdWNb4k7elNs4m3ZH5efp8AgIAeMMpmJRDJKd0NtyJ7slXuqy1dlm2VYgbCA2WjLb81pmdZUM11KOmJZdOSiarJMqUZefsNzsd+IsCJinrLaOHgVYi0hAv+JW9Rq4kMJooylPBEpzxhEUJqM506B29GWD0E/gGn44+SXsaY55ExPu7D/P78BkZfOX1sbuw0AAAAASUVORK5CYII=") 32 32, pointer; }
+    input[type="search"], .searchbox input { cursor: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAQAAAAAYLlVAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAX0lEQVR42u3WMRHAIBQE0VjglKCaFk0oAAebLhb+MNmnYK+7R5IkSbpYCNltZodQEgCLwYGqgNCBTghPjXzrDTDAAAMMMMCA8oA/HpIAh8GqvGRtt9l2CJ50SZIkXesF9VN4bw3fch0AAAAASUVORK5CYII=") 32 32, text; }
   </style>
 <script>window.PS99_STATIC_MODE=true;window.PS99_DATA_URL="./data.json";window.PS99_THUMBNAILS_URL="./thumbnails.json";</script>
 </head>
@@ -1403,7 +1415,7 @@
       const iconUrl = thumb(icon);
       const configMark = config && config.titanic ? "T" : config && config.gargantuan ? "G" : config && (config.huge || pet) ? "H" : "✦";
       const content = iconUrl ? '<img class="pet-art-image" data-pet-asset-index="' + Math.max(0, iconIndex) + '" src="' + esc(iconUrl) + '" alt="' + esc(label) + '" loading="lazy" decoding="async">' : '<span class="pet-placeholder">' + esc(configMark) + "</span>";
-      const effects = '<span class="pet-effect-rainbow" aria-hidden="true"></span><span class="pet-effect-stripes" aria-hidden="true"></span><span class="pet-effect-sweep" aria-hidden="true"></span>';
+      const effects = '<span class="pet-effect-rainbow" aria-hidden="true"></span><span class="pet-effect-clouds" aria-hidden="true"></span><span class="pet-effect-sparkles" aria-hidden="true"></span><span class="pet-effect-sweep" aria-hidden="true"></span>';
       return '<span class="pet-art ' + esc(className || "") + " " + esc(variantClass + fallbackClass) + '"><span class="pet-visual">' + content + effects + "</span></span>";
     }
     function uniqueAssetIds() {
