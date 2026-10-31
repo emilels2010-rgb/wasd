@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#ffffff">
+  <meta name="theme-color" content="#08090d">
   <meta name="description" content="Search current Pet Simulator 99 Huge, Titanic, and Gargantuan odds across egg pools, gift bags, chests, and enchant modifiers.">
   <title>PS99 Odds Atlas</title>
   <style>
@@ -592,6 +592,205 @@
       .pet-card { padding: 10px; }
       .game-tip { width: min(300px, calc(100vw - 18px)); }
     }
+    /* Dark pet index styling based on the supplied Cosmic Values reference. */
+    :root {
+      color-scheme: dark;
+      --bg: #08090d;
+      --panel: #12131a;
+      --panel-2: #1a1726;
+      --line: #292932;
+      --muted: #aaa6bb;
+      --text: #f4f1ff;
+      --cyan: #70c9d8;
+      --blue: #769ae8;
+      --gold: #f1c654;
+      --pink: #c49afd;
+      --green: #6ad5a8;
+      font-family: Arial, Helvetica, system-ui, sans-serif;
+    }
+    body { color: var(--text); background: radial-gradient(ellipse at 50% -18%, #302743 0, #12131a 36rem, #08090d 72rem); }
+    body::before { display: none; }
+    .shell { width: min(1480px, calc(100% - 48px)); }
+    .topbar { display: none; }
+    .hero { padding: 17px 0 18px; grid-template-columns: minmax(0, 1fr) 245px; gap: 24px; align-items: end; }
+    .eyebrow { color: #a99ac8; font-size: 9px; letter-spacing: .12em; }
+    .eyebrow::before { width: 5px; height: 5px; background: #bd91ff; }
+    h1 { margin: 0 0 5px; color: #fff; font-size: clamp(34px, 4.4vw, 44px); font-weight: 760; line-height: 1.08; letter-spacing: -.04em; }
+    h1 span { color: #d4c5ff; }
+    .hero-copy { max-width: 780px; color: #cfccd8; font-size: 13px; line-height: 1.48; }
+    .hero-side { padding: 9px 12px; border: 1px solid #393348; border-left: 3px solid #a77cf0; border-radius: 9px; background: rgba(20, 18, 29, .88); }
+    .side-label, .stat-label, .filter-label { color: #aaa5b8; }
+    .release-number { color: #fff; font-size: 14px; }
+    .release-state { color: #8bd8b9; }
+    .release-time { color: #aaa6b6; font-size: 10px; }
+    .atlas-layout { display: grid; grid-template-columns: 188px minmax(0, 1fr); gap: 24px; align-items: start; }
+    .filter-groups { position: sticky; top: 14px; display: flex; flex-direction: column; gap: 15px; min-width: 0; padding: 0; margin: 0; border: 0; background: transparent; }
+    .filter-group { display: block; min-width: 0; }
+    .filter-label { display: block; margin: 0 0 6px; font-size: 9px; font-weight: 800; letter-spacing: .1em; }
+    .filters { display: flex; flex-direction: column; gap: 6px; overflow: visible; }
+    .filter-btn { width: 100%; min-height: 35px; padding: 8px 12px; border: 1px solid #363340; border-radius: 9px; color: #f0edf8; background: linear-gradient(180deg, #1c1928, #14131c); text-align: left; font-size: 12px; font-weight: 700; transition: border-color .14s, background .14s, box-shadow .14s; }
+    .filter-btn:hover { border-color: #8665bc; color: #fff; background: #242030; }
+    .filter-btn.active { border-color: #c7a7ff; color: #fff; background: linear-gradient(180deg, #c09aff, #8b64d2); box-shadow: 0 0 15px rgba(168, 126, 238, .22); }
+    [data-kind="titanic"].active { border-color: #e6c76c; color: #fff; background: linear-gradient(180deg, #b58a4a, #80602d); }
+    [data-kind="huge"].active { border-color: #8ad3bd; color: #fff; background: linear-gradient(180deg, #61a98b, #36765f); }
+    [data-tab="egg"].active { border-color: #73bce2; background: linear-gradient(180deg, #5295b9, #326a8e); }
+    .atlas-main { min-width: 0; }
+    .toolbar { gap: 10px; margin: 2px 0 10px; }
+    .searchbox input { height: 47px; padding: 0 48px; border: 1px solid #514566; border-radius: 14px; color: #fff; background: linear-gradient(180deg, #221d30, #171420); box-shadow: inset 0 1px rgba(255,255,255,.04); font-size: 14px; font-weight: 600; }
+    .searchbox input::placeholder { color: #c4b7dc; }
+    .searchbox input:focus { border-color: #ba91ff; box-shadow: 0 0 0 2px rgba(171, 126, 239, .2); }
+    .searchbox svg { stroke: #d3c6f3; }
+    .search-hint { border-color: #594b70; border-radius: 4px; color: #d4c9e7; background: #211b2a; }
+    .refresh-btn { height: 47px; min-width: 104px; border: 1px solid #4b3c62; border-radius: 9px; color: #e7ddfa; background: #211b2d; }
+    .refresh-btn:hover { border-color: #9872d0; background: #2b223b; transform: none; }
+    .toolbar-options { display: flex; align-items: center; gap: 10px; min-height: 39px; margin: 0 0 8px; }
+    .variant-select { display: flex; align-items: center; gap: 8px; }
+    .variant-select .filter-label { margin: 0; white-space: nowrap; }
+    .variant-select select { min-width: 158px; height: 36px; padding: 0 32px 0 11px; border: 1px solid #3a3745; border-radius: 7px; color: #f4f0fb; background: #191720; font: inherit; font-size: 11px; font-weight: 700; }
+    .variant-select select:focus { outline: 2px solid #956dc8; outline-offset: 1px; }
+    .variant-note { color: #898496; font-size: 9px; }
+    .stats { display: flex; align-items: center; justify-content: flex-end; gap: 17px; margin: 0 0 8px; padding: 0; border: 0; background: transparent; overflow: visible; }
+    .stat { min-height: auto; padding: 2px 0; border: 0; background: transparent; }
+    .stat-label { font-size: 8px; letter-spacing: .08em; }
+    .stat-value { margin-top: 3px; color: #eee9fa; font-size: 15px; font-weight: 750; }
+    .stat-value.cyan { color: #82d2e0; }
+    .stat-value.gold { color: #e8c55d; }
+    .coverage-note { gap: 8px; padding: 8px 10px; margin-bottom: 12px; border: 1px solid #39333f; border-left: 2px solid #b796e8; border-radius: 6px; color: #b9b4c4; background: rgba(22, 19, 28, .74); font-size: 10px; line-height: 1.45; }
+    .coverage-note strong { color: #e0d5f5; }
+    .coverage-icon { width: 18px; height: 18px; flex-basis: 18px; border-radius: 5px; color: #21192c; background: #bfa1ed; font-size: 11px; }
+    .section-head { margin: 13px 0 9px; align-items: center; }
+    .section-title { color: #f3effb; font-size: 18px; font-weight: 750; letter-spacing: -.02em; }
+    .section-subtitle, .result-count { color: #a39eae; font-size: 10px; }
+    .cards, .panel-grid, .loading { gap: 11px; }
+    .cards { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+    .pet-card { min-width: 0; padding: 9px; border: 1px solid #292a33; border-radius: 14px; color: #f0edf8; background: linear-gradient(180deg, #15161e, #111219); box-shadow: 0 4px 12px rgba(0,0,0,.14); transition: border-color .15s, background .15s; }
+    .pet-card:hover { transform: none; border-color: #49435c; background: linear-gradient(180deg, #191922, #12131a); box-shadow: 0 8px 22px rgba(0,0,0,.2); }
+    .pet-open { display: block; width: 100%; height: 136px; padding: 0; border: 0; border-radius: 0; overflow: visible; background: transparent; box-shadow: none; cursor: pointer; }
+    .pet-open:hover img { transform: scale(1.035); }
+    .pet-art { position: relative; width: 100%; height: 100%; display: grid; place-items: center; overflow: hidden; border: 1px dashed #5794aa; border-radius: 12px; background: radial-gradient(ellipse at 26% 22%, #604e8a, #222440 61%, #172a3a); box-shadow: inset 0 0 20px rgba(123, 100, 187, .16); }
+    .pet-art-image { position: relative; z-index: 1; display: block; width: min(66%, 104px); height: min(76%, 104px); object-fit: contain; border: 2px solid #07080c; border-radius: 0 !important; background: #dce5ed; box-shadow: 0 4px 13px rgba(0,0,0,.45); transition: transform .16s, filter .16s; }
+    .pet-art .pet-placeholder { position: relative; z-index: 1; width: min(66%, 104px); height: min(76%, 104px); display: grid; place-items: center; border: 2px solid #07080c; color: #201d28; background: #dce5ed; font-size: 27px; }
+    .pet-art-modal { width: 96px; height: 88px; flex: 0 0 96px; }
+    .pet-art-row { width: 32px; height: 30px; }
+    .game-tip-image .pet-art { width: 72px; height: 72px; border-radius: 4px; }
+    .game-tip-image .pet-art-image, .game-tip-image .pet-art .pet-placeholder { width: 48px; height: 54px; }
+    .pet-art-row .pet-art-image, .pet-art-row .pet-placeholder { width: 24px; height: 24px; }
+    .pet-art.variant-gold, .pet-art.variant-shiny-gold { border-color: #e7c65a; background: radial-gradient(ellipse at 25% 20%, #876e3e, #392e25 62%, #211c19); box-shadow: inset 0 0 21px rgba(255, 208, 72, .19), 0 0 12px rgba(227, 189, 70, .13); }
+    .pet-art.variant-fallback .pet-art-image { filter: sepia(1) saturate(2) hue-rotate(350deg) brightness(1.06); }
+    .pet-art.variant-rainbow, .pet-art.variant-shiny-rainbow { border-color: #b17cf0; background: radial-gradient(ellipse at 20% 18%, #774f9d, #242443 62%, #17283a); box-shadow: inset 0 0 19px rgba(197, 123, 246, .2), 0 0 13px rgba(141, 108, 222, .13); }
+    .pet-art.variant-rainbow::before, .pet-art.variant-shiny-rainbow::before { position: absolute; z-index: 2; inset: 0; content: ""; pointer-events: none; background: linear-gradient(118deg, rgba(255,62,105,.42), rgba(255,198,67,.30) 22%, rgba(117,255,106,.32) 44%, rgba(78,196,255,.38) 67%, rgba(208,95,255,.4)); mix-blend-mode: color; opacity: .7; }
+    .pet-art.variant-rainbow .pet-art-image, .pet-art.variant-shiny-rainbow .pet-art-image { filter: saturate(1.25) contrast(1.03); }
+    .pet-art.variant-shiny::after, .pet-art.variant-shiny-gold::after, .pet-art.variant-shiny-rainbow::after { position: absolute; z-index: 3; inset: -30%; content: ""; pointer-events: none; background: radial-gradient(circle at 25% 30%, rgba(255,255,255,.95) 0 1px, transparent 3px), radial-gradient(circle at 72% 22%, rgba(255,245,196,.95) 0 1.5px, transparent 4px), radial-gradient(circle at 69% 76%, rgba(255,255,255,.9) 0 1px, transparent 3px), linear-gradient(112deg, transparent 37%, rgba(255,255,255,.36) 49%, transparent 57%); mix-blend-mode: screen; opacity: .68; animation: pet-shimmer 3.6s ease-in-out infinite; }
+    .pet-art.variant-shiny, .pet-art.variant-shiny-gold, .pet-art.variant-shiny-rainbow { box-shadow: inset 0 0 22px rgba(255,255,255,.16), 0 0 15px rgba(180,153,255,.18); }
+    @keyframes pet-shimmer { 0%, 20% { transform: translateX(-13%) rotate(-5deg); opacity: .18; } 55% { opacity: .72; } 100% { transform: translateX(13%) rotate(5deg); opacity: .25; } }
+    .pet-title-wrap { min-width: 0; margin-top: 8px; }
+    .pet-name { margin: 0; overflow: hidden; color: #f5f1fb; font-size: 12px; font-weight: 750; line-height: 1.28; letter-spacing: -.01em; text-overflow: ellipsis; white-space: nowrap; }
+    .pet-name.huge, .pet-name.titanic, .pet-name.gargantuan { color: #f5f1fb; text-shadow: none; }
+    .pet-meta { display: flex; align-items: center; gap: 6px; margin-top: 3px; min-width: 0; }
+    .pet-kind { margin: 0; padding: 0; border: 0 !important; border-radius: 0; color: #aaa5b7 !important; background: transparent !important; font-size: 8px; font-weight: 750; letter-spacing: .04em; }
+    .variant-label { overflow: hidden; color: #b6abc9; font-size: 8px; font-weight: 750; text-overflow: ellipsis; white-space: nowrap; }
+    .pool-count { overflow: hidden; margin-left: auto; color: #8d889a; font-size: 8px; text-overflow: ellipsis; white-space: nowrap; }
+    .card-divider { height: 1px; margin: 7px 0 6px; background: #282933; }
+    .source-list { display: grid; gap: 2px; }
+    .source-row { grid-template-columns: 27px minmax(0, 1fr) auto; gap: 6px; padding: 3px; border-radius: 5px; }
+    .source-row:hover, .source-row:focus-visible { border-color: #393347; background: #1a1921; }
+    .source-thumb { width: 27px; height: 27px; border: 1px solid #30303a; border-radius: 4px; background: #1b1b24; }
+    .source-thumb img { border-radius: 2px; }
+    .source-fallback { color: #b99ae6; }
+    .source-name { color: #e8e3f1; font-size: 9px; font-weight: 650; }
+    .source-status { color: #9691a1; font-size: 8px; }
+    .source-odds { color: #d8cbf2; font-size: 9px; }
+    .source-odds small { color: #9b95a8; font-size: 8px; }
+    .more-sources { color: #928ba0; font-size: 8px; }
+    .no-odds { padding: 8px; border: 1px dashed #373541; border-radius: 6px; color: #aaa5b5; background: #17171e; font-size: 9px; }
+    .empty { border: 1px dashed #40394d; border-radius: 10px; color: #bcb5ca; background: #13131a; }
+    .empty strong { color: #f2edfb; }
+    .load-more { border: 1px solid #4b3c62; border-radius: 8px; color: #e7ddfa; background: #211b2d; }
+    .load-more:hover { background: #2b223b; }
+    .modifier-card { min-height: 150px; padding: 12px; border: 1px solid #302d3a; border-radius: 11px; background: #14141b; }
+    .modifier-card:hover { transform: none; border-color: #73559b; background: #1a1822; }
+    .modifier-icon { border: 1px solid #40364f; border-radius: 8px; background: #231d30; }
+    .modifier-name { color: #f3effa; }
+    .modifier-class { color: #ba9be0; }
+    .modifier-copy { color: #b4afbd; }
+    .modifier-value { color: #d2b5ff; }
+    .unavailable-card { border: 1px solid #51442d; border-left: 3px solid #d4af52; border-radius: 8px; color: #eee3c3; background: #211d18; }
+    .unavailable-icon { color: #f1d67d; background: #3b3020; }
+    .unavailable-card p { color: #c4b99c; }
+    .unavailable-card strong { color: #f4dd9a; }
+    .section-foot { color: #8f8a9b; font-size: 9px; }
+    .footer { margin-top: 24px; border-top: 1px solid #292932; color: #8e8999; }
+    .footer a { color: #c1a4ef; }
+    .skeleton { border: 1px solid #2a2932; border-radius: 13px; background: linear-gradient(100deg, #15151d 25%, #20202a 38%, #15151d 62%); background-size: 400% 100%; animation: shimmer 1.8s ease infinite; }
+    dialog { border: 1px solid #51465e; border-radius: 13px; color: #f1eef8; background: #14141b; box-shadow: 0 24px 70px rgba(0,0,0,.72); }
+    dialog::backdrop { background: rgba(3, 3, 7, .78); backdrop-filter: blur(4px); }
+    .modal-head { border-bottom-color: #302d38; }
+    .modal-kicker, .modal-odds { color: #d3b6ff; }
+    .modal-title { color: #faf8ff; }
+    .modal-close { border-color: #423b4d; color: #d8d1e5; background: #201d28; }
+    .modal-content { color: #ebe6f2; }
+    .modal-image { display: grid; place-items: center; border: 1px solid #302d38; border-radius: 10px; background: #191821; }
+    .modal-desc { color: #c0bbc9; }
+    .modal-label { color: #a69eaf; }
+    .modal-source { border-bottom-color: #302d38; }
+    .modal-source img { border-color: #36323f; border-radius: 4px; background: #201d28; }
+    .modal-source-name { color: #ebe6f2; }
+    .modal-source-sub { color: #9b95a5; }
+    .game-tip { border: 1px solid #a489c9; border-radius: 5px; color: #f5f2fa; background: linear-gradient(150deg,#262233,#14141b 72%); box-shadow: 0 8px 25px rgba(0,0,0,.65); }
+    .game-tip.kind-huge { border-color: #73c3a3; }
+    .game-tip.kind-titanic { border-color: #e5c15e; }
+    .game-tip.kind-gargantuan, .game-tip.kind-enchant { border-color: #bb8bec; }
+    .game-tip-head, .game-tip.kind-huge .game-tip-head, .game-tip.kind-titanic .game-tip-head, .game-tip.kind-gargantuan .game-tip-head, .game-tip.kind-enchant .game-tip-head { border-bottom-color: rgba(255,255,255,.1); background: #282334; }
+    .game-tip.kind-huge .game-tip-head { background: #205541; }
+    .game-tip.kind-titanic .game-tip-head { background: #6b5425; }
+    .game-tip.kind-gargantuan .game-tip-head, .game-tip.kind-enchant .game-tip-head { background: #57367a; }
+    .game-tip-title { color: #fff; text-shadow: 0 1px 2px #14121b; }
+    .game-tip-rarity { border-color: rgba(255,255,255,.2); color: #fff; background: rgba(0,0,0,.28); }
+    .game-tip-image { border: 1px solid rgba(255,255,255,.14); border-radius: 4px; background: #303043; }
+    .game-tip-subtitle { color: #e3ddec; }
+    .game-tip-desc { color: #c5bfce; }
+    .game-tip-foot { border-top-color: rgba(255,255,255,.1); background: rgba(0,0,0,.18); }
+    .game-tip-line, .game-tip-line strong { color: #eee9f4; }
+    .game-tip-line span:first-child { color: #aaa2b4; }
+    .game-tip-line strong.chance { color: #ffe394; }
+    .game-tip-line strong.gargantuan { color: #e1c1ff; }
+    .error-line { color: #ffc8ce; background: #27181e; border-color: #57313c; }
+    .muted { color: #aaa3b2; }
+    @media (max-width: 1180px) { .cards { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+    @media (max-width: 960px) { .atlas-layout { grid-template-columns: 165px minmax(0, 1fr); gap: 17px; } .cards { grid-template-columns: repeat(3, minmax(0, 1fr)); } .hero { grid-template-columns: minmax(0, 1fr) 220px; } }
+    @media (max-width: 720px) {
+      .shell { width: min(100% - 28px, 620px); }
+      .hero { display: block; padding: 16px 0 14px; }
+      h1 { font-size: clamp(32px, 8vw, 42px); }
+      .hero-side { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 10px; padding: 8px 10px; }
+      .release-line { margin: 0; }
+      .release-time { margin: 0; }
+      .atlas-layout { display: block; }
+      .filter-groups { position: static; display: grid; grid-template-columns: 1fr; gap: 10px; margin: 0 0 12px; padding: 10px; border: 1px solid #302d38; border-radius: 10px; background: #13131a; }
+      .filter-group { display: block; }
+      .filters { flex-direction: row; overflow-x: auto; gap: 5px; padding-bottom: 2px; }
+      .filter-btn { width: auto; min-height: 31px; flex: 0 0 auto; padding: 6px 9px; font-size: 10px; }
+      .toolbar { gap: 7px; }
+      .refresh-btn { min-width: 43px; width: 43px; padding: 0; font-size: 0; }
+      .toolbar-options { justify-content: space-between; }
+      .variant-select { gap: 6px; }
+      .variant-select select { min-width: 138px; }
+      .stats { justify-content: space-between; gap: 7px; }
+      .stat-label { font-size: 7px; }
+      .stat-value { font-size: 13px; }
+      .coverage-note { margin-bottom: 10px; }
+      .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
+      .pet-card { padding: 7px; border-radius: 11px; }
+      .pet-open { height: 120px; }
+      .pet-title-wrap { margin-top: 7px; }
+      .pet-name { font-size: 11px; }
+      .source-row { grid-template-columns: 24px minmax(0, 1fr) auto; gap: 4px; }
+      .source-thumb { width: 24px; height: 24px; }
+      .source-name { font-size: 8px; }
+      .source-odds { font-size: 8px; }
+    }
+    @media (max-width: 410px) { .cards { grid-template-columns: 1fr; } .pet-open { height: 150px; } .stats { flex-wrap: wrap; } .variant-note { display: none; } }
+    @media (prefers-reduced-motion: reduce) { .pet-art.variant-shiny::after, .pet-art.variant-shiny-gold::after, .pet-art.variant-shiny-rainbow::after { animation: none; } }\n   </style>
   </style>
 <script>window.PS99_STATIC_MODE=true;window.PS99_DATA_URL="./data.json";window.PS99_THUMBNAILS_URL="./thumbnails.json";</script>
 </head>
@@ -621,37 +820,14 @@
           <div class="release-time" id="releaseTime">Waiting for the public API</div>
         </aside>
       </section>
-
-      <div class="toolbar">
-        <label class="searchbox">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"></circle><path d="m16 16 5 5"></path></svg>
-          <input id="search" type="search" autocomplete="off" placeholder="Search a pet, egg, gift bag, or enchant…" aria-label="Search pets and odds sources">
-          <span class="search-hint">/</span>
-        </label>
-        <button class="refresh-btn" id="refresh" type="button" aria-label="Refresh game data" title="Refresh now">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5"></path><path d="M5.5 9a7 7 0 0 1 11.8-2L20 12M4 12l2.7 5a7 7 0 0 0 11.8-2"></path></svg>
-          Refresh
-        </button>
-      </div>
-
-      <section class="stats" aria-label="Tracker overview">
-        <div class="stat"><div class="stat-label">Rare pets</div><div class="stat-value cyan" id="statPets">—</div></div>
-        <div class="stat"><div class="stat-label">Weighted pools</div><div class="stat-value" id="statPools">—</div></div>
-        <div class="stat"><div class="stat-label">Gift pools</div><div class="stat-value gold" id="statGifts">—</div></div>
-        <div class="stat"><div class="stat-label">Luck modifiers</div><div class="stat-value" id="statModifiers">—</div></div>
-      </section>
-
-      <div class="coverage-note" role="note">
-        <span class="coverage-icon">i</span>
-        <span><strong>Rates use the published pool weights.</strong> Exclusive Eggs are left out. The game feed can retain old timed sources and often does not mark them inactive, so those entries are labeled unconfirmed. When a source mentions a pet but publishes no rate, it stays listed without a guessed percentage.</span>
-      </div>
-
-      <section aria-labelledby="catalogTitle">
-        <div class="section-head">
-          <div><h2 class="section-title" id="catalogTitle">Pet index</h2><p class="section-subtitle" id="catalogSubtitle">Loading the latest game config…</p></div>
-          <span class="result-count" id="resultCount"></span>
-        </div>
-        <div class="filter-groups" id="sourceFilters">
+      <div class="atlas-layout">
+        <aside class="filter-groups" id="sourceFilters" aria-label="Catalog filters">
+          <div class="filter-group"><span class="filter-label">PET TYPE</span><nav class="filters" aria-label="Filter by pet type">
+            <button class="filter-btn active" type="button" data-kind="all" id="allKindFilter">All rare pets</button>
+            <button class="filter-btn" type="button" data-kind="gargantuan" id="gargantuanKindFilter">Gargantuan</button>
+            <button class="filter-btn" type="button" data-kind="titanic" id="titanicKindFilter">Titanic</button>
+            <button class="filter-btn" type="button" data-kind="huge" id="hugeKindFilter">Huge</button>
+          </nav></div>
           <div class="filter-group"><span class="filter-label">SOURCE</span><nav class="filters" aria-label="Filter by source">
             <button class="filter-btn active" type="button" data-tab="all">All sources</button>
             <button class="filter-btn" type="button" data-tab="active">Active Huges</button>
@@ -662,19 +838,53 @@
             <button class="filter-btn" type="button" data-tab="enchant">Enchants</button>
             <button class="filter-btn" type="button" data-tab="extras">Rewards &amp; boosts</button>
           </nav></div>
-          <div class="filter-group"><span class="filter-label">PET TYPE</span><nav class="filters" aria-label="Filter by pet type">
-            <button class="filter-btn active" type="button" data-kind="all" id="allKindFilter">All rare pets</button>
-            <button class="filter-btn" type="button" data-kind="huge" id="hugeKindFilter">Huge</button>
-            <button class="filter-btn" type="button" data-kind="titanic" id="titanicKindFilter">Titanic</button>
-            <button class="filter-btn" type="button" data-kind="gargantuan" id="gargantuanKindFilter">Gargantuan</button>
-          </nav></div>
+        </aside>
+        <div class="atlas-main">
+          <div class="toolbar">
+            <label class="searchbox">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"></circle><path d="m16 16 5 5"></path></svg>
+              <input id="search" type="search" autocomplete="off" placeholder="Search for a pet or odds source…" aria-label="Search pets and odds sources">
+              <span class="search-hint">/</span>
+            </label>
+            <button class="refresh-btn" id="refresh" type="button" aria-label="Refresh game data" title="Refresh now">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5"></path><path d="M5.5 9a7 7 0 0 1 11.8-2L20 12M4 12l2.7 5a7 7 0 0 0 11.8-2"></path></svg>
+              Refresh
+            </button>
+          </div>
+          <div class="toolbar-options">
+            <label class="variant-select"><span class="filter-label">PET VARIANT</span><select id="variantSelect" aria-label="Pet icon variant">
+              <option value="normal">Normal</option>
+              <option value="gold">Gold</option>
+              <option value="rainbow">Rainbow</option>
+              <option value="shiny">Shiny</option>
+              <option value="shiny-gold">Shiny Gold</option>
+              <option value="shiny-rainbow">Shiny Rainbow</option>
+            </select></label>
+            <span class="variant-note">Visual preview only · odds remain at the base rate</span>
+          </div>
+          <section class="stats" aria-label="Tracker overview">
+            <div class="stat"><div class="stat-label">Rare pets</div><div class="stat-value cyan" id="statPets">—</div></div>
+            <div class="stat"><div class="stat-label">Weighted pools</div><div class="stat-value" id="statPools">—</div></div>
+            <div class="stat"><div class="stat-label">Gift pools</div><div class="stat-value gold" id="statGifts">—</div></div>
+            <div class="stat"><div class="stat-label">Luck modifiers</div><div class="stat-value" id="statModifiers">—</div></div>
+          </section>
+          <div class="coverage-note" role="note">
+            <span class="coverage-icon">i</span>
+            <span><strong>Rates use the published pool weights.</strong> Exclusive Eggs are left out. The game feed can retain old timed sources and often does not mark them inactive, so those entries are labeled unconfirmed. When a source mentions a pet but publishes no rate, it stays listed without a guessed percentage.</span>
+          </div>
+          <section class="catalog-section" aria-labelledby="catalogTitle">
+            <div class="section-head">
+              <div><h2 class="section-title" id="catalogTitle">Pet index</h2><p class="section-subtitle" id="catalogSubtitle">Loading the latest game config…</p></div>
+              <span class="result-count" id="resultCount"></span>
+            </div>
+            <div id="errorBox"></div>
+            <div class="cards" id="cards" aria-live="polite"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>
+            <button class="load-more" id="loadMore" type="button" hidden>Show more pets</button>
+            <div class="source-panel" id="specialPanel"></div>
+            <p class="section-foot" id="dataFoot"></p>
+          </section>
         </div>
-        <div id="errorBox"></div>
-        <div class="cards" id="cards" aria-live="polite"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>
-        <button class="load-more" id="loadMore" type="button" hidden>Show more pets</button>
-        <div class="source-panel" id="specialPanel"></div>
-        <p class="section-foot" id="dataFoot"></p>
-      </section>
+      </div>
     </main>
 
     <footer class="footer">
@@ -690,7 +900,7 @@
   <div id="gameTip" class="game-tip" role="tooltip" hidden></div>
 
   <script>
-    const state = { pools: [], pets: [], modifiers: [], otherSources: [], missingChests: [], thumbs: {}, thumbMisses: new Set(), thumbPending: new Set(), thumbIndex: null, petIndex: new Map(), poolIndex: new Map(), modifierIndex: new Map(), otherSourceIndex: new Map(), filterCacheKey: null, filteredPets: null, tab: "all", kind: "all", query: "", showLimit: 18, data: null, lastChecked: null, busy: false };
+    const state = { pools: [], pets: [], modifiers: [], otherSources: [], missingChests: [], thumbs: {}, thumbMisses: new Set(), thumbPending: new Set(), thumbIndex: null, petIndex: new Map(), poolIndex: new Map(), modifierIndex: new Map(), otherSourceIndex: new Map(), filterCacheKey: null, filteredPets: null, tab: "all", kind: "all", variant: "normal", query: "", showLimit: 18, data: null, lastChecked: null, busy: false };
     const apiCacheKey = "ps99-odds-atlas-cache-v2";
     const recentDays = 60;
     const pageSize = 18;
@@ -1084,7 +1294,22 @@
     }
     function getPetAsset(pet) {
       const config = pet && pet.configData ? pet.configData : {};
+      if ((state.variant === "gold" || state.variant === "shiny-gold") && config.goldenThumbnail) return assetId(config.goldenThumbnail);
       return assetId(config.thumbnail || config.Thumbnail || config.icon || "");
+    }
+    function petVariantLabel() {
+      return ({ normal: "NORMAL", gold: "GOLD", rainbow: "RAINBOW", shiny: "SHINY", "shiny-gold": "SHINY GOLD", "shiny-rainbow": "SHINY RAINBOW" })[state.variant] || "NORMAL";
+    }
+    function petIconHtml(pet, label, className) {
+      const config = pet && pet.configData ? pet.configData : {};
+      const goldMode = state.variant === "gold" || state.variant === "shiny-gold";
+      const fallback = goldMode && !assetId(config.goldenThumbnail);
+      const variantClass = "variant-" + String(state.variant || "normal");
+      const fallbackClass = fallback ? " variant-fallback" : "";
+      const icon = getPetAsset(pet);
+      const configMark = pet && pet.configData ? (pet.configData.titanic ? "T" : pet.configData.gargantuan ? "G" : "H") : "✦";
+      const content = thumb(icon) ? iconHtml(icon, label, "pet-art-image") : '<span class="pet-placeholder">' + esc(configMark) + "</span>";
+      return '<span class="pet-art ' + esc(className || "") + " " + esc(variantClass + fallbackClass) + '" title="' + esc(petVariantLabel() + (fallback ? " · golden icon unavailable; showing an effect preview" : "")) + '">' + content + "</span>";
     }
     function uniqueAssetIds() {
       const ids = new Set();
@@ -1276,15 +1501,14 @@
         const extraSources = asArray(pet.otherSources).filter(function(item) { return state.tab === "all" || item.type === state.tab; });
         const shown = petSources.slice(0, 3);
         const extraShown = extraSources.slice(0, Math.max(0, 3 - shown.length));
-        const asset = getPetAsset(pet.pet);
         const config = pet.pet && pet.pet.configData ? pet.pet.configData : {};
         const sourceSummary = String(config.indexDesc || "").split(/\n+/)[0].trim();
         const allShown = shown.map(sourceRowHtml).concat(extraShown.map(chanceSourceRowHtml));
         const totalSources = petSources.length + extraSources.length;
         const oddsHtml = allShown.length ? allShown.join("") : '<div class="no-odds" title="' + esc(sourceSummary) + '">No non-exclusive odds published · current availability unconfirmed.' + (sourceSummary ? ' Game index note: ' + esc(sourceSummary) : ' No source detail in feed.') + '</div>';
         return '<article class="pet-card ' + esc(pet.kind.toLowerCase()) + '">' +
-          '<div class="pet-top"><button class="pet-open" type="button" data-pet-key="' + esc(encodeURIComponent(pet.name)) + '" data-tip-type="pet" data-tip-key="' + esc(encodeURIComponent(pet.name)) + '" aria-label="Open details for ' + esc(pet.name) + '">' + (thumb(asset) ? iconHtml(asset, pet.name, "") : '<span class="pet-placeholder">' + esc(pet.kind === "Titanic" ? "T" : pet.kind === "Gargantuan" ? "G" : "H") + '</span>') + '</button>' +
-          '<div class="pet-title-wrap"><h3 class="pet-name ' + esc(pet.kind.toLowerCase()) + '">' + esc(pet.name) + '</h3><span class="pet-kind ' + esc(pet.kind.toLowerCase()) + '">' + esc(pet.kind) + '</span></div><span class="pool-count">' + (totalSources ? totalSources + (totalSources === 1 ? " source" : " sources") : "No odds") + '</span></div>' +
+          '<button class="pet-open" type="button" data-pet-key="' + esc(encodeURIComponent(pet.name)) + '" data-tip-type="pet" data-tip-key="' + esc(encodeURIComponent(pet.name)) + '" aria-label="Open details for ' + esc(pet.name) + '">' + petIconHtml(pet.pet, pet.name, "") + '</button>' +
+          '<div class="pet-title-wrap"><h3 class="pet-name ' + esc(pet.kind.toLowerCase()) + '">' + esc(pet.name) + '</h3><div class="pet-meta"><span class="pet-kind ' + esc(pet.kind.toLowerCase()) + '">' + esc(pet.kind) + '</span><span class="variant-label">' + esc(petVariantLabel()) + '</span><span class="pool-count">' + (totalSources ? totalSources + (totalSources === 1 ? " source" : " sources") : "No odds") + '</span></div></div>' +
           '<div class="card-divider"></div><div class="source-list">' + oddsHtml + '</div>' +
           (totalSources > allShown.length ? '<div class="more-sources">+' + (totalSources - allShown.length) + ' more source' + (totalSources - allShown.length === 1 ? "" : "s") + ' · open pet details</div>' : '') +
           '</article>';
@@ -1410,8 +1634,8 @@
     function tipLine(label, value, accent) {
       return '<div class="game-tip-line"><span>' + esc(label) + '</span><strong' + (accent ? ' class="' + esc(accent) + '"' : '') + '>' + esc(value) + '</strong></div>';
     }
-    function gameTipHtml(title, badge, kind, asset, mark, subtitle, description, lines) {
-      const image = thumb(asset) ? iconHtml(asset, title, "") : '<span>' + esc(mark || "✦") + '</span>';
+    function gameTipHtml(title, badge, kind, asset, mark, subtitle, description, lines, imageMarkup) {
+      const image = imageMarkup || (thumb(asset) ? iconHtml(asset, title, "") : '<span>' + esc(mark || "✦") + '</span>');
       return '<div class="game-tip kind-' + esc(String(kind || "item").toLowerCase()) + '">' +
         '<div class="game-tip-head"><strong class="game-tip-title">' + esc(title) + '</strong><span class="game-tip-rarity">' + esc(badge) + '</span></div>' +
         '<div class="game-tip-body"><div class="game-tip-image">' + image + '</div><div class="game-tip-copy"><div class="game-tip-subtitle">' + esc(subtitle || "") + '</div><div class="game-tip-desc">' + esc(description || "") + '</div></div></div>' +
@@ -1433,7 +1657,7 @@
         extraSources.slice(0, 2).forEach(function(source) { lines.push(tipLine(source.name, source.chanceNote, "chance")); });
         lines.push(tipLine("Odds / source notes", String(pet.sources.length + extraSources.length)));
         if (pet.sources.some(function(source) { return source.pool.availability.confidence === "unconfirmed"; })) lines.push(tipLine("Availability", "Activity unconfirmed"));
-        return gameTipHtml(pet.name, pet.kind, pet.kind.toLowerCase(), getPetAsset(pet.pet), pet.kind.charAt(0), "Rare pet · hover preview", description, lines);
+        return gameTipHtml(pet.name, pet.kind, pet.kind.toLowerCase(), getPetAsset(pet.pet), pet.kind.charAt(0), "Rare pet · hover preview", description, lines, petIconHtml(pet.pet, pet.name, "game-tip-pet-art"));
       }
       if (type === "source") {
         const pool = sourceMap().get(key);
@@ -1524,7 +1748,6 @@
       hideGameTip();
       $("modalKicker").textContent = pet.kind + " · base chances";
       $("modalTitle").textContent = pet.name;
-      const image = getPetAsset(pet.pet);
       const sources = pet.sources.slice().sort(function(a, b) { return a.odds.pct - b.odds.pct; });
       const config = pet.pet && pet.pet.configData ? pet.pet.configData : {};
       const description = String(config.indexDesc || "Game source details are not provided in the public feed.");
@@ -1532,7 +1755,7 @@
       const sourceBody = sources.map(function(source) { return '<div class="modal-source"><div class="source-thumb">' + iconHtml(source.pool.icon, source.pool.name, "") + '</div><div><div class="modal-source-name">' + esc(source.pool.name) + '</div><div class="modal-source-sub">' + esc(source.pool.category) + ' · ' + esc(source.pool.availability.status) + '</div></div><div class="modal-odds">' + esc(pctLabel(source.odds.pct)) + '<br><span class="muted">' + esc(oddsSubLabel(source, source.odds)) + '</span></div></div>'; }).join("") + extraSources.map(function(item) { return '<div class="modal-source"><div class="source-thumb">' + iconHtml(item.icon, item.name, "") + '</div><div><div class="modal-source-name">' + esc(item.name) + '</div><div class="modal-source-sub">' + esc(item.group) + ' · ' + esc(item.activity) + '</div></div><div class="modal-odds"><span class="muted">' + esc(item.chanceNote) + '</span></div></div>'; }).join("") || '<div class="no-odds">No non-exclusive odds or reward source is published for this pet. The game index source note is shown above; current availability and exact chances cannot be confirmed from the public feed.</div>';
       const hasActivePool = sources.some(isActiveHugeSource);
       const activeNote = hasActivePool ? ' For Active Huge Egg, the feed exposes relative weights among the listed Active Huge outcomes, not the chance that a hatch produces an Active Huge.' : '';
-      $("modalContent").innerHTML = '<div class="modal-hero"><div class="modal-image">' + (thumb(image) ? iconHtml(image, pet.name, "") : '<span class="pet-placeholder">' + esc(pet.kind === "Titanic" ? "T" : pet.kind === "Gargantuan" ? "G" : "H") + '</span>') + '</div><div><span class="pet-kind ' + esc(pet.kind.toLowerCase()) + '">' + esc(pet.kind) + '</span><p class="modal-desc">' + esc(description) + '</p></div></div><div class="modal-label">Non-exclusive odds and reward source notes</div>' + sourceBody + '<p class="section-foot">Pool odds are calculated from weights in the public game config. Chance mentions, rank rewards, and modifiers are shown with their actual meaning; missing drop rates are not estimated. Exclusive Eggs and their odds are excluded. Public data does not confirm current availability for every source.' + activeNote + '</p>';
+      $("modalContent").innerHTML = '<div class="modal-hero"><div class="modal-image">' + petIconHtml(pet.pet, pet.name, "pet-art-modal") + '</div><div><span class="pet-kind ' + esc(pet.kind.toLowerCase()) + '">' + esc(pet.kind) + '</span><p class="modal-desc">' + esc(description) + '</p></div></div><div class="modal-label">Non-exclusive odds and reward source notes</div>' + sourceBody + '<p class="section-foot">Pool odds are calculated from weights in the public game config. Chance mentions, rank rewards, and modifiers are shown with their actual meaning; missing drop rates are not estimated. Exclusive Eggs and their odds are excluded. Public data does not confirm current availability for every source.' + activeNote + '</p>';
       $("detailModal").showModal();
     }
     function showPool(id) {
@@ -1542,7 +1765,7 @@
       $("modalKicker").textContent = pool.type === "gift" ? "Gift odds pool" : pool.type === "egg" ? "Egg odds pool" : pool.type === "chest" ? "Chest & drop odds pool" : "Game odds pool";
       $("modalTitle").textContent = pool.name;
       const oddsRows = pool.odds.slice().sort(function(a, b) { return a.pct - b.pct; });
-      const petBody = oddsRows.map(function(item) { const image = getPetAsset(item.pet); return '<div class="modal-source"><div class="source-thumb">' + iconHtml(image, item.name, "") + '</div><div><div class="modal-source-name">' + esc(item.name) + '</div><div class="modal-source-sub">' + esc(item.kind) + ' · weight ' + esc(item.weight) + '</div></div><div class="modal-odds">' + esc(pctLabel(item.pct)) + '<br><span class="muted">' + esc(isActiveHugeSource({ pool: pool }) ? "of listed active pool" : oneInLabel(item.oneIn)) + '</span></div></div>'; }).join("");
+      const petBody = oddsRows.map(function(item) { return '<div class="modal-source"><div class="source-thumb">' + petIconHtml(item.pet, item.name, "pet-art-row") + '</div><div><div class="modal-source-name">' + esc(item.name) + '</div><div class="modal-source-sub">' + esc(item.kind) + ' · weight ' + esc(item.weight) + '</div></div><div class="modal-odds">' + esc(pctLabel(item.pct)) + '<br><span class="muted">' + esc(isActiveHugeSource({ pool: pool }) ? "of listed active pool" : oneInLabel(item.oneIn)) + '</span></div></div>'; }).join("");
       const chance = pool.modifiers;
       const modifiers = [chance.goldDisabled ? "Gold disabled" : (chance.gold != null ? "Gold roll " + chance.gold + "%" : ""), chance.rainbowDisabled ? "Rainbow disabled" : (chance.rainbow != null ? "Rainbow roll " + chance.rainbow + "%" : ""), chance.shiny != null ? "Shiny roll " + chance.shiny + "%" : ""].filter(Boolean).join(" · ");
       const activePoolNote = isActiveHugeSource({ pool: pool }) ? ' For Active Huge Egg, these percentages show each listed pet’s share of the published Active Huge pool. The public feed does not provide the overall chance of hatching an Active Huge.' : '';
@@ -1571,6 +1794,7 @@
     }
     document.querySelectorAll("[data-tab]").forEach(function(button) { button.addEventListener("click", function() { state.tab = button.dataset.tab; state.showLimit = pageSize; searchPendingKey = ""; updateFilterStyles(); if (state.data) render(); }); });
     document.querySelectorAll("[data-kind]").forEach(function(button) { button.addEventListener("click", function() { state.kind = button.dataset.kind; state.showLimit = pageSize; updateFilterStyles(); if (state.data) render(); }); });
+    $("variantSelect").addEventListener("change", function(event) { state.variant = event.target.value; state.showLimit = pageSize; if (state.data) render(); });
     $("search").addEventListener("input", function(event) { window.clearTimeout(searchTimer); const query = event.target.value.trim().toLowerCase(); searchTimer = window.setTimeout(function() { state.query = query; state.showLimit = pageSize; searchPendingKey = ""; if (state.data) render(); }, 180); });
     $("refresh").addEventListener("click", function() { loadData(true); });
     $("loadMore").addEventListener("click", function() { state.showLimit += pageSize; if (state.tab === "extras") renderChanceSources(); else render(); });
