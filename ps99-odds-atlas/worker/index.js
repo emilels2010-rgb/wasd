@@ -802,6 +802,40 @@ const page = String.raw`<!doctype html>
     }
     @media (max-width: 410px) { .cards { grid-template-columns: 1fr; } .pet-open { height: 150px; } .stats { flex-wrap: wrap; } .variant-note { display: none; } }
     @media (prefers-reduced-motion: reduce) { .pet-art.variant-shiny::after, .pet-art.variant-shiny-gold::after, .pet-art.variant-shiny-rainbow::after { animation: none; } }
+    /* Large, undistorted pet art with type-scaled icons and a cursor-following odds panel. */
+    .pet-open { height: 204px; overflow: hidden; }
+    .pet-art { width: 100%; height: 100%; border-radius: 6px; }
+    .pet-card .pet-art-image, .game-tip .pet-art-image { width: auto !important; height: auto !important; max-width: 96%; max-height: 96%; object-fit: contain; background: transparent; }
+    .pet-card.gargantuan .pet-art-image { max-width: 96%; max-height: 96%; }
+    .pet-card.titanic .pet-art-image { max-width: 82%; max-height: 82%; }
+    .pet-card.huge .pet-art-image { max-width: 66%; max-height: 66%; }
+    .pet-card .pet-art .pet-placeholder { width: 66%; height: 66%; }
+    .game-tip { width: min(560px, calc(100vw - 24px)); max-height: min(660px, calc(100vh - 18px)); overflow-y: auto; overscroll-behavior: contain; pointer-events: auto; scrollbar-color: #655477 #211c2b; scrollbar-width: thin; }
+    .game-tip-body { grid-template-columns: 166px minmax(0, 1fr); align-items: start; gap: 14px; padding: 14px; }
+    .game-tip-image { width: 100%; height: auto; aspect-ratio: 1; }
+    .game-tip-image .pet-art { width: 100%; height: 100%; }
+    .game-tip-image .pet-art-image, .game-tip-image .pet-art .pet-placeholder { width: auto !important; height: auto !important; max-width: 96%; max-height: 96%; }
+    .game-tip.kind-gargantuan .game-tip-body { grid-template-columns: 190px minmax(0, 1fr); }
+    .game-tip.kind-titanic .game-tip-body { grid-template-columns: 158px minmax(0, 1fr); }
+    .game-tip.kind-huge .game-tip-body { grid-template-columns: 126px minmax(0, 1fr); }
+    .game-tip.kind-titanic .game-tip-image .pet-art-image { max-width: 82%; max-height: 82%; }
+    .game-tip.kind-huge .game-tip-image .pet-art-image { max-width: 66%; max-height: 66%; }
+    .game-tip-foot { gap: 8px; padding: 12px 14px; }
+    .game-tip-line { gap: 14px; font-size: 11px; }
+    .game-tip-line span:first-child { flex: 1 1 auto; white-space: normal; }
+    .game-tip-line strong { font-size: 12px; }
+    .game-tip-subtitle { margin: 0; }
+    .pet-art.variant-rainbow::before, .pet-art.variant-shiny-rainbow::before { background: linear-gradient(125deg, #ff244d 0%, #ffb526 17%, #f5ff37 32%, #54f542 47%, #25e5ed 63%, #397bff 78%, #d62bff 92%, #ff244d 100%); background-size: 260% 260%; mix-blend-mode: color; opacity: .96; animation: pet-rainbow-flow 2.2s linear infinite; }
+    .pet-art.variant-rainbow .pet-art-image { filter: saturate(1.9) contrast(1.12); }
+    .pet-art.variant-shiny .pet-art-image, .pet-art.variant-shiny-gold .pet-art-image { filter: saturate(1.35) brightness(1.13) drop-shadow(0 0 8px rgba(255, 239, 170, .55)); }
+    .pet-art.variant-shiny-rainbow .pet-art-image { filter: saturate(2.1) contrast(1.16) drop-shadow(0 0 8px rgba(218, 162, 255, .6)); }
+    .pet-art.variant-shiny::after, .pet-art.variant-shiny-gold::after, .pet-art.variant-shiny-rainbow::after { inset: -45%; background: radial-gradient(circle at 18% 31%, rgba(255,255,255,.98) 0 1.5px, transparent 4px), radial-gradient(circle at 76% 22%, rgba(255,246,196,.98) 0 2px, transparent 5px), radial-gradient(circle at 64% 78%, rgba(255,255,255,.98) 0 1.5px, transparent 4px), radial-gradient(circle at 35% 65%, rgba(255,223,151,.85) 0 1px, transparent 4px), linear-gradient(112deg, transparent 29%, rgba(255,255,255,.08) 41%, rgba(255,255,255,.9) 49%, rgba(255,255,255,.16) 57%, transparent 70%); mix-blend-mode: screen; opacity: .92; animation: pet-shine-sweep 2.15s ease-in-out infinite; }
+    @keyframes pet-rainbow-flow { 0% { background-position: 0% 50%; filter: hue-rotate(0deg) saturate(1.35); } 100% { background-position: 100% 50%; filter: hue-rotate(360deg) saturate(1.35); } }
+    @keyframes pet-shine-sweep { 0% { transform: translate(-20%, -16%) rotate(-8deg); opacity: .28; } 42% { opacity: .98; } 100% { transform: translate(20%, 16%) rotate(-8deg); opacity: .4; } }
+    @media (max-width: 840px) { .pet-open { height: 188px; } .game-tip { width: min(520px, calc(100vw - 20px)); } }
+    @media (max-width: 720px) { .pet-open { height: clamp(155px, 39vw, 190px); } .game-tip { width: min(500px, calc(100vw - 18px)); } .game-tip.kind-gargantuan .game-tip-body, .game-tip.kind-titanic .game-tip-body, .game-tip.kind-huge .game-tip-body { grid-template-columns: 112px minmax(0, 1fr); } }
+    @media (max-width: 410px) { .pet-open { height: 150px; } .game-tip-body { grid-template-columns: 94px minmax(0, 1fr); gap: 9px; padding: 10px; } }
+    @media (prefers-reduced-motion: reduce) { .pet-art.variant-rainbow::before, .pet-art.variant-shiny-rainbow::before, .pet-art.variant-shiny::after, .pet-art.variant-shiny-gold::after, .pet-art.variant-shiny-rainbow::after { animation: none; } }
   </style>
 </head>
 <body>
@@ -1500,7 +1534,7 @@ const page = String.raw`<!doctype html>
       if (!matches) return;
       const pets = matches.slice(0, state.showLimit);
       $("resultCount").textContent = matches.length > state.showLimit ? "Showing " + pets.length + " of " + matches.length + " pets" : matches.length + (matches.length === 1 ? " pet" : " pets");
-      $("catalogSubtitle").textContent = state.tab === "active" ? "Rare pets in the published Active Huge pool · pool shares shown where configured" : "All Huge, Titanic & Gargantuan game-data records · odds appear where the public feed publishes them";
+      $("catalogSubtitle").textContent = state.tab === "active" ? "Hover an Active Huge pet to see its share of the published pool" : "Hover a pet to see every published chance and source note";
       if (!matches.length) {
         $("cards").innerHTML = '<div class="empty"><strong>No matching rare pet records</strong>Try a different name or source filter. Exclusive Egg-only pets and odds are intentionally left out.</div>';
         $("loadMore").hidden = true;
@@ -1509,18 +1543,10 @@ const page = String.raw`<!doctype html>
       $("cards").innerHTML = pets.map(function(pet) {
         const petSources = pet.sources.filter(sourceMatchesTab);
         const extraSources = asArray(pet.otherSources).filter(function(item) { return state.tab === "all" || item.type === state.tab; });
-        const shown = petSources.slice(0, 3);
-        const extraShown = extraSources.slice(0, Math.max(0, 3 - shown.length));
-        const config = pet.pet && pet.pet.configData ? pet.pet.configData : {};
-        const sourceSummary = String(config.indexDesc || "").split(/\n+/)[0].trim();
-        const allShown = shown.map(sourceRowHtml).concat(extraShown.map(chanceSourceRowHtml));
         const totalSources = petSources.length + extraSources.length;
-        const oddsHtml = allShown.length ? allShown.join("") : '<div class="no-odds" title="' + esc(sourceSummary) + '"><strong>No published odds</strong><span>Availability unconfirmed · open for notes</span></div>';
-        return '<article class="pet-card ' + esc(pet.kind.toLowerCase()) + '">' +
-          '<button class="pet-open" type="button" data-pet-key="' + esc(encodeURIComponent(pet.name)) + '" data-tip-type="pet" data-tip-key="' + esc(encodeURIComponent(pet.name)) + '" aria-label="Open details for ' + esc(pet.name) + '">' + petIconHtml(pet.pet, pet.name, "") + '</button>' +
+        return '<article class="pet-card ' + esc(pet.kind.toLowerCase()) + '" data-tip-type="pet" data-tip-key="' + esc(encodeURIComponent(pet.name)) + '">' +
+          '<button class="pet-open" type="button" data-pet-key="' + esc(encodeURIComponent(pet.name)) + '" aria-label="Open details for ' + esc(pet.name) + ' · hover for odds">' + petIconHtml(pet.pet, pet.name, "") + '</button>' +
           '<div class="pet-title-wrap"><h3 class="pet-name ' + esc(pet.kind.toLowerCase()) + '">' + esc(pet.name) + '</h3><div class="pet-meta"><span class="pet-kind ' + esc(pet.kind.toLowerCase()) + '">' + esc(pet.kind) + '</span><span class="variant-label">' + esc(petVariantLabel()) + '</span><span class="pool-count">' + (totalSources ? totalSources + (totalSources === 1 ? " source" : " sources") : "No odds") + '</span></div></div>' +
-          '<div class="card-divider"></div><div class="source-list">' + oddsHtml + '</div>' +
-          (totalSources > allShown.length ? '<div class="more-sources">+' + (totalSources - allShown.length) + ' more source' + (totalSources - allShown.length === 1 ? "" : "s") + ' · open pet details</div>' : '') +
           '</article>';
       }).join("");
       const loadMore = $("loadMore");
@@ -1648,7 +1674,7 @@ const page = String.raw`<!doctype html>
       const image = imageMarkup || (thumb(asset) ? iconHtml(asset, title, "") : '<span>' + esc(mark || "✦") + '</span>');
       return '<div class="game-tip kind-' + esc(String(kind || "item").toLowerCase()) + '">' +
         '<div class="game-tip-head"><strong class="game-tip-title">' + esc(title) + '</strong><span class="game-tip-rarity">' + esc(badge) + '</span></div>' +
-        '<div class="game-tip-body"><div class="game-tip-image">' + image + '</div><div class="game-tip-copy"><div class="game-tip-subtitle">' + esc(subtitle || "") + '</div><div class="game-tip-desc">' + esc(description || "") + '</div></div></div>' +
+        '<div class="game-tip-body"><div class="game-tip-image">' + image + '</div><div class="game-tip-copy">' + (subtitle ? '<div class="game-tip-subtitle">' + esc(subtitle) + '</div>' : '') + '<div class="game-tip-desc">' + esc(description || "") + '</div></div></div>' +
         (lines && lines.length ? '<div class="game-tip-foot">' + lines.join("") + '</div>' : '') + '</div>';
     }
     function gameTipMarkup(target) {
@@ -1659,15 +1685,16 @@ const page = String.raw`<!doctype html>
         if (!pet) return "";
         const config = pet.pet && pet.pet.configData ? pet.pet.configData : {};
         const description = String(config.indexDesc || "").split(/\n+/)[0].trim() || "Hover preview of this rare pet. Click for its full odds.";
-        const sources = pet.sources.slice().sort(function(a, b) { return a.odds.pct - b.odds.pct; }).slice(0, 2);
+        const sources = pet.sources.slice().sort(function(a, b) { return a.odds.pct - b.odds.pct; });
         const lines = sources.map(function(source) {
-          return tipLine(source.pool.name, pctLabel(source.odds.pct) + (isActiveHugeSource(source) ? " · share of listed pool" : " · " + oneInLabel(source.odds.oneIn)), "chance");
+          const odds = pctLabel(source.odds.pct) + (isActiveHugeSource(source) ? " · share of listed pool" : " · " + oneInLabel(source.odds.oneIn));
+          const status = source.pool.availability && source.pool.availability.confidence === "unconfirmed" ? " · activity unconfirmed" : "";
+          return tipLine(source.pool.name, odds + status, "chance");
         });
         const extraSources = asArray(pet.otherSources);
-        extraSources.slice(0, 2).forEach(function(source) { lines.push(tipLine(source.name, source.chanceNote, "chance")); });
-        lines.push(tipLine("Odds / source notes", String(pet.sources.length + extraSources.length)));
-        if (pet.sources.some(function(source) { return source.pool.availability.confidence === "unconfirmed"; })) lines.push(tipLine("Availability", "Activity unconfirmed"));
-        return gameTipHtml(pet.name, pet.kind, pet.kind.toLowerCase(), getPetAsset(pet.pet), pet.kind.charAt(0), "Rare pet · hover preview", description, lines, petIconHtml(pet.pet, pet.name, "game-tip-pet-art"));
+        extraSources.forEach(function(source) { lines.push(tipLine(source.name, [source.chanceNote, source.activity].filter(Boolean).join(" · "), "chance")); });
+        if (!lines.length) lines.push(tipLine("Odds", "No published chance in the game feed"));
+        return gameTipHtml(pet.name, pet.kind, pet.kind.toLowerCase(), getPetAsset(pet.pet), pet.kind.charAt(0), "", description, lines, petIconHtml(pet.pet, pet.name, "game-tip-pet-art"));
       }
       if (type === "source") {
         const pool = sourceMap().get(key);
@@ -1700,16 +1727,21 @@ const page = String.raw`<!doctype html>
       }
       return "";
     }
-    function positionGameTip(target) {
+    let gameTipPoint = null;
+    function positionGameTip(target, pointX, pointY) {
       if (!target || $("gameTip").hidden) return;
       const tip = $("gameTip");
       const rect = target.getBoundingClientRect();
       const width = tip.getBoundingClientRect().width;
       const height = tip.getBoundingClientRect().height;
-      let left = rect.right + 11;
-      if (left + width > window.innerWidth - 10) left = rect.left - width - 11;
-      if (left < 10) left = Math.max(9, (window.innerWidth - width) / 2);
-      const top = Math.min(Math.max(10, rect.top + rect.height / 2 - height / 2), window.innerHeight - height - 10);
+      const point = Number.isFinite(pointX) && Number.isFinite(pointY) ? { x: pointX, y: pointY } : gameTipPoint;
+      let left = point ? point.x + 18 : rect.right + 12;
+      let top = point ? point.y + 18 : rect.top + rect.height / 2 - height / 2;
+      if (point && left + width > window.innerWidth - 10) left = point.x - width - 18;
+      if (!point && left + width > window.innerWidth - 10) left = rect.left - width - 12;
+      left = Math.max(10, Math.min(left, window.innerWidth - width - 10));
+      if (point && top + height > window.innerHeight - 10) top = point.y - height - 18;
+      top = Math.max(10, Math.min(top, window.innerHeight - height - 10));
       tip.style.left = left + "px";
       tip.style.top = top + "px";
     }
@@ -1718,25 +1750,34 @@ const page = String.raw`<!doctype html>
       activeGameTip = null;
       $("gameTip").hidden = true;
     }
-    function showGameTip(target) {
+    function showGameTip(target, pointX, pointY) {
       const markup = gameTipMarkup(target);
       if (!markup) return;
+      gameTipPoint = Number.isFinite(pointX) && Number.isFinite(pointY) ? { x: pointX, y: pointY } : null;
       const tip = $("gameTip");
       tip.innerHTML = markup;
       tip.hidden = false;
       if (activeGameTip && activeGameTip !== target) activeGameTip.removeAttribute("aria-describedby");
       activeGameTip = target;
       target.setAttribute("aria-describedby", "gameTip");
-      requestAnimationFrame(function() { positionGameTip(target); });
+      requestAnimationFrame(function() { positionGameTip(target, pointX, pointY); });
     }
     function bindGameTips(root) {
       root.addEventListener("pointerover", function(event) {
         if (event.pointerType === "touch") return;
         const target = event.target.closest && event.target.closest("[data-tip-type]");
         if (!target || !root.contains(target) || target.contains(event.relatedTarget)) return;
-        showGameTip(target);
+        showGameTip(target, event.clientX, event.clientY);
+      });
+      root.addEventListener("pointermove", function(event) {
+        if (event.pointerType === "touch") return;
+        const target = event.target.closest && event.target.closest("[data-tip-type]");
+        if (!target || target !== activeGameTip) return;
+        gameTipPoint = { x: event.clientX, y: event.clientY };
+        positionGameTip(target, event.clientX, event.clientY);
       });
       root.addEventListener("pointerout", function(event) {
+        if ($("gameTip").contains(event.relatedTarget)) return;
         if (!activeGameTip || !root.contains(activeGameTip) || !activeGameTip.contains(event.target) || activeGameTip.contains(event.relatedTarget)) return;
         hideGameTip();
       });
@@ -1750,7 +1791,11 @@ const page = String.raw`<!doctype html>
     }
     bindGameTips($("cards"));
     bindGameTips($("specialPanel"));
-    window.addEventListener("scroll", hideGameTip, true);
+    $("gameTip").addEventListener("pointerleave", function(event) {
+      if (activeGameTip && activeGameTip.contains(event.relatedTarget)) return;
+      hideGameTip();
+    });
+    window.addEventListener("scroll", function(event) { if (event.target === $("gameTip")) return; hideGameTip(); }, true);
     window.addEventListener("resize", hideGameTip);
     function showPet(name) {
       const pet = petMap().get(name);
