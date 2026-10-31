@@ -10,7 +10,7 @@ permissions:
   pages: write
   id-token: write
 concurrency:
-  group: pages
+  group: ps99-odds-atlas-${{ github.event_name }}
   cancel-in-progress: true
 jobs:
   build:
