@@ -1126,7 +1126,8 @@ const page = String.raw`<!doctype html>
         asArray(pet.otherSources).some(function(source) { return tab !== "active" && source.type === tab; });
     }
     function oddsSubLabel(source, item) {
-      return isActiveHugeSource(source) ? "of listed active pool" : oneInLabel(item.oneIn);
+      const base = isActiveHugeSource(source) ? "of listed active pool" : oneInLabel(item.oneIn);
+      return item && item.dynamicFlag ? base + " · base weight; live flag " + item.dynamicFlag + " value not published" : base;
     }
     function niceDate(value) {
       const date = parseApiDate(value);
@@ -1147,6 +1148,7 @@ const page = String.raw`<!doctype html>
         const availability = sourceEligibility(entry);
         if (!availability) return;
         const data = entry.configData || {};
+        const oddsFFlags = data.oddsFFlags && typeof data.oddsFFlags === "object" ? data.oddsFFlags : {};
         const entries = asArray(data.pets).map(function(row) {
           if (!Array.isArray(row) || row.length < 2) return null;
           const name = String(row[0] || "");
@@ -1155,7 +1157,7 @@ const page = String.raw`<!doctype html>
           const pet = petMap.get(name.toLowerCase());
           if (!/\b(Huge|Titanic|Gargantuan)\b/i.test(name) && !isRarePet(pet)) return null;
           const kind = labelKind(name, pet);
-          return { name: name, weight: weight, kind: kind, pet: pet || null };
+          return { name: name, weight: weight, kind: kind, pet: pet || null, dynamicFlag: oddsFFlags[name] ? String(oddsFFlags[name]) : null };
         }).filter(Boolean);
         const allRows = asArray(data.pets).filter(function(row) { return Array.isArray(row) && Number(row[1]) > 0; });
         const total = allRows.reduce(function(sum, row) { return sum + Number(row[1] || 0); }, 0);
@@ -1927,7 +1929,7 @@ const page = String.raw`<!doctype html>
         }
         if (sources.length + extraSources.length) lines.push(tipLine("Published sources", String(sources.length + extraSources.length)));
         sources.forEach(function(source) {
-          const odds = pctLabel(source.odds.pct) + (isActiveHugeSource(source) ? " · share of listed pool" : " · " + oneInLabel(source.odds.oneIn));
+          const odds = pctLabel(source.odds.pct) + (isActiveHugeSource(source) ? " · share of listed pool" : " · " + oneInLabel(source.odds.oneIn)) + (source.odds.dynamicFlag ? " · base weight; live flag " + source.odds.dynamicFlag + " value unavailable" : "");
           const availability = source.pool.availability && source.pool.availability.status || "Availability not supplied";
           const detail = [source.pool.category, availability, source.pool.updated ? "Config " + niceDate(source.pool.updated) : ""].filter(Boolean).join(" · ");
           lines.push(tipPetSourceLine(source.pool.name, detail, odds, source.pool.icon, variantChanceLabel(source.pool, state.variant)));
@@ -1949,7 +1951,7 @@ const page = String.raw`<!doctype html>
         const typeLabel = pool.type === "egg" ? "Egg" : pool.type === "gift" ? "Gift bag" : pool.type === "chest" ? "Chest / drop" : "Game source";
         const lines = [
           tipLine("Pet outcome", item.name),
-          tipLine("Chance", pctLabel(item.pct) + (isActiveHugeSource({ pool: pool }) ? " · share of listed pool" : " · " + oneInLabel(item.oneIn)), "chance"),
+          tipLine("Chance", pctLabel(item.pct) + (isActiveHugeSource({ pool: pool }) ? " · share of listed pool" : " · " + oneInLabel(item.oneIn)) + (item.dynamicFlag ? " · base weight; live flag " + item.dynamicFlag + " value unavailable" : ""), "chance"),
           tipLine("Availability", pool.availability.status)
         ];
         return gameTipHtml(pool.name, typeLabel, item.kind.toLowerCase(), pool.icon, "✦", pool.category, "Configured chance for " + item.name + ".", lines);
@@ -2067,10 +2069,12 @@ const page = String.raw`<!doctype html>
       $("modalKicker").textContent = pool.type === "gift" ? "Gift odds pool" : pool.type === "egg" ? "Egg odds pool" : pool.type === "chest" ? "Chest & drop odds pool" : "Game odds pool";
       $("modalTitle").textContent = pool.name;
       const oddsRows = pool.odds.slice().sort(function(a, b) { return a.pct - b.pct; });
-      const petBody = oddsRows.map(function(item) { return '<div class="modal-source"><div class="source-thumb">' + petIconHtml(item.pet, item.name, "pet-art-row") + '</div><div><div class="modal-source-name">' + esc(item.name) + '</div><div class="modal-source-sub">' + esc(item.kind) + ' · weight ' + esc(item.weight) + '</div></div><div class="modal-odds">' + esc(pctLabel(item.pct)) + '<br><span class="muted">' + esc(isActiveHugeSource({ pool: pool }) ? "of listed active pool" : oneInLabel(item.oneIn)) + '</span></div></div>'; }).join("");
+      const petBody = oddsRows.map(function(item) { return '<div class="modal-source"><div class="source-thumb">' + petIconHtml(item.pet, item.name, "pet-art-row") + '</div><div><div class="modal-source-name">' + esc(item.name) + '</div><div class="modal-source-sub">' + esc(item.kind) + ' · weight ' + esc(item.weight) + '</div></div><div class="modal-odds">' + esc(pctLabel(item.pct)) + '<br><span class="muted">' + esc(item.dynamicFlag ? "base weight · live flag " + item.dynamicFlag + " value not published" : (isActiveHugeSource({ pool: pool }) ? "of listed active pool" : oneInLabel(item.oneIn))) + '</span></div></div>'; }).join("");
       const chance = pool.modifiers;
       const modifiers = [chance.goldDisabled ? "Gold disabled" : (chance.gold != null ? "Gold roll " + chance.gold + "%" : ""), chance.rainbowDisabled ? "Rainbow disabled" : (chance.rainbow != null ? "Rainbow roll " + chance.rainbow + "%" : ""), chance.shiny != null ? "Shiny roll " + chance.shiny + "%" : ""].filter(Boolean).join(" · ");
       const activePoolNote = isActiveHugeSource({ pool: pool }) ? ' For Active Huge Egg, these percentages show each listed pet’s share of the published Active Huge pool. The public feed does not provide the overall chance of hatching an Active Huge.' : '';
+      const runtimeFlags = Array.from(new Set(oddsRows.map(function(item) { return item.dynamicFlag; }).filter(Boolean)));
+      const runtimeFlagNote = runtimeFlags.length ? ' Dynamic odds flag(s): ' + runtimeFlags.join(", ") + '. The API gives flag names but not live values, so displayed weights are base config values.' : '';
       $("modalContent").innerHTML = '<div class="modal-hero"><div class="modal-image">' + (thumb(pool.icon) ? iconHtml(pool.icon, pool.name, "") : '<span class="pet-placeholder">✦</span>') + '</div><div><span class="pet-kind ' + esc(pool.type) + '">' + esc(pool.availability.status) + '</span><p class="modal-desc">' + esc(pool.category) + ' · config updated ' + esc(niceDate(pool.updated)) + '</p></div></div><div class="modal-label">Huge, Titanic, and Gargantuan outcomes in this pool</div>' + petBody + (modifiers ? '<p class="section-foot">' + esc(modifiers) + '</p>' : '') + '<p class="section-foot">Chance is calculated from the configured weights across the listed pool. Effective odds may be changed by player buffs or hidden server rules.' + activePoolNote + '</p>';
       $("detailModal").showModal();
     }
