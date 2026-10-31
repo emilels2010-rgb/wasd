@@ -11,18 +11,18 @@ const page = String.raw`<!doctype html>
   <style>
     :root {
       color-scheme: dark;
-      --bg: #0b1020;
-      --panel: rgba(17, 25, 46, .86);
-      --panel-2: #141e36;
-      --line: rgba(178, 198, 237, .12);
-      --muted: #94a2c0;
-      --text: #f4f7ff;
-      --cyan: #5ce4df;
-      --blue: #77a8ff;
-      --gold: #ffd982;
-      --pink: #eea5ff;
-      --green: #9af0c5;
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --bg: #101847;
+      --panel: rgba(29, 48, 112, .94);
+      --panel-2: #253d87;
+      --line: rgba(137, 184, 255, .3);
+      --muted: #b6c9f1;
+      --text: #fff;
+      --cyan: #8df2ff;
+      --blue: #91bdff;
+      --gold: #ffe27b;
+      --pink: #f3b5ff;
+      --green: #8cf6c6;
+      font-family: "Trebuchet MS", "Arial Rounded MT Bold", ui-rounded, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
     * { box-sizing: border-box; }
     html { min-height: 100%; scroll-behavior: smooth; }
@@ -31,15 +31,16 @@ const page = String.raw`<!doctype html>
       margin: 0;
       color: var(--text);
       background:
-        radial-gradient(ellipse at 78% 4%, rgba(56, 87, 174, .22), transparent 33rem),
-        radial-gradient(ellipse at 12% 18%, rgba(40, 173, 168, .12), transparent 28rem),
-        linear-gradient(180deg, #0b1020 0%, #0d1427 55%, #0b1020 100%);
+        radial-gradient(ellipse at 80% 0%, rgba(53, 119, 255, .4), transparent 34rem),
+        radial-gradient(ellipse at 8% 20%, rgba(24, 218, 229, .2), transparent 31rem),
+        radial-gradient(ellipse at 55% 60%, rgba(121, 78, 243, .13), transparent 42rem),
+        linear-gradient(180deg, #18245b 0%, #111a49 48%, #0d153c 100%);
       -webkit-font-smoothing: antialiased;
     }
     body::before {
       position: fixed; inset: 0; pointer-events: none; content: ""; opacity: .12;
-      background-image: radial-gradient(rgba(195, 215, 255, .28) .7px, transparent .7px);
-      background-size: 22px 22px; mask-image: linear-gradient(to bottom, black, transparent 80%);
+      opacity: .16; background-image: radial-gradient(rgba(220, 238, 255, .65) .8px, transparent .8px);
+      background-size: 26px 26px; mask-image: linear-gradient(to bottom, black, transparent 78%);
     }
     button, input { font: inherit; }
     button { color: inherit; }
@@ -210,6 +211,77 @@ const page = String.raw`<!doctype html>
     .game-tip-line strong.gargantuan { color: #e1b7ff; }
     .error-line { margin: 0 0 14px; padding: 11px 13px; border-radius: 11px; color: #ffc8cb; background: rgba(181, 65, 76, .11); border: 1px solid rgba(255, 127, 140, .15); font-size: 11px; }
     .muted { color: var(--muted); }
+    /* Bright, toy-like panels and bold outlines echo PS99's inventory screens. */
+    .topbar { border-bottom: 2px solid rgba(135, 179, 255, .32); }
+    .brand { letter-spacing: .06em; text-shadow: 0 2px 0 #10183f; }
+    .brand-mark { border: 2px solid #e4fbff; border-radius: 12px; background: linear-gradient(145deg, #fff477, #ffae47 54%, #ff7c64); color: #412879; box-shadow: 0 4px 0 #26386f, 0 0 20px rgba(255, 224, 123, .26), inset 0 2px 0 rgba(255,255,255,.65); }
+    .live-pill { border: 2px solid rgba(140, 246, 198, .54); box-shadow: inset 0 2px 0 rgba(255,255,255,.13), 0 3px 0 rgba(7, 18, 59, .36); }
+    h1 { color: #fff; text-shadow: 0 3px 0 #253b81, 0 5px 0 rgba(7, 14, 50, .55); font-weight: 1000; }
+    h1 span { color: #8df2ff; text-shadow: 0 3px 0 #236aa4, 0 5px 0 rgba(7, 14, 50, .55); }
+    .hero-copy { color: #d2e0ff; font-weight: 600; }
+    .hero-side { border: 2px solid #527bd0; border-radius: 17px; background: linear-gradient(155deg, rgba(48, 77, 157, .96), rgba(28, 47, 112, .98)); box-shadow: 0 5px 0 #101944, inset 0 2px 0 rgba(255,255,255,.17); }
+    .side-label, .stat-label, .filter-label { color: #c8d9ff; }
+    .release-number { text-shadow: 0 2px 0 #15245b; }
+    .searchbox input { border: 2px solid #5e83d2; border-radius: 15px; background: linear-gradient(180deg, #17265e, #111d4d); box-shadow: inset 0 2px 0 rgba(255,255,255,.12), 0 4px 0 #0a1237; font-weight: 700; }
+    .searchbox input:focus { border-color: #8df2ff; box-shadow: inset 0 2px 0 rgba(255,255,255,.12), 0 0 0 3px rgba(141,242,255,.15), 0 4px 0 #0a1237; }
+    .searchbox input::placeholder { color: #a8bde9; }
+    .search-hint { border: 1px solid rgba(190, 214, 255, .42); border-radius: 7px; color: #d3e2ff; }
+    .refresh-btn, .load-more { border: 2px solid #9ff7ff; border-radius: 14px; color: #163871; background: linear-gradient(180deg, #a9fbff, #5bcbff); box-shadow: 0 4px 0 #2762a4, inset 0 2px 0 rgba(255,255,255,.7); font-weight: 950; text-shadow: 0 1px 0 rgba(255,255,255,.4); }
+    .refresh-btn:hover, .load-more:hover { background: linear-gradient(180deg, #c8ffff, #79deff); transform: translateY(-1px); }
+    .stats { gap: 13px; }
+    .stat { border: 2px solid #456bc0; border-radius: 16px; background: linear-gradient(155deg, #294990, #1c3378 68%, #192b68); box-shadow: 0 4px 0 #0c153e, inset 0 2px 0 rgba(255,255,255,.15); }
+    .stat:nth-child(2) { background: linear-gradient(155deg, #3154a2, #20377c 70%); }
+    .stat:nth-child(3) { background: linear-gradient(155deg, #6751b7, #392e82 72%); }
+    .stat:nth-child(4) { background: linear-gradient(155deg, #a45bb5, #593887 72%); }
+    .stat-value { text-shadow: 0 2px 0 rgba(8, 18, 59, .55); }
+    .coverage-note { border: 2px solid #5486dc; border-radius: 15px; background: linear-gradient(110deg, rgba(42, 75, 151, .88), rgba(36, 49, 117, .92)); color: #dfebff; box-shadow: 0 4px 0 #101943, inset 0 2px 0 rgba(255,255,255,.12); }
+    .coverage-note strong { color: #fff292; }
+    .coverage-icon { border: 1px solid #fff292; border-radius: 8px; color: #46326e; background: linear-gradient(180deg, #fff59a, #ffc95b); box-shadow: 0 2px 0 #a96b35; }
+    .section-title { color: #fff; font-size: 23px; font-weight: 950; text-shadow: 0 2px 0 #253b81; }
+    .section-subtitle, .result-count { color: #c2d4fb; }
+    .filter-groups { border: 2px solid #4f75c3; border-radius: 17px; background: linear-gradient(150deg, rgba(34, 56, 126, .98), rgba(25, 42, 101, .98)); box-shadow: 0 5px 0 #101943, inset 0 2px 0 rgba(255,255,255,.12); }
+    .filter-btn { border: 2px solid #5577c1; border-radius: 11px; background: linear-gradient(180deg, #38579c, #293f82); color: #e1ebff; box-shadow: 0 3px 0 #172756, inset 0 1px 0 rgba(255,255,255,.16); font-weight: 900; }
+    .filter-btn:hover { border-color: #a7ecff; color: #fff; transform: translateY(-1px); }
+    .filter-btn.active { color: #153c6d; background: linear-gradient(180deg, #c3ffff, #68dafa); border-color: #e1ffff; box-shadow: 0 3px 0 #286ba4, inset 0 2px 0 rgba(255,255,255,.86); }
+    [data-kind="titanic"].active { color: #533a1c; background: linear-gradient(180deg, #fff8b0, #ffc858); border-color: #fff4bf; box-shadow: 0 3px 0 #9d642c, inset 0 2px 0 rgba(255,255,255,.85); }
+    [data-kind="gargantuan"].active { color: #43235f; background: linear-gradient(180deg, #f8d5ff, #ca8dff); border-color: #f6e3ff; box-shadow: 0 3px 0 #694597, inset 0 2px 0 rgba(255,255,255,.82); }
+    .pet-card { border: 2px solid #5075c4; border-radius: 18px; background: linear-gradient(155deg, #29468f, #1b3378 60%, #192b67); box-shadow: 0 5px 0 #0d173f, inset 0 2px 0 rgba(255,255,255,.17); }
+    .pet-card:hover { transform: translateY(-2px); border-color: #8adfff; box-shadow: 0 7px 0 #0d173f, 0 0 20px rgba(104, 212, 255, .2), inset 0 2px 0 rgba(255,255,255,.2); }
+    .pet-open { border: 2px solid rgba(220, 242, 255, .8); background: radial-gradient(circle at 35% 25%, #5b83d0, #253e86 75%); box-shadow: 0 3px 0 #14285e, inset 0 1px 0 rgba(255,255,255,.55); }
+    .pet-name { font-size: 15px; font-weight: 950; text-shadow: 0 2px 0 rgba(8, 19, 61, .65); }
+    .pet-name.huge { color: #aeffe0; }
+    .pet-name.titanic { color: #fff0a5; }
+    .pet-name.gargantuan { color: #f0c8ff; }
+    .pet-kind { border-width: 2px !important; border-radius: 9px; box-shadow: inset 0 1px 0 rgba(255,255,255,.2); }
+    .pool-count { color: #c3d6ff; font-weight: 800; }
+    .card-divider { height: 2px; background: rgba(143, 184, 255, .28); }
+    .source-row { border-radius: 11px; background: rgba(104, 143, 222, .08); }
+    .source-row:hover, .source-row:focus-visible { border-color: rgba(170, 224, 255, .32); background: rgba(125, 198, 255, .16); }
+    .source-thumb { overflow: hidden; border: 2px solid rgba(204, 233, 255, .72); border-radius: 0; background: linear-gradient(145deg, #4163a8, #203b82); box-shadow: 0 2px 0 rgba(9, 23, 69, .55), inset 0 1px 0 rgba(255,255,255,.28); }
+    .source-thumb img, .modifier-icon img, .modal-source img, .game-tip-image img { border-radius: 0; }
+    .source-name { color: #f3f7ff; font-weight: 850; }
+    .source-status { color: #b8cbee; }
+    .source-odds { color: #a5f3ff; text-shadow: 0 1px 0 #183665; }
+    .source-odds small { color: #c0d1f1; }
+    .no-odds { border: 2px dashed rgba(166, 194, 255, .48); border-radius: 12px; color: #d3def8; background: rgba(14, 27, 74, .42); }
+    .empty { border: 2px dashed #6286d1; border-radius: 17px; color: #d6e4ff; background: rgba(27, 48, 113, .65); }
+    .modifier-card { border: 2px solid #7259c1; border-radius: 18px; background: linear-gradient(155deg, #473c98, #282e78 70%); box-shadow: 0 5px 0 #121943, inset 0 2px 0 rgba(255,255,255,.16); }
+    .modifier-card:hover { border-color: #e1b5ff; }
+    .modifier-icon { border: 2px solid rgba(239, 211, 255, .72); border-radius: 0; background: #443586; box-shadow: 0 3px 0 #1d245f; }
+    .unavailable-card { border: 2px solid #dcae52; border-radius: 16px; background: linear-gradient(140deg, rgba(147, 95, 43, .35), rgba(95, 55, 58, .26)); box-shadow: 0 4px 0 #322649; }
+    .game-tip { border: 3px solid #ecf5ff; border-radius: 12px; color: #fff; background: linear-gradient(150deg, #344b83, #172657 72%); box-shadow: 0 8px 0 rgba(8, 17, 57, .8), 0 15px 35px rgba(0, 0, 0, .58), inset 0 2px 0 rgba(255,255,255,.18); }
+    .game-tip.kind-huge { border-color: #a7ffdc; }
+    .game-tip.kind-titanic { border-color: #fff0a0; }
+    .game-tip.kind-gargantuan, .game-tip.kind-enchant { border-color: #edc1ff; }
+    .game-tip-head { border-bottom: 2px solid rgba(255,255,255,.28); }
+    .game-tip-image { border: 2px solid rgba(255,255,255,.65); border-radius: 0; background: radial-gradient(circle at 50% 42%, #6688ce, #263d7b 72%); box-shadow: 0 3px 0 #142452, inset 0 1px 0 rgba(255,255,255,.32); }
+    dialog { border: 2px solid #7fa8ef; border-radius: 19px; background: linear-gradient(155deg, #263f88, #15265f 75%); box-shadow: 0 8px 0 #0b153f, 0 28px 100px rgba(0, 0, 0, .65); }
+    .modal-head { border-bottom: 2px solid rgba(150, 188, 255, .28); }
+    .modal-source { border-bottom: 1px solid rgba(178, 205, 255, .2); }
+    .modal-source img { border: 2px solid #b7d8ff; background: #34579d; }
+    .modal-image { border: 2px solid #c9e9ff; background: radial-gradient(circle at 35% 30%, #5b83d0, #203879 75%); box-shadow: 0 4px 0 #14275b; }
+    .footer { border-top: 2px solid rgba(135, 179, 255, .28); color: #bacbf0; }
+    .footer a { color: #96f2ff; }
     @media (max-width: 900px) { .cards, .panel-grid, .loading { grid-template-columns: repeat(2, minmax(0, 1fr)); } .hero { grid-template-columns: 1fr 220px; } }
     @media (max-width: 650px) {
       .shell { width: min(100% - 26px, 580px); }
@@ -330,11 +402,12 @@ const page = String.raw`<!doctype html>
   <div id="gameTip" class="game-tip" role="tooltip" hidden></div>
 
   <script>
-    const state = { pools: [], pets: [], modifiers: [], missingChests: [], thumbs: {}, thumbIndex: null, tab: "all", kind: "all", query: "", showLimit: 90, data: null, lastChecked: null, busy: false };
+    const state = { pools: [], pets: [], modifiers: [], missingChests: [], thumbs: {}, thumbIndex: null, petIndex: new Map(), poolIndex: new Map(), modifierIndex: new Map(), filterCacheKey: null, filteredPets: null, tab: "all", kind: "all", query: "", showLimit: 36, data: null, lastChecked: null, busy: false };
     const apiCacheKey = "ps99-odds-atlas-cache-v1";
     const recentDays = 60;
-    const pageSize = 90;
+    const pageSize = 36;
     let activeGameTip = null;
+    let searchTimer = 0;
     const $ = (id) => document.getElementById(id);
 
     function esc(value) {
@@ -512,6 +585,15 @@ const page = String.raw`<!doctype html>
         if (a.kind !== b.kind) return rank[a.kind] - rank[b.kind];
         return a.name.localeCompare(b.name);
       });
+      state.pets.forEach(function(pet) {
+        const config = pet.pet && pet.pet.configData ? pet.pet.configData : {};
+        pet.searchText = (pet.name + " " + String(config.indexDesc || "") + " " + pet.sources.map(function(source) { return source.pool.name + " " + source.pool.category; }).join(" ")).toLowerCase();
+      });
+      state.petIndex = new Map(state.pets.map(function(pet) { return [pet.name, pet]; }));
+      state.poolIndex = new Map(state.pools.map(function(pool) { return [pool.id, pool]; }));
+      state.modifierIndex = new Map(state.modifiers.map(function(item) { return [item.id, item]; }));
+      state.filterCacheKey = null;
+      state.filteredPets = null;
       state.missingChests = [];
       updateStats();
       render();
@@ -542,7 +624,7 @@ const page = String.raw`<!doctype html>
     function thumb(asset) { return asset && state.thumbs[asset] ? state.thumbs[asset] : ""; }
     function iconHtml(asset, label, className) {
       const url = thumb(asset);
-      if (url) return '<img class="' + (className || "") + '" src="' + esc(url) + '" alt="' + esc(label) + '" loading="lazy">';
+      if (url) return '<img class="' + (className || "") + '" src="' + esc(url) + '" alt="' + esc(label) + '" loading="lazy" decoding="async">';
       return '<span class="' + (className || "source-fallback") + '" aria-hidden="true">✦</span>';
     }
     function getPetAsset(pet) {
@@ -551,12 +633,13 @@ const page = String.raw`<!doctype html>
     }
     function uniqueAssetIds() {
       const ids = new Set();
-      getVisiblePets().slice(0, state.showLimit).forEach(function(pet) {
+      const visible = state.tab === "enchant" ? [] : getVisiblePets().slice(0, state.showLimit);
+      visible.forEach(function(pet) {
         const id = getPetAsset(pet.pet);
         if (id) ids.add(id);
-        pet.sources.forEach(function(source) { if (source.pool.icon) ids.add(source.pool.icon); });
+        pet.sources.filter(sourceMatchesTab).slice(0, 3).forEach(function(source) { if (source.pool.icon) ids.add(source.pool.icon); });
       });
-      state.modifiers.forEach(function(item) { if (item.icon) ids.add(item.icon); });
+      if (state.tab === "enchant") state.modifiers.forEach(function(item) { if (item.icon) ids.add(item.icon); });
       return Array.from(ids);
     }
     async function resolveVisibleThumbs() {
@@ -598,14 +681,17 @@ const page = String.raw`<!doctype html>
     }
     function getVisiblePets() {
       const lower = state.query;
-      return state.pets.filter(function(pet) {
+      const key = state.tab + "\u0000" + state.kind + "\u0000" + lower;
+      if (state.filterCacheKey === key && state.filteredPets) return state.filteredPets;
+      state.filteredPets = state.pets.filter(function(pet) {
         if (state.kind !== "all" && state.kind !== pet.kind.toLowerCase()) return false;
         const sources = pet.sources.filter(sourceMatchesTab);
         if (state.tab !== "all" && !sources.length) return false;
         if (!lower) return true;
-        const config = pet.pet && pet.pet.configData ? pet.pet.configData : {};
-        return (pet.name + " " + String(config.indexDesc || "") + " " + sources.map(function(source) { return source.pool.name + " " + source.pool.category; }).join(" ")).toLowerCase().includes(lower);
+        return pet.searchText.includes(lower);
       });
+      state.filterCacheKey = key;
+      return state.filteredPets;
     }
     function renderPetCards() {
       const matches = getVisiblePets();
@@ -648,6 +734,7 @@ const page = String.raw`<!doctype html>
         return '<button class="modifier-card" type="button" data-enchant-key="' + esc(encodeURIComponent(item.id)) + '" data-tip-type="enchant" data-tip-key="' + esc(encodeURIComponent(item.id)) + '"><span class="modifier-top"><span class="modifier-icon">' + iconHtml(item.icon, item.name, "") + '</span><span><h3 class="modifier-name">' + esc(item.name) + '</h3><span class="modifier-class">' + esc(item.group || "Enchant") + '</span></span></span><span class="modifier-copy">' + esc(item.description) + '</span><span class="modifier-value">' + esc(item.value) + '</span></button>';
       }).join("") : '<div class="empty"><strong>No matching enchant effects</strong>Try a shorter search.</div>') + '</div>' +
         '<p class="section-foot">Modifier descriptions come from the game config. They are not folded into pet pool chances because the API does not expose a complete formula for combined player boosts.</p>';
+      resolveVisibleThumbs();
     }
     function renderChests() {
       renderPetCards();
@@ -668,10 +755,10 @@ const page = String.raw`<!doctype html>
       document.querySelectorAll("[data-tab]").forEach(function(button) { button.classList.toggle("active", button.dataset.tab === state.tab); });
       document.querySelectorAll("[data-kind]").forEach(function(button) { button.classList.toggle("active", button.dataset.kind === state.kind); });
     }
-    function cacheFallback() {
+    function cacheFallback(quiet) {
       try {
         const cached = JSON.parse(localStorage.getItem(apiCacheKey) || "null");
-        if (cached && cached.data) { createCatalog(cached.data, true); updateRelease(cached.data); state.lastChecked = new Date(cached.savedAt || Date.now()); setLive(false, "Cached data"); $("errorBox").innerHTML = '<div class="error-line">Could not reach the live odds feed. Showing the last saved snapshot.</div>'; updateLastChecked(); return true; }
+        if (cached && cached.data) { createCatalog(cached.data, true); updateRelease(cached.data); state.lastChecked = new Date(cached.savedAt || Date.now()); setLive(false, "Cached data"); if (!quiet) $("errorBox").innerHTML = '<div class="error-line">Could not reach the live odds feed. Showing the last saved snapshot.</div>'; updateLastChecked(); return true; }
       } catch (_) { /* Ignore malformed browser cache. */ }
       return false;
     }
@@ -696,11 +783,17 @@ const page = String.raw`<!doctype html>
       try {
         const endpoint = window.PS99_DATA_URL || "/api/data";
         const suffix = force && !window.PS99_DATA_URL ? "?fresh=" + Date.now() : "";
-        const response = await fetch(endpoint + suffix, { cache: "no-store" });
+        const response = await fetch(endpoint + suffix, { cache: "no-cache" });
         if (!response.ok) throw new Error("API request returned " + response.status);
         const api = await response.json();
         if (!api.eggs || !api.pets) throw new Error("The live feed response was incomplete.");
-        localStorage.setItem(apiCacheKey, JSON.stringify({ data: api, savedAt: Date.now() }));
+        if (state.data && api.generated_at && api.generated_at === state.data.generated_at) {
+          state.lastChecked = new Date(api.generated_at);
+          updateLastChecked();
+          setLive(true, window.PS99_STATIC_MODE ? "Scheduled snapshot" : "Live data");
+          return;
+        }
+        try { localStorage.setItem(apiCacheKey, JSON.stringify({ data: api, savedAt: Date.now() })); } catch (_) { /* Keep the fresh response even when storage is full. */ }
         createCatalog(api, true);
         updateRelease(api);
         state.lastChecked = api.generated_at ? new Date(api.generated_at) : new Date();
@@ -723,8 +816,8 @@ const page = String.raw`<!doctype html>
         $("refresh").classList.remove("spinning");
       }
     }
-    function sourceMap() { const map = new Map(); state.pools.forEach(function(pool) { map.set(pool.id, pool); }); return map; }
-    function petMap() { const map = new Map(); state.pets.forEach(function(pet) { map.set(pet.name, pet); }); return map; }
+    function sourceMap() { return state.poolIndex; }
+    function petMap() { return state.petIndex; }
     function tipLine(label, value, accent) {
       return '<div class="game-tip-line"><span>' + esc(label) + '</span><strong' + (accent ? ' class="' + esc(accent) + '"' : '') + '>' + esc(value) + '</strong></div>';
     }
@@ -858,7 +951,7 @@ const page = String.raw`<!doctype html>
       $("detailModal").showModal();
     }
     function showEnchant(id) {
-      const item = state.modifiers.find(function(value) { return value.id === id; });
+        const item = state.modifierIndex.get(id);
       if (!item) return;
       hideGameTip();
       $("modalKicker").textContent = item.group + " · chance modifier";
@@ -866,9 +959,9 @@ const page = String.raw`<!doctype html>
       $("modalContent").innerHTML = '<div class="modal-hero"><div class="modal-image">' + (thumb(item.icon) ? iconHtml(item.icon, item.name, "") : '<span class="pet-placeholder">✦</span>') + '</div><div><div class="modifier-value">' + esc(item.value) + '</div><p class="modal-desc">' + esc(item.description) + '</p></div></div><div class="coverage-note"><span class="coverage-icon">i</span><span>This is the configured enchant description, not a complete formula for combining it with an egg or event pool. Exact effective odds are not available in the public data.</span></div>';
       $("detailModal").showModal();
     }
-    document.querySelectorAll("[data-tab]").forEach(function(button) { button.addEventListener("click", function() { state.tab = button.dataset.tab; state.showLimit = pageSize; updateFilterStyles(); if (state.data) createCatalog(state.data); }); });
-    document.querySelectorAll("[data-kind]").forEach(function(button) { button.addEventListener("click", function() { state.kind = button.dataset.kind; state.showLimit = pageSize; updateFilterStyles(); if (state.data) { createCatalog(state.data); } }); });
-    $("search").addEventListener("input", function(event) { state.query = event.target.value.trim().toLowerCase(); state.showLimit = pageSize; if (state.data) { createCatalog(state.data); } });
+    document.querySelectorAll("[data-tab]").forEach(function(button) { button.addEventListener("click", function() { state.tab = button.dataset.tab; state.showLimit = pageSize; updateFilterStyles(); if (state.data) render(); }); });
+    document.querySelectorAll("[data-kind]").forEach(function(button) { button.addEventListener("click", function() { state.kind = button.dataset.kind; state.showLimit = pageSize; updateFilterStyles(); if (state.data) render(); }); });
+    $("search").addEventListener("input", function(event) { window.clearTimeout(searchTimer); const query = event.target.value.trim().toLowerCase(); searchTimer = window.setTimeout(function() { state.query = query; state.showLimit = pageSize; if (state.data) render(); }, 90); });
     $("refresh").addEventListener("click", function() { loadData(true); });
     $("loadMore").addEventListener("click", function() { state.showLimit += pageSize; render(); });
     $("cards").addEventListener("click", function(event) {
@@ -882,8 +975,9 @@ const page = String.raw`<!doctype html>
     $("detailModal").addEventListener("click", function(event) { if (event.target === $("detailModal")) $("detailModal").close(); });
     document.addEventListener("keydown", function(event) { if (event.key === "/" && !/input|textarea/i.test(document.activeElement.tagName)) { event.preventDefault(); $("search").focus(); } });
     updateFilterStyles();
+    cacheFallback(true);
     loadData(false);
-    window.setInterval(function() { loadData(false); }, 5 * 60 * 1000);
+    window.setInterval(function() { loadData(false); }, (window.PS99_STATIC_MODE ? 15 : 5) * 60 * 1000);
   </script>
 </body>
 </html>`;
