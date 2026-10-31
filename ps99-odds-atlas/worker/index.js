@@ -951,7 +951,7 @@ const page = String.raw`<!doctype html>
             </div>
             <div id="errorBox"></div>
             <div class="cards" id="cards" aria-live="polite"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>
-            <button class="load-more" id="loadMore" type="button" hidden>Show more pets</button>
+            <button class="load-more" id="loadMore" type="button" aria-label="Load more results; scrolling near the end also loads them automatically" hidden>Show more pets</button>
             <div class="source-panel" id="specialPanel"></div>
             <p class="section-foot" id="dataFoot"></p>
           </section>
@@ -990,6 +990,10 @@ const page = String.raw`<!doctype html>
     function assetId(value) {
       const match = String(value || "").match(/(\d{5,})/);
       return match ? match[1] : "";
+    }
+    function assetUrl(value) {
+      const url = String(value || "").trim();
+      return /^https?:\/\//i.test(url) ? url : "";
     }
     function readData(result) { return result && result.status === "ok" ? result.data : null; }
     function asArray(value) { return Array.isArray(value) ? value : []; }
@@ -1365,9 +1369,25 @@ const page = String.raw`<!doctype html>
       return '<span class="' + (className || "source-fallback") + '" aria-hidden="true">✦</span>';
     }
     function getPetAsset(pet) {
+      const candidates = getPetAssetCandidates(pet);
+      return candidates.find(function(candidate) { return !!thumb(candidate); }) || candidates[0] || "";
+    }
+    function getPetAssetCandidates(pet) {
       const config = pet && pet.configData ? pet.configData : {};
-      if ((state.variant === "gold" || state.variant === "shiny-gold") && config.goldenThumbnail) return assetId(config.goldenThumbnail);
-      return assetId(config.thumbnail || config.Thumbnail || config.icon || "");
+      const values = [];
+      if ((state.variant === "gold" || state.variant === "shiny-gold") && config.goldenThumbnail) values.push(config.goldenThumbnail);
+      values.push(config.AtlasThumbnailUrl, config.atlasThumbnailUrl, config.thumbnailUrl);
+      values.push(config.thumbnail, config.Thumbnail, config.icon, config.Icon, config.PageIcon);
+      Object.keys(config).forEach(function(key) {
+        if (/thumbnail|icon/i.test(key)) values.push(config[key]);
+      });
+      const candidates = [];
+      const seen = new Set();
+      values.forEach(function(value) {
+        const candidate = assetUrl(value) || assetId(value);
+        if (candidate && !seen.has(candidate)) { seen.add(candidate); candidates.push(candidate); }
+      });
+      return candidates;
     }
     function petVariantLabel() {
       return ({ normal: "NORMAL", gold: "GOLD", rainbow: "RAINBOW", shiny: "SHINY", "shiny-gold": "SHINY GOLD", "shiny-rainbow": "SHINY RAINBOW" })[state.variant] || "NORMAL";
@@ -1378,9 +1398,12 @@ const page = String.raw`<!doctype html>
       const fallback = goldMode && !assetId(config.goldenThumbnail);
       const variantClass = "variant-" + String(state.variant || "normal");
       const fallbackClass = fallback ? " variant-fallback" : "";
-      const icon = getPetAsset(pet);
-      const configMark = pet && pet.configData ? (pet.configData.titanic ? "T" : pet.configData.gargantuan ? "G" : "H") : "✦";
-      const content = thumb(icon) ? iconHtml(icon, label, "pet-art-image") : '<span class="pet-placeholder">' + esc(configMark) + "</span>";
+      const candidates = getPetAssetCandidates(pet);
+      const iconIndex = candidates.findIndex(function(candidate) { return !!thumb(candidate); });
+      const icon = iconIndex >= 0 ? candidates[iconIndex] : (candidates[0] || "");
+      const iconUrl = thumb(icon);
+      const configMark = config && config.titanic ? "T" : config && config.gargantuan ? "G" : config && (config.huge || pet) ? "H" : "✦";
+      const content = iconUrl ? '<img class="pet-art-image" data-pet-asset-index="' + Math.max(0, iconIndex) + '" src="' + esc(iconUrl) + '" alt="' + esc(label) + '" loading="lazy" decoding="async">' : '<span class="pet-placeholder">' + esc(configMark) + "</span>";
       const effects = '<span class="pet-effect-rainbow" aria-hidden="true"></span><span class="pet-effect-stripes" aria-hidden="true"></span><span class="pet-effect-sweep" aria-hidden="true"></span>';
       return '<span class="pet-art ' + esc(className || "") + " " + esc(variantClass + fallbackClass) + '"><span class="pet-visual">' + content + effects + "</span></span>";
     }
@@ -1388,8 +1411,10 @@ const page = String.raw`<!doctype html>
       const ids = new Set();
       const visible = state.tab === "enchant" || state.tab === "extras" ? [] : (getVisiblePets() || []).slice(0, state.showLimit);
       visible.forEach(function(pet) {
-        const id = getPetAsset(pet.pet);
-        if (id) ids.add(id);
+        getPetAssetCandidates(pet.pet).forEach(function(asset) {
+          const id = assetUrl(asset) ? "" : assetId(asset);
+          if (id) ids.add(id);
+        });
         pet.sources.filter(sourceMatchesTab).slice(0, 3).forEach(function(source) { if (source.pool.icon) ids.add(source.pool.icon); });
         asArray(pet.otherSources).filter(function(item) { return state.tab === "all" || item.type === state.tab; }).slice(0, 3).forEach(function(item) { if (item.icon) ids.add(item.icon); });
       });
@@ -1567,7 +1592,7 @@ const page = String.raw`<!doctype html>
       $("cards").dataset.kind = state.kind;
       const pets = matches.slice(0, state.showLimit);
       $("resultCount").textContent = matches.length > state.showLimit ? "Showing " + pets.length + " of " + matches.length + " pets" : matches.length + (matches.length === 1 ? " pet" : " pets");
-      $("catalogSubtitle").textContent = state.tab === "active" ? "Hover an Active Huge pet to see its share of the published pool" : "Hover a pet to see every published chance and source note";
+      $("catalogSubtitle").textContent = state.tab === "active" ? "Scroll to load more · hover an Active Huge pet to see its share of the published pool" : "Scroll to load more · hover a pet to see every published chance and source note";
       if (!matches.length) {
         $("cards").innerHTML = '<div class="empty"><strong>No matching rare pet records</strong>Try a different name or source filter. Exclusive Egg-only pets and odds are intentionally left out.</div>';
         $("loadMore").hidden = true;
@@ -1590,7 +1615,7 @@ const page = String.raw`<!doctype html>
       }).join("");
       const loadMore = $("loadMore");
       loadMore.hidden = matches.length <= state.showLimit;
-      if (!loadMore.hidden) loadMore.textContent = "Show more pets · " + state.showLimit + " of " + matches.length;
+      if (!loadMore.hidden) loadMore.textContent = "Load more pets · " + state.showLimit + " of " + matches.length;
       resolveVisibleThumbs();
     }
     function renderModifiers() {
@@ -1898,12 +1923,49 @@ const page = String.raw`<!doctype html>
       $("modalContent").innerHTML = '<div class="modal-hero"><div class="modal-image">' + (thumb(sourceIcon) ? iconHtml(sourceIcon, item.name, "") : '<span class="pet-placeholder">✦</span>') + '</div><div><span class="pet-kind other">' + esc(item.activity) + '</span><p class="modal-desc">' + esc(item.description) + '</p></div></div><div class="coverage-note"><span class="coverage-icon">i</span><span>' + esc(item.chanceNote) + '</span></div>' + packLine + '<p class="section-foot">Source: BIG Games public configuration feed. A chance mentioned without a numeric rate cannot be converted to an exact percentage from the available data.</p>';
       $("detailModal").showModal();
     }
+    function recoverPetIcon(image) {
+      const button = image.closest(".pet-open[data-pet-key]");
+      if (!button) return;
+      const pet = state.petIndex.get(decodeURIComponent(button.dataset.petKey || ""));
+      if (!pet) return;
+      const candidates = getPetAssetCandidates(pet.pet);
+      let index = Number(image.dataset.petAssetIndex || 0) + 1;
+      for (; index < candidates.length; index++) {
+        const url = thumb(candidates[index]);
+        if (url && url !== image.src) {
+          image.dataset.petAssetIndex = String(index);
+          image.src = url;
+          return;
+        }
+      }
+      const config = pet.pet && pet.pet.configData ? pet.pet.configData : {};
+      const placeholder = document.createElement("span");
+      placeholder.className = "pet-placeholder";
+      placeholder.setAttribute("aria-hidden", "true");
+      placeholder.textContent = config.titanic ? "T" : config.gargantuan ? "G" : "H";
+      image.replaceWith(placeholder);
+    }
+    function loadNextBatch() {
+      if ($("loadMore").hidden) return;
+      state.showLimit += pageSize;
+      if (state.tab === "extras") renderChanceSources(); else render();
+    }
+    document.addEventListener("error", function(event) {
+      const image = event.target;
+      if (image && image.matches && image.matches(".pet-art-image[data-pet-asset-index]")) recoverPetIcon(image);
+    }, true);
     document.querySelectorAll("[data-tab]").forEach(function(button) { button.addEventListener("click", function() { state.tab = button.dataset.tab; state.showLimit = pageSize; searchPendingKey = ""; updateFilterStyles(); if (state.data) render(); }); });
     document.querySelectorAll("[data-kind]").forEach(function(button) { button.addEventListener("click", function() { state.kind = button.dataset.kind; state.showLimit = pageSize; updateFilterStyles(); if (state.data) render(); }); });
     $("variantSelect").addEventListener("change", function(event) { state.variant = event.target.value; state.showLimit = pageSize; if (state.data) render(); });
     $("search").addEventListener("input", function(event) { window.clearTimeout(searchTimer); const query = event.target.value.trim().toLowerCase(); searchTimer = window.setTimeout(function() { state.query = query; state.showLimit = pageSize; searchPendingKey = ""; if (state.data) render(); }, 180); });
     $("refresh").addEventListener("click", function() { loadData(true); });
-    $("loadMore").addEventListener("click", function() { state.showLimit += pageSize; if (state.tab === "extras") renderChanceSources(); else render(); });
+    $("loadMore").addEventListener("click", loadNextBatch);
+    if ("IntersectionObserver" in window) {
+      const loadMoreObserver = new IntersectionObserver(function(entries) {
+        if (entries.some(function(entry) { return entry.isIntersecting; })) loadNextBatch();
+      }, { rootMargin: "420px 0px", threshold: 0 });
+      loadMoreObserver.observe($("loadMore"));
+    }
     $("cards").addEventListener("click", function(event) {
       const pet = event.target.closest("[data-pet-key]");
       const source = event.target.closest("[data-source-key]");
