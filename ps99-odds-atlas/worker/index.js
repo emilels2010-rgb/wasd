@@ -373,6 +373,7 @@ const page = String.raw`<!doctype html>
             <button class="filter-btn" type="button" data-tab="chest">Chests &amp; drops</button>
             <button class="filter-btn" type="button" data-tab="other">Other</button>
             <button class="filter-btn" type="button" data-tab="enchant">Enchants</button>
+            <button class="filter-btn" type="button" data-tab="extras">Rewards &amp; boosts</button>
           </nav></div>
           <div class="filter-group"><span class="filter-label">PET TYPE</span><nav class="filters" aria-label="Filter by pet type">
             <button class="filter-btn active" type="button" data-kind="all" id="allKindFilter">All rare pets</button>
@@ -402,12 +403,16 @@ const page = String.raw`<!doctype html>
   <div id="gameTip" class="game-tip" role="tooltip" hidden></div>
 
   <script>
-    const state = { pools: [], pets: [], modifiers: [], missingChests: [], thumbs: {}, thumbIndex: null, petIndex: new Map(), poolIndex: new Map(), modifierIndex: new Map(), filterCacheKey: null, filteredPets: null, tab: "all", kind: "all", query: "", showLimit: 36, data: null, lastChecked: null, busy: false };
-    const apiCacheKey = "ps99-odds-atlas-cache-v1";
+    const state = { pools: [], pets: [], modifiers: [], otherSources: [], missingChests: [], thumbs: {}, thumbMisses: new Set(), thumbPending: new Set(), thumbIndex: null, petIndex: new Map(), poolIndex: new Map(), modifierIndex: new Map(), otherSourceIndex: new Map(), filterCacheKey: null, filteredPets: null, tab: "all", kind: "all", query: "", showLimit: 18, data: null, lastChecked: null, busy: false };
+    const apiCacheKey = "ps99-odds-atlas-cache-v2";
     const recentDays = 60;
-    const pageSize = 36;
+    const pageSize = 18;
     let activeGameTip = null;
     let searchTimer = 0;
+    let searchWorker = null;
+    let searchWorkerUrl = "";
+    let searchRequestId = 0;
+    let searchPendingKey = "";
     const $ = (id) => document.getElementById(id);
 
     function esc(value) {
@@ -450,8 +455,12 @@ const page = String.raw`<!doctype html>
     }
     function sourceEligibility(entry) {
       const category = String(entry.category || "");
-      const name = String((entry.configData && entry.configData.name) || entry.configName || "");
-      if (/exclusive eggs/i.test(category) || /^exclusive\b.*\begg\b/i.test(name)) return null;
+      const config = entry.configData || {};
+      const name = String(config.name || entry.configName || "");
+      const productIds = config.productIds && typeof config.productIds === "object" ? Object.keys(config.productIds) : [];
+      const soldAsExclusiveEgg = productIds.some(function(productName) { return /exclusive\s+eggs?/i.test(productName); });
+      const hiddenExclusiveEgg = config.rarity && config.rarity._id === "Exclusive" && config.allPetsRare && /^other$/i.test(category);
+      if (/exclusive eggs/i.test(category) || /^exclusive\b.*\begg\b/i.test(name) || soldAsExclusiveEgg || hiddenExclusiveEgg) return null;
       const source = sourceType(entry);
       const age = ageInDays(entry.dateModified || entry.dateCreated);
       if (/\bworld\s*\d+\b/i.test(category) || /diamondmountain/i.test(category)) {
@@ -479,6 +488,10 @@ const page = String.raw`<!doctype html>
     }
     function sourceMatchesTab(source) {
       return state.tab === "all" || (state.tab === "active" ? isActiveHugeSource(source) : source.pool.type === state.tab);
+    }
+    function petHasSourceTab(pet, tab) {
+      return pet.sources.some(function(source) { return tab === "active" ? isActiveHugeSource(source) : source.pool.type === tab; }) ||
+        asArray(pet.otherSources).some(function(source) { return tab !== "active" && source.type === tab; });
     }
     function oddsSubLabel(source, item) {
       return isActiveHugeSource(source) ? "of listed active pool" : oneInLabel(item.oneIn);
@@ -559,6 +572,138 @@ const page = String.raw`<!doctype html>
       records.forEach(function(record) { unique.set(record.name, record); });
       return Array.from(unique.values()).sort(function(a, b) { return a.name.localeCompare(b.name); });
     }
+    function getSupplementalChanceSources(api) {
+      const rarePetNames = asArray(readData(api.pets)).filter(isRarePet).map(function(pet) {
+        const config = pet.configData || {};
+        return String(config.name || pet.configName || "");
+      }).filter(Boolean);
+      const feeds = [
+        { key: "lootboxes", label: "Gift & lootbox", rows: readData(api.lootboxes) },
+        { key: "miscItems", label: "Keys & event items", rows: readData(api.miscItems) },
+        { key: "potions", label: "Potion", rows: readData(api.potions) },
+        { key: "cardItems", label: "Rare card recipe", rows: readData(api.cardItems) },
+        { key: "boosts", label: "Luck boost config", rows: readData(api.boosts) }
+      ];
+      const records = [];
+      function add(feed, entry, config, tier) {
+        const name = String((tier && tier.DisplayName) || config.DisplayName || config.name || entry.configName || "Rare chance source");
+        const description = String((tier && tier.Desc) || config.Desc || config.description || "");
+        const context = name + " " + String(entry.category || "") + " " + description;
+        if (feed.key === "boosts") {
+          if (!/huge|titanic|gargantuan/i.test(context)) return;
+          const maxPercent = Number(config.MaximumPercent);
+          records.push({
+            id: "boosts:" + String(entry.configName || name),
+            name: name,
+            group: feed.label + (entry.category ? " · " + String(entry.category) : ""),
+            description: "The game config exposes a maximum boost value, but not the base pet drop chance or the complete boost formula.",
+            chanceNote: Number.isFinite(maxPercent) ? "Configured maximum: " + maxPercent.toLocaleString("en-US") + "% boost cap · this is not a pet drop chance." : "Luck boost config · exact drop chance and formula are not published.",
+            icon: assetId(config.Icon || config.icon || ""),
+            rolls: null,
+            updated: entry.dateModified || entry.dateCreated || null,
+            activity: "Config value · not a drop rate",
+            type: "other",
+            petNames: [],
+            searchText: (name + " " + feed.label + " " + context).toLowerCase()
+          });
+          return;
+        }
+        if (!/\b(Huge|Titanic|Gargantuan)\b/i.test(context)) return;
+        const isRecipe = /combine\s+\d+\s+to\s+create/i.test(description);
+        if (!isRecipe && feed.key !== "lootboxes" && !/chance|odds|luck|roll|random|boost|points|key|chest|machine|present|egg/i.test(description)) return;
+
+        let chanceNote = "Rare-pet reward is mentioned, but this source publishes no numeric rate.";
+        const recipe = description.match(/combine\s+(\d+)\s+to\s+create\s+(?:a\s+)?(.+?)(?:[.!\n]|$)/i);
+        const modifierPercent = description.match(/(?:increases?|boosts?)\b[^.!\n]{0,90}?\bby\s+(\d+(?:\.\d+)?)\s*%/i) || description.match(/\b(\d+(?:\.\d+)?)\s*%\s+(?:more\s+)?(?:active\s+)?(?:huge|titanic|gargantuan)\s+(?:luck|odds|chance)/i);
+        const multiplier = description.match(/\b(\d+(?:\.\d+)?)\s*x\s+(?:huge|titanic|gargantuan)\s+(?:pet\s+)?chance\b/i);
+        const points = description.match(/adds?\s+([\d,]+)\s+points?\s+to\s+(?:your\s+)?(.+?)(?:[.!\n]|$)/i);
+        const exactPercent = description.match(/\b(?:chance|odds)\b[^.!\n]{0,80}?\b(\d+(?:\.\d+)?)\s*%/i) || description.match(/\b(\d+(?:\.\d+)?)\s*%\s+(?:chance|odds)\b/i);
+        const exactOneIn = description.match(/\b(?:chance|odds)\b[^.!\n]{0,80}?\b1\s+in\s+([\d,]+)/i) || description.match(/\b1\s+in\s+([\d,]+)[^.!\n]{0,40}?\b(?:chance|odds)\b/i);
+        if (recipe) {
+          chanceNote = "Guaranteed card conversion: " + recipe[1] + " cards → " + recipe[2].trim() + ". The chance of finding a required card is not published.";
+        } else if (multiplier) {
+          chanceNote = multiplier[1] + "× Huge chance modifier; the base chance and final rate are not published.";
+        } else if (modifierPercent) {
+          chanceNote = "+" + modifierPercent[1] + "% luck modifier; this is not the final pet chance.";
+        } else if (exactPercent && !/luck|increase|boost|more|multipl/i.test(description)) {
+          chanceNote = "Published description rate: " + exactPercent[1] + "%";
+        } else if (exactOneIn && !/luck|increase|boost|more|multipl/i.test(description)) {
+          chanceNote = "Published description rate: 1 in " + exactOneIn[1];
+        } else if (points) {
+          chanceNote = "Adds " + points[1] + " points to " + points[2].trim() + "; the resulting pet odds are not published.";
+        } else if (/chance|odds/i.test(description)) {
+          chanceNote = "Rare-pet chance is mentioned, but no numeric rate is published.";
+        } else if (/luck|boost/i.test(description)) {
+          chanceNote = "Chance modifier is described, but its numeric effect or final pet rate is not published.";
+        }
+
+        const rollCount = Number(config.Rolls || 0);
+        if (rollCount && /card/i.test(description) && !/\d+\s+card/i.test(chanceNote)) chanceNote += " " + rollCount + " cards per pack.";
+        const id = feed.key + ":" + String(entry.configName || name) + (tier ? ":" + String(tier.DisplayName || "tier") : "");
+        const sourceText = name + " " + String(entry.category || "") + " " + description;
+        const sourceTypeValue = /gift|present|bag|parcel/i.test(sourceText) ? "gift" : /chest|lootbox|breakable|drop table|key/i.test(sourceText) ? "chest" : "other";
+        const lowerSourceText = sourceText.toLowerCase();
+        records.push({
+          id: id,
+          name: name,
+          group: feed.label + (entry.category ? " · " + String(entry.category) : ""),
+          description: description || "No item description is published.",
+          chanceNote: chanceNote,
+          icon: assetId((tier && tier.Icon) || config.Icon || config.icon || config.PageIcon || ""),
+          rolls: rollCount || null,
+          updated: entry.dateModified || entry.dateCreated || null,
+          activity: ageInDays(entry.dateModified || entry.dateCreated) <= recentDays ? "Recently updated" : "Activity unconfirmed",
+          type: sourceTypeValue,
+          petNames: rarePetNames.filter(function(petName) { return lowerSourceText.includes(petName.toLowerCase()); }),
+          searchText: (name + " " + feed.label + " " + String(entry.category || "") + " " + description + " " + chanceNote).toLowerCase()
+        });
+      }
+      feeds.forEach(function(feed) {
+        asArray(feed.rows).forEach(function(entry) {
+          const config = entry.configData || {};
+          const tiers = feed.key === "potions" ? asArray(config.Tiers) : [];
+          if (tiers.length) tiers.forEach(function(tier) { add(feed, entry, config, tier); });
+          else add(feed, entry, config, null);
+        });
+      });
+      const rarePetByName = new Map(rarePetNames.map(function(name) { return [name.toLowerCase(), name]; }));
+      asArray(readData(api.guildBattles)).forEach(function(entry) {
+        const config = entry.configData || {};
+        const now = Date.now() / 1000;
+        const start = Number(config.StartTime || 0);
+        const finish = Number(config.FinishTime || 0);
+        if (!start || !finish || start > now || finish < now) return;
+        const battleName = String(config.Title || entry.configName || "Guild Battle");
+        asArray(config.PlacementRewards).forEach(function(reward) {
+          const petName = String(reward && reward.Item && reward.Item._data && reward.Item._data.id || "");
+          const matchedName = rarePetByName.get(petName.toLowerCase());
+          if (!matchedName) return;
+          const best = Number(reward.Best || 0);
+          const worst = Number(reward.Worst || best);
+          const contributor = reward.BestContributor && reward.WorstContributor ? " · contributor ranks " + reward.BestContributor + "–" + reward.WorstContributor : "";
+          const rankLabel = best === worst ? "rank " + best : "ranks " + best + "–" + worst;
+          const pet = asArray(readData(api.pets)).find(function(record) { return String(record.configData && record.configData.name || record.configName || "").toLowerCase() === matchedName.toLowerCase(); });
+          const icon = assetId(pet && pet.configData && (pet.configData.thumbnail || pet.configData.Thumbnail || pet.configData.icon) || "");
+          const description = matchedName + " is a listed placement reward for " + battleName + " (" + rankLabel + contributor + "). This is a rank reward, not a random drop.";
+          const id = "guild:" + String(entry.configName || battleName) + ":" + matchedName + ":" + best + ":" + worst;
+          records.push({
+            id: id,
+            name: battleName + " · " + matchedName,
+            group: "Active guild battle · placement reward",
+            description: description,
+            chanceNote: "Guaranteed for " + rankLabel + contributor + " · not a random chance.",
+            icon: icon,
+            rolls: null,
+            updated: entry.dateModified || entry.dateCreated || null,
+            activity: "Active · ends " + niceDate(new Date(finish * 1000)),
+            type: "other",
+            petNames: [matchedName],
+            searchText: (battleName + " " + matchedName + " " + description).toLowerCase()
+          });
+        });
+      });
+      return records.sort(function(a, b) { return a.name.localeCompare(b.name); });
+    }
     function createCatalog(api, resolveIcons) {
       state.data = api;
       state.pools = getPoolRecords(api);
@@ -592,9 +737,23 @@ const page = String.raw`<!doctype html>
       state.petIndex = new Map(state.pets.map(function(pet) { return [pet.name, pet]; }));
       state.poolIndex = new Map(state.pools.map(function(pool) { return [pool.id, pool]; }));
       state.modifierIndex = new Map(state.modifiers.map(function(item) { return [item.id, item]; }));
+      state.otherSources = getSupplementalChanceSources(api);
+      state.otherSourceIndex = new Map(state.otherSources.map(function(item) { return [item.id, item]; }));
+      const extraSourcesByPet = new Map();
+      state.otherSources.forEach(function(item) {
+        item.petNames.forEach(function(name) {
+          if (!extraSourcesByPet.has(name)) extraSourcesByPet.set(name, []);
+          extraSourcesByPet.get(name).push(item);
+        });
+      });
+      state.pets.forEach(function(pet) {
+        pet.otherSources = extraSourcesByPet.get(pet.name) || [];
+        if (pet.otherSources.length) pet.searchText += " " + pet.otherSources.map(function(item) { return item.name + " " + item.description; }).join(" ").toLowerCase();
+      });
       state.filterCacheKey = null;
       state.filteredPets = null;
       state.missingChests = [];
+      updateSearchWorkerIndex();
       updateStats();
       render();
     }
@@ -633,41 +792,54 @@ const page = String.raw`<!doctype html>
     }
     function uniqueAssetIds() {
       const ids = new Set();
-      const visible = state.tab === "enchant" ? [] : getVisiblePets().slice(0, state.showLimit);
+      const visible = state.tab === "enchant" || state.tab === "extras" ? [] : (getVisiblePets() || []).slice(0, state.showLimit);
       visible.forEach(function(pet) {
         const id = getPetAsset(pet.pet);
         if (id) ids.add(id);
         pet.sources.filter(sourceMatchesTab).slice(0, 3).forEach(function(source) { if (source.pool.icon) ids.add(source.pool.icon); });
       });
       if (state.tab === "enchant") state.modifiers.forEach(function(item) { if (item.icon) ids.add(item.icon); });
-      return Array.from(ids);
+      if (state.tab === "extras") state.otherSources.slice(0, state.showLimit).forEach(function(item) { if (item.icon) ids.add(item.icon); });
+      return Array.from(ids).filter(function(id) { return !state.thumbs[id] && !state.thumbMisses.has(id) && !state.thumbPending.has(id); });
     }
     async function resolveVisibleThumbs() {
-      const ids = uniqueAssetIds().filter(function(id) { return !state.thumbs[id]; });
+      const ids = uniqueAssetIds();
       if (!ids.length) return;
+      ids.forEach(function(id) { state.thumbPending.add(id); });
       if (window.PS99_THUMBNAILS_URL) {
         try {
           if (!state.thumbIndex) {
             const response = await fetch(window.PS99_THUMBNAILS_URL, { cache: "force-cache" });
-            if (!response.ok) return;
+            if (!response.ok) { ids.forEach(function(id) { state.thumbMisses.add(id); }); return; }
             state.thumbIndex = await response.json();
           }
-          ids.forEach(function(id) { if (state.thumbIndex[id]) state.thumbs[id] = state.thumbIndex[id]; });
-          render();
-        } catch (_) { /* Icons fall back to the atlas mark. */ }
+          let added = false;
+          ids.forEach(function(id) {
+            if (state.thumbIndex[id]) { state.thumbs[id] = state.thumbIndex[id]; added = true; }
+            else state.thumbMisses.add(id);
+          });
+          if (added) render();
+        } catch (_) { ids.forEach(function(id) { state.thumbMisses.add(id); }); }
+        finally { ids.forEach(function(id) { state.thumbPending.delete(id); }); }
         return;
       }
       const chunks = [];
       for (let i = 0; i < ids.length; i += 100) chunks.push(ids.slice(i, i + 100));
+      let added = false;
       await Promise.all(chunks.map(async function(chunk) {
         try {
           const response = await fetch("/api/thumbs?ids=" + encodeURIComponent(chunk.join(",")), { cache: "force-cache" });
-          if (!response.ok) return;
+          if (!response.ok) { chunk.forEach(function(id) { state.thumbMisses.add(id); }); return; }
           const body = await response.json();
-          asArray(body.data).forEach(function(item) { if (item && item.targetId && item.imageUrl) state.thumbs[String(item.targetId)] = item.imageUrl; });
-        } catch (_) { /* Icons fall back to the atlas mark. */ }
+          const found = new Set();
+          asArray(body.data).forEach(function(item) {
+            if (item && item.targetId && item.imageUrl) { const id = String(item.targetId); state.thumbs[id] = item.imageUrl; found.add(id); added = true; }
+          });
+          chunk.forEach(function(id) { if (!found.has(id)) state.thumbMisses.add(id); });
+        } catch (_) { chunk.forEach(function(id) { state.thumbMisses.add(id); }); }
+        finally { chunk.forEach(function(id) { state.thumbPending.delete(id); }); }
       }));
-      render();
+      if (added) render();
     }
     function sourceAsset(pool) { return pool.icon || ""; }
     function sourceRowHtml(source) {
@@ -679,22 +851,121 @@ const page = String.raw`<!doctype html>
         '<span class="source-meta"><span class="source-name">' + esc(pool.name) + '</span><span class="source-status">' + esc(pool.availability.status) + '</span></span>' +
         '<span class="source-odds">' + esc(pctLabel(item.pct)) + '<small>' + esc(oddsSubLabel(source, item)) + '</small></span></button>';
     }
-    function getVisiblePets() {
-      const lower = state.query;
-      const key = state.tab + "\u0000" + state.kind + "\u0000" + lower;
-      if (state.filterCacheKey === key && state.filteredPets) return state.filteredPets;
-      state.filteredPets = state.pets.filter(function(pet) {
-        if (state.kind !== "all" && state.kind !== pet.kind.toLowerCase()) return false;
-        const sources = pet.sources.filter(sourceMatchesTab);
-        if (state.tab !== "all" && !sources.length) return false;
-        if (!lower) return true;
-        return pet.searchText.includes(lower);
+    function chanceSourceRowHtml(item) {
+      return '<button class="source-row" type="button" data-chance-source-key="' + esc(encodeURIComponent(item.id)) + '" data-tip-type="chance-source" data-tip-key="' + esc(encodeURIComponent(item.id)) + '" aria-label="Open ' + esc(item.name) + ' chance source details">' +
+        '<span class="source-thumb">' + iconHtml(item.icon, item.name, "") + '</span>' +
+        '<span class="source-meta"><span class="source-name">' + esc(item.name) + '</span><span class="source-status">' + esc(item.chanceNote) + '</span></span>' +
+        '<span class="source-odds">See info<small>' + esc(item.activity) + '</small></span></button>';
+    }
+    function filterKey(tab, kind, query) { return tab + "\u0000" + kind + "\u0000" + query; }
+    function updateSearchWorkerIndex() {
+      if (!searchWorker) return;
+      const rows = state.pets.map(function(pet) {
+        const types = Array.from(new Set(pet.sources.map(function(source) { return source.pool.type; }).concat(asArray(pet.otherSources).map(function(source) { return source.type; }))));
+        return { text: pet.searchText, kind: pet.kind.toLowerCase(), types: types, active: pet.sources.some(isActiveHugeSource) };
       });
-      state.filterCacheKey = key;
-      return state.filteredPets;
+      searchWorker.postMessage({ type: "index", rows: rows });
+    }
+    function makeSearchWorker() {
+      if (!window.Worker || !window.Blob || !window.URL || !window.URL.createObjectURL) return;
+      const source = [
+        "let rows = [];",
+        "self.onmessage = function(event) {",
+        "  const message = event.data || {};",
+        "  if (message.type === 'index') { rows = message.rows || []; self.postMessage({ type: 'ready' }); return; }",
+        "  if (message.type !== 'search') return;",
+        "  const indices = []; const query = message.query || ''; const tab = message.tab || 'all'; const kind = message.kind || 'all';",
+        "  for (let i = 0; i < rows.length; i += 1) {",
+        "    const row = rows[i];",
+        "    if (kind !== 'all' && row.kind !== kind) continue;",
+        "    if (tab === 'active' ? !row.active : (tab !== 'all' && row.types.indexOf(tab) === -1)) continue;",
+        "    if (query && row.text.indexOf(query) === -1) continue;",
+        "    indices.push(i);",
+        "  }",
+        "  self.postMessage({ type: 'result', id: message.id, tab: tab, kind: kind, query: query, indices: indices });",
+        "};"
+      ].join("\n");
+      try {
+        searchWorkerUrl = URL.createObjectURL(new Blob([source], { type: "text/javascript" }));
+        searchWorker = new Worker(searchWorkerUrl);
+        searchWorker.onmessage = function(event) {
+          const message = event.data || {};
+          if (message.type === "ready") {
+            if (searchWorkerUrl) URL.revokeObjectURL(searchWorkerUrl);
+            searchWorkerUrl = "";
+            return;
+          }
+          if (message.type !== "result" || message.id !== searchRequestId) return;
+          applySearchResults(message.id, message.tab, message.kind, message.query, message.indices || []);
+        };
+        searchWorker.onerror = function() {
+          if (searchWorker) searchWorker.terminate();
+          searchWorker = null;
+          if (searchWorkerUrl) URL.revokeObjectURL(searchWorkerUrl);
+          searchWorkerUrl = "";
+          if (searchPendingKey) { searchPendingKey = ""; requestPetSearch(); }
+        };
+        updateSearchWorkerIndex();
+      } catch (_) {
+        searchWorker = null;
+        if (searchWorkerUrl) URL.revokeObjectURL(searchWorkerUrl);
+        searchWorkerUrl = "";
+      }
+    }
+    function applySearchResults(id, tab, kind, query, indices) {
+      if (id !== searchRequestId || tab !== state.tab || kind !== state.kind || query !== state.query) return;
+      state.filteredPets = indices.map(function(index) { return state.pets[index]; });
+      state.filterCacheKey = filterKey(tab, kind, query);
+      searchPendingKey = "";
+      $("cards").setAttribute("aria-busy", "false");
+      if (state.tab === "chest") renderChests();
+      else renderPetCards();
+    }
+    function runSlicedSearch(id, tab, kind, query) {
+      const indices = [];
+      let cursor = 0;
+      function nextSlice() {
+        if (id !== searchRequestId) return;
+        const end = Math.min(cursor + 100, state.pets.length);
+        for (; cursor < end; cursor += 1) {
+          const pet = state.pets[cursor];
+          if (kind !== "all" && pet.kind.toLowerCase() !== kind) continue;
+          if (tab !== "all" && !petHasSourceTab(pet, tab)) continue;
+          if (query && !pet.searchText.includes(query)) continue;
+          indices.push(cursor);
+        }
+        if (cursor < state.pets.length) window.setTimeout(nextSlice, 0);
+        else applySearchResults(id, tab, kind, query, indices);
+      }
+      nextSlice();
+    }
+    function requestPetSearch() {
+      const tab = state.tab;
+      const kind = state.kind;
+      const query = state.query;
+      const key = filterKey(tab, kind, query);
+      if (state.filterCacheKey === key && state.filteredPets) {
+        if (tab === "chest") renderChests();
+        else renderPetCards();
+        return;
+      }
+      if (searchPendingKey === key) return;
+      searchPendingKey = key;
+      $("resultCount").textContent = "Searching…";
+      $("cards").setAttribute("aria-busy", "true");
+      const id = ++searchRequestId;
+      if (searchWorker) searchWorker.postMessage({ type: "search", id: id, tab: tab, kind: kind, query: query });
+      else runSlicedSearch(id, tab, kind, query);
+    }
+    function getVisiblePets() {
+      const key = filterKey(state.tab, state.kind, state.query);
+      if (state.filterCacheKey === key && state.filteredPets) return state.filteredPets;
+      requestPetSearch();
+      return null;
     }
     function renderPetCards() {
       const matches = getVisiblePets();
+      if (!matches) return;
       const pets = matches.slice(0, state.showLimit);
       $("resultCount").textContent = matches.length > state.showLimit ? "Showing " + pets.length + " of " + matches.length + " pets" : matches.length + (matches.length === 1 ? " pet" : " pets");
       $("catalogSubtitle").textContent = state.tab === "active" ? "Rare pets in the published Active Huge pool · pool shares shown where configured" : "All Huge, Titanic & Gargantuan game-data records · odds appear where the public feed publishes them";
@@ -705,16 +976,20 @@ const page = String.raw`<!doctype html>
       }
       $("cards").innerHTML = pets.map(function(pet) {
         const petSources = pet.sources.filter(sourceMatchesTab);
+        const extraSources = asArray(pet.otherSources).filter(function(item) { return state.tab === "all" || item.type === state.tab; });
         const shown = petSources.slice(0, 3);
+        const extraShown = extraSources.slice(0, Math.max(0, 3 - shown.length));
         const asset = getPetAsset(pet.pet);
         const config = pet.pet && pet.pet.configData ? pet.pet.configData : {};
         const sourceSummary = String(config.indexDesc || "").split(/\n+/)[0].trim();
-        const oddsHtml = shown.length ? shown.map(sourceRowHtml).join("") : '<div class="no-odds" title="' + esc(sourceSummary) + '">No non-exclusive odds published · current availability unconfirmed.' + (sourceSummary ? ' Game index note: ' + esc(sourceSummary) : ' No source detail in feed.') + '</div>';
+        const allShown = shown.map(sourceRowHtml).concat(extraShown.map(chanceSourceRowHtml));
+        const totalSources = petSources.length + extraSources.length;
+        const oddsHtml = allShown.length ? allShown.join("") : '<div class="no-odds" title="' + esc(sourceSummary) + '">No non-exclusive odds published · current availability unconfirmed.' + (sourceSummary ? ' Game index note: ' + esc(sourceSummary) : ' No source detail in feed.') + '</div>';
         return '<article class="pet-card">' +
           '<div class="pet-top"><button class="pet-open" type="button" data-pet-key="' + esc(encodeURIComponent(pet.name)) + '" data-tip-type="pet" data-tip-key="' + esc(encodeURIComponent(pet.name)) + '" aria-label="Open details for ' + esc(pet.name) + '">' + (thumb(asset) ? iconHtml(asset, pet.name, "") : '<span class="pet-placeholder">' + esc(pet.kind === "Titanic" ? "T" : pet.kind === "Gargantuan" ? "G" : "H") + '</span>') + '</button>' +
-          '<div class="pet-title-wrap"><h3 class="pet-name ' + esc(pet.kind.toLowerCase()) + '">' + esc(pet.name) + '</h3><span class="pet-kind ' + esc(pet.kind.toLowerCase()) + '">' + esc(pet.kind) + '</span></div><span class="pool-count">' + (petSources.length ? petSources.length + (petSources.length === 1 ? " pool" : " pools") : "No odds") + '</span></div>' +
+          '<div class="pet-title-wrap"><h3 class="pet-name ' + esc(pet.kind.toLowerCase()) + '">' + esc(pet.name) + '</h3><span class="pet-kind ' + esc(pet.kind.toLowerCase()) + '">' + esc(pet.kind) + '</span></div><span class="pool-count">' + (totalSources ? totalSources + (totalSources === 1 ? " source" : " sources") : "No odds") + '</span></div>' +
           '<div class="card-divider"></div><div class="source-list">' + oddsHtml + '</div>' +
-          (petSources.length > shown.length ? '<div class="more-sources">+' + (petSources.length - shown.length) + ' more pool' + (petSources.length - shown.length === 1 ? "" : "s") + ' · open pet details</div>' : '') +
+          (totalSources > allShown.length ? '<div class="more-sources">+' + (totalSources - allShown.length) + ' more source' + (totalSources - allShown.length === 1 ? "" : "s") + ' · open pet details</div>' : '') +
           '</article>';
       }).join("");
       const loadMore = $("loadMore");
@@ -736,11 +1011,27 @@ const page = String.raw`<!doctype html>
         '<p class="section-foot">Modifier descriptions come from the game config. They are not folded into pet pool chances because the API does not expose a complete formula for combined player boosts.</p>';
       resolveVisibleThumbs();
     }
+    function renderChanceSources() {
+      const query = state.query;
+      const matches = state.otherSources.filter(function(item) { return !query || item.searchText.includes(query); });
+      const visible = matches.slice(0, state.showLimit);
+      $("cards").style.display = "none";
+      $("resultCount").textContent = matches.length + (matches.length === 1 ? " source" : " sources");
+      $("catalogSubtitle").textContent = "Rare reward items, chance modifiers, and card conversions found in game config. Exact rates appear only when the config publishes them.";
+      $("loadMore").hidden = matches.length <= state.showLimit;
+      if (!$("loadMore").hidden) $("loadMore").textContent = "Show more sources · " + state.showLimit + " of " + matches.length;
+      $("specialPanel").className = "source-panel visible";
+      $("specialPanel").innerHTML = '<div class="panel-grid">' + (visible.length ? visible.map(function(item) {
+        return '<button class="modifier-card" type="button" data-chance-source-key="' + esc(encodeURIComponent(item.id)) + '" data-tip-type="chance-source" data-tip-key="' + esc(encodeURIComponent(item.id)) + '"><span class="modifier-top"><span class="modifier-icon">' + iconHtml(item.icon, item.name, "") + '</span><span><h3 class="modifier-name">' + esc(item.name) + '</h3><span class="modifier-class">' + esc(item.group) + '</span></span></span><span class="modifier-copy">' + esc(item.description) + '</span><span class="modifier-value">' + esc(item.chanceNote) + '</span><span class="source-status">' + esc(item.activity) + (item.rolls ? ' · ' + item.rolls + ' rolls per pack' : '') + '</span></button>';
+      }).join("") : '<div class="empty"><strong>No matching rare-pet chance sources</strong>Try a shorter search.</div>') + '</div>' +
+        '<p class="section-foot">Gift and lootbox descriptions may say a Huge, Titanic, or Gargantuan is possible without publishing its rate. The feed also lists chest and breakable spawns without item-by-item pet drops. Those missing rates stay unquantified. <a href="https://github.com/BIG-Games-LLC/ps99-public-api-docs/blob/master/legacy/README.md" target="_blank" rel="noreferrer">View the game-config API docs</a>.</p>';
+      resolveVisibleThumbs();
+    }
     function renderChests() {
       renderPetCards();
       $("catalogSubtitle").textContent = "Published chest and breakable odds from the game feed · missing drop tables are not estimated";
       $("specialPanel").className = "source-panel visible";
-      $("specialPanel").innerHTML = '<div class="unavailable-card"><div class="unavailable-icon">▣</div><div><h3>Some chest drop tables are not published</h3><p>Chest or breakable pools with weights in the public game feed appear above. The feed omits item-by-item odds for other rewards, so those chances remain unavailable instead of being estimated.</p></div></div>';
+      $("specialPanel").innerHTML = '<div class="unavailable-card"><div class="unavailable-icon">▣</div><div><h3>Some chest drop tables are not published</h3><p>The game config lists chest and breakable spawn data, but not item-by-item Huge, Titanic, or Gargantuan drop weights. Check Rewards &amp; boosts for every gift, key, potion, and card source the feed describes; missing rates remain unquantified.</p></div></div>';
     }
     function render() {
       if (!state.data) return;
@@ -748,6 +1039,7 @@ const page = String.raw`<!doctype html>
       $("specialPanel").className = "source-panel";
       $("cards").style.display = "grid";
       if (state.tab === "enchant") { renderModifiers(); return; }
+      if (state.tab === "extras") { renderChanceSources(); return; }
       if (state.tab === "chest") { renderChests(); return; }
       renderPetCards();
     }
@@ -840,7 +1132,9 @@ const page = String.raw`<!doctype html>
         const lines = sources.map(function(source) {
           return tipLine(source.pool.name, pctLabel(source.odds.pct) + (isActiveHugeSource(source) ? " · share of listed pool" : " · " + oneInLabel(source.odds.oneIn)), "chance");
         });
-        lines.push(tipLine("Odds sources", pet.sources.length ? String(pet.sources.length) : "Not published in public feed"));
+        const extraSources = asArray(pet.otherSources);
+        extraSources.slice(0, 2).forEach(function(source) { lines.push(tipLine(source.name, source.chanceNote, "chance")); });
+        lines.push(tipLine("Odds / source notes", String(pet.sources.length + extraSources.length)));
         if (pet.sources.some(function(source) { return source.pool.availability.confidence === "unconfirmed"; })) lines.push(tipLine("Availability", "Activity unconfirmed"));
         return gameTipHtml(pet.name, pet.kind, pet.kind.toLowerCase(), getPetAsset(pet.pet), pet.kind.charAt(0), "Rare pet · hover preview", description, lines);
       }
@@ -865,6 +1159,13 @@ const page = String.raw`<!doctype html>
           tipLine("Effect", item.value, "gargantuan"),
           tipLine("Odds formula", "Not fully exposed by the game feed")
         ]);
+      }
+      if (type === "chance-source") {
+        const item = state.otherSourceIndex.get(key);
+        if (!item) return "";
+        const lines = [tipLine("Chance info", item.chanceNote, "chance"), tipLine("Activity", item.activity)];
+        if (item.rolls) lines.push(tipLine("Pack contents", item.rolls + " rolls per pack"));
+        return gameTipHtml(item.name, "Chance source", "item", item.icon, "✦", item.group, item.description, lines);
       }
       return "";
     }
@@ -930,10 +1231,11 @@ const page = String.raw`<!doctype html>
       const sources = pet.sources.slice().sort(function(a, b) { return a.odds.pct - b.odds.pct; });
       const config = pet.pet && pet.pet.configData ? pet.pet.configData : {};
       const description = String(config.indexDesc || "Game source details are not provided in the public feed.");
-      const sourceBody = sources.length ? sources.map(function(source) { return '<div class="modal-source"><div class="source-thumb">' + iconHtml(source.pool.icon, source.pool.name, "") + '</div><div><div class="modal-source-name">' + esc(source.pool.name) + '</div><div class="modal-source-sub">' + esc(source.pool.category) + ' · ' + esc(source.pool.availability.status) + '</div></div><div class="modal-odds">' + esc(pctLabel(source.odds.pct)) + '<br><span class="muted">' + esc(oddsSubLabel(source, source.odds)) + '</span></div></div>'; }).join("") : '<div class="no-odds">No non-exclusive odds are published for this pet. The game index source note is shown above; current availability and exact chances cannot be confirmed from the public feed.</div>';
+      const extraSources = asArray(pet.otherSources);
+      const sourceBody = sources.map(function(source) { return '<div class="modal-source"><div class="source-thumb">' + iconHtml(source.pool.icon, source.pool.name, "") + '</div><div><div class="modal-source-name">' + esc(source.pool.name) + '</div><div class="modal-source-sub">' + esc(source.pool.category) + ' · ' + esc(source.pool.availability.status) + '</div></div><div class="modal-odds">' + esc(pctLabel(source.odds.pct)) + '<br><span class="muted">' + esc(oddsSubLabel(source, source.odds)) + '</span></div></div>'; }).join("") + extraSources.map(function(item) { return '<div class="modal-source"><div class="source-thumb">' + iconHtml(item.icon, item.name, "") + '</div><div><div class="modal-source-name">' + esc(item.name) + '</div><div class="modal-source-sub">' + esc(item.group) + ' · ' + esc(item.activity) + '</div></div><div class="modal-odds"><span class="muted">' + esc(item.chanceNote) + '</span></div></div>'; }).join("") || '<div class="no-odds">No non-exclusive odds or reward source is published for this pet. The game index source note is shown above; current availability and exact chances cannot be confirmed from the public feed.</div>';
       const hasActivePool = sources.some(isActiveHugeSource);
       const activeNote = hasActivePool ? ' For Active Huge Egg, the feed exposes relative weights among the listed Active Huge outcomes, not the chance that a hatch produces an Active Huge.' : '';
-      $("modalContent").innerHTML = '<div class="modal-hero"><div class="modal-image">' + (thumb(image) ? iconHtml(image, pet.name, "") : '<span class="pet-placeholder">' + esc(pet.kind === "Titanic" ? "T" : pet.kind === "Gargantuan" ? "G" : "H") + '</span>') + '</div><div><span class="pet-kind ' + esc(pet.kind.toLowerCase()) + '">' + esc(pet.kind) + '</span><p class="modal-desc">' + esc(description) + '</p></div></div><div class="modal-label">Non-exclusive sources with published pool weights</div>' + sourceBody + '<p class="section-foot">Pool odds are calculated from weights in the public game config. Exclusive Eggs and their odds are excluded. Public data does not confirm current availability for every source.' + activeNote + '</p>';
+      $("modalContent").innerHTML = '<div class="modal-hero"><div class="modal-image">' + (thumb(image) ? iconHtml(image, pet.name, "") : '<span class="pet-placeholder">' + esc(pet.kind === "Titanic" ? "T" : pet.kind === "Gargantuan" ? "G" : "H") + '</span>') + '</div><div><span class="pet-kind ' + esc(pet.kind.toLowerCase()) + '">' + esc(pet.kind) + '</span><p class="modal-desc">' + esc(description) + '</p></div></div><div class="modal-label">Non-exclusive odds and reward source notes</div>' + sourceBody + '<p class="section-foot">Pool odds are calculated from weights in the public game config. Chance mentions, rank rewards, and modifiers are shown with their actual meaning; missing drop rates are not estimated. Exclusive Eggs and their odds are excluded. Public data does not confirm current availability for every source.' + activeNote + '</p>';
       $("detailModal").showModal();
     }
     function showPool(id) {
@@ -959,22 +1261,35 @@ const page = String.raw`<!doctype html>
       $("modalContent").innerHTML = '<div class="modal-hero"><div class="modal-image">' + (thumb(item.icon) ? iconHtml(item.icon, item.name, "") : '<span class="pet-placeholder">✦</span>') + '</div><div><div class="modifier-value">' + esc(item.value) + '</div><p class="modal-desc">' + esc(item.description) + '</p></div></div><div class="coverage-note"><span class="coverage-icon">i</span><span>This is the configured enchant description, not a complete formula for combining it with an egg or event pool. Exact effective odds are not available in the public data.</span></div>';
       $("detailModal").showModal();
     }
-    document.querySelectorAll("[data-tab]").forEach(function(button) { button.addEventListener("click", function() { state.tab = button.dataset.tab; state.showLimit = pageSize; updateFilterStyles(); if (state.data) render(); }); });
+    function showChanceSource(id) {
+      const item = state.otherSourceIndex.get(id);
+      if (!item) return;
+      hideGameTip();
+      $("modalKicker").textContent = item.group + " · rare-pet source";
+      $("modalTitle").textContent = item.name;
+      const packLine = item.rolls ? '<div class="modal-source"><div class="modal-source-name">Pack contents</div><div class="modal-odds">' + item.rolls + ' rolls</div></div>' : "";
+      $("modalContent").innerHTML = '<div class="modal-hero"><div class="modal-image">' + (thumb(item.icon) ? iconHtml(item.icon, item.name, "") : '<span class="pet-placeholder">✦</span>') + '</div><div><span class="pet-kind other">' + esc(item.activity) + '</span><p class="modal-desc">' + esc(item.description) + '</p></div></div><div class="coverage-note"><span class="coverage-icon">i</span><span>' + esc(item.chanceNote) + '</span></div>' + packLine + '<p class="section-foot">Source: BIG Games public configuration feed. A chance mentioned without a numeric rate cannot be converted to an exact percentage from the available data.</p>';
+      $("detailModal").showModal();
+    }
+    document.querySelectorAll("[data-tab]").forEach(function(button) { button.addEventListener("click", function() { state.tab = button.dataset.tab; state.showLimit = pageSize; searchPendingKey = ""; updateFilterStyles(); if (state.data) render(); }); });
     document.querySelectorAll("[data-kind]").forEach(function(button) { button.addEventListener("click", function() { state.kind = button.dataset.kind; state.showLimit = pageSize; updateFilterStyles(); if (state.data) render(); }); });
-    $("search").addEventListener("input", function(event) { window.clearTimeout(searchTimer); const query = event.target.value.trim().toLowerCase(); searchTimer = window.setTimeout(function() { state.query = query; state.showLimit = pageSize; if (state.data) render(); }, 90); });
+    $("search").addEventListener("input", function(event) { window.clearTimeout(searchTimer); const query = event.target.value.trim().toLowerCase(); searchTimer = window.setTimeout(function() { state.query = query; state.showLimit = pageSize; searchPendingKey = ""; if (state.data) render(); }, 180); });
     $("refresh").addEventListener("click", function() { loadData(true); });
-    $("loadMore").addEventListener("click", function() { state.showLimit += pageSize; render(); });
+    $("loadMore").addEventListener("click", function() { state.showLimit += pageSize; if (state.tab === "extras") renderChanceSources(); else render(); });
     $("cards").addEventListener("click", function(event) {
       const pet = event.target.closest("[data-pet-key]");
       const source = event.target.closest("[data-source-key]");
+      const chanceSource = event.target.closest("[data-chance-source-key]");
       if (pet) { event.stopPropagation(); showPet(decodeURIComponent(pet.dataset.petKey)); }
       else if (source) { event.stopPropagation(); showPool(decodeURIComponent(source.dataset.sourceKey)); }
+      else if (chanceSource) { event.stopPropagation(); showChanceSource(decodeURIComponent(chanceSource.dataset.chanceSourceKey)); }
     });
-    $("specialPanel").addEventListener("click", function(event) { const item = event.target.closest("[data-enchant-key]"); if (item) showEnchant(decodeURIComponent(item.dataset.enchantKey)); });
+    $("specialPanel").addEventListener("click", function(event) { const enchant = event.target.closest("[data-enchant-key]"); const source = event.target.closest("[data-chance-source-key]"); if (enchant) showEnchant(decodeURIComponent(enchant.dataset.enchantKey)); else if (source) showChanceSource(decodeURIComponent(source.dataset.chanceSourceKey)); });
     $("closeModal").addEventListener("click", function() { $("detailModal").close(); });
     $("detailModal").addEventListener("click", function(event) { if (event.target === $("detailModal")) $("detailModal").close(); });
     document.addEventListener("keydown", function(event) { if (event.key === "/" && !/input|textarea/i.test(document.activeElement.tagName)) { event.preventDefault(); $("search").focus(); } });
     updateFilterStyles();
+    makeSearchWorker();
     cacheFallback(true);
     loadData(false);
     window.setInterval(function() { loadData(false); }, (window.PS99_STATIC_MODE ? 15 : 5) * 60 * 1000);
@@ -1003,21 +1318,26 @@ export default {
 };
 
 async function getLiveData(ctx, force) {
-  const cacheKey = new Request("https://ps99-odds-atlas-cache.invalid/live-data-v1");
+  const cacheKey = new Request("https://ps99-odds-atlas-cache.invalid/live-data-v2");
   const cache = globalThis.caches && globalThis.caches.default;
   if (cache && !force) {
     const cached = await cache.match(cacheKey);
     if (cached) return cached;
   }
   try {
-    const [eggs, pets, enchants, lootboxes, releases] = await Promise.all([
+    const [eggs, pets, enchants, lootboxes, miscItems, potions, cardItems, boosts, guildBattles, releases] = await Promise.all([
       fetchJson(API + "/api/collection/Eggs"),
       fetchJson(API + "/api/collection/Pets"),
       fetchJson(API + "/api/collection/Enchants"),
       fetchJson(API + "/api/collection/Lootboxes"),
+      fetchJson(API + "/api/collection/MiscItems"),
+      fetchJson(API + "/api/collection/Potions"),
+      fetchJson(API + "/api/collection/CardItems"),
+      fetchJson(API + "/api/collection/Boosts"),
+      fetchJson(API + "/api/collection/GuildBattles"),
       fetchJson(API + "/v1/releases?pageSize=20"),
     ]);
-    const response = Response.json({ eggs, pets, enchants, lootboxes, releases }, {
+    const response = Response.json({ eggs, pets, enchants, lootboxes, miscItems, potions, cardItems, boosts, guildBattles, releases }, {
       headers: { "cache-control": "public, max-age=60, stale-while-revalidate=300" },
     });
     if (cache && ctx && typeof ctx.waitUntil === "function") ctx.waitUntil(cache.put(cacheKey, response.clone()));

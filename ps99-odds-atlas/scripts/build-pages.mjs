@@ -58,19 +58,40 @@ function collectionData(collection) {
   return collection?.status === "ok" && Array.isArray(collection.data) ? collection.data : [];
 }
 
+function getRelevantChanceSources(collections) {
+  return Object.entries(collections).flatMap(([sourceKey, collection]) => collectionData(collection).filter((entry) => {
+    const config = entry?.configData || {};
+    const text = String(entry?.configName || "") + " " + String(entry?.category || "") + " " + JSON.stringify(config);
+    const rarePet = /\b(Huge|Titanic|Gargantuan)\b/i.test(text);
+    const recipe = /combine\s+\d+\s+to\s+create/i.test(text);
+    if (sourceKey === "boosts") return /huge|titanic|gargantuan/i.test(text);
+    return rarePet && (sourceKey === "lootboxes" || sourceKey === "guildBattles" || recipe || /chance|odds|luck|roll|random|boost|points|key|chest|machine|present|egg/i.test(text));
+  }));
+}
+
 function isRarePet(record) {
   const config = record?.configData || {};
   const name = String(config.name || record?.configName || "");
   return Boolean(config.huge || config.titanic || config.gargantuan || /\b(Huge|Titanic|Gargantuan)\b/i.test(name));
 }
 
-function getAtlasAssetIds(eggs, pets, enchants) {
+function isExclusiveEgg(entry) {
+  const config = entry?.configData || {};
+  const category = String(entry?.category || "");
+  const name = String(config.name || entry?.configName || "");
+  const productIds = config.productIds && typeof config.productIds === "object" ? Object.keys(config.productIds) : [];
+  const soldAsExclusiveEgg = productIds.some((productName) => /exclusive\s+eggs?/i.test(productName));
+  const hiddenExclusiveEgg = config.rarity?._id === "Exclusive" && config.allPetsRare && /^other$/i.test(category);
+  return /exclusive eggs/i.test(category) || /^exclusive\b.*\begg\b/i.test(name) || soldAsExclusiveEgg || hiddenExclusiveEgg;
+}
+
+function getAtlasAssetIds(eggs, pets, enchants, chanceSources) {
   const rarePets = collectionData(pets).filter(isRarePet);
   const rareNames = new Set(rarePets.map((pet) => String(pet.configData?.name || pet.configName || "").toLowerCase()));
   const oddsPools = collectionData(eggs).filter((entry) => {
     const config = entry?.configData || {};
     const name = String(config.name || entry?.configName || "");
-    if (/exclusive eggs/i.test(String(entry?.category || "")) || /^exclusive\b.*\begg\b/i.test(name)) return false;
+    if (isExclusiveEgg(entry)) return false;
     return Array.isArray(config.pets) && config.pets.some((row) => Array.isArray(row) && (rareNames.has(String(row[0] || "").toLowerCase()) || /\b(Huge|Titanic|Gargantuan)\b/i.test(String(row[0] || ""))));
   });
   const relevantEnchants = collectionData(enchants).filter((entry) => {
@@ -81,18 +102,24 @@ function getAtlasAssetIds(eggs, pets, enchants) {
       return /huge|titanic|gargantuan/i.test(title + " " + description) && /odds|chance|luck|hatch|roll|random|adds?\s+\d+\s+rare/i.test(description + " " + title);
     });
   });
-  return Array.from(collectAssetIds([rarePets, oddsPools, relevantEnchants]));
+  return Array.from(collectAssetIds([rarePets, oddsPools, relevantEnchants, getRelevantChanceSources(chanceSources)]));
 }
 
-const [eggs, pets, enchants, lootboxes, releases] = await Promise.all([
+const [eggs, pets, enchants, lootboxes, miscItems, potions, cardItems, boosts, guildBattles, releases] = await Promise.all([
   fetchJson(`${API}/api/collection/Eggs`),
   fetchJson(`${API}/api/collection/Pets`),
   fetchJson(`${API}/api/collection/Enchants`),
   fetchJson(`${API}/api/collection/Lootboxes`),
+  fetchJson(`${API}/api/collection/MiscItems`),
+  fetchJson(`${API}/api/collection/Potions`),
+  fetchJson(`${API}/api/collection/CardItems`),
+  fetchJson(`${API}/api/collection/Boosts`),
+  fetchJson(`${API}/api/collection/GuildBattles`),
   fetchJson(`${API}/v1/releases?pageSize=20`),
 ]);
 
-const assetIds = getAtlasAssetIds(eggs, pets, enchants);
+const chanceSourceCollections = { lootboxes, miscItems, potions, cardItems, boosts, guildBattles };
+const assetIds = getAtlasAssetIds(eggs, pets, enchants, chanceSourceCollections);
 const thumbnails = {};
 const batches = [];
 for (let index = 0; index < assetIds.length; index += 100) batches.push(assetIds.slice(index, index + 100));
@@ -122,7 +149,7 @@ if (staticPage === page) throw new Error("Could not inject GitHub Pages data set
 
 await Promise.all([
   writeFile(resolve(output, "index.html"), staticPage, "utf8"),
-  writeFile(resolve(output, "data.json"), JSON.stringify({ eggs, pets, enchants, lootboxes, releases, generated_at: generatedAt }), "utf8"),
+  writeFile(resolve(output, "data.json"), JSON.stringify({ eggs, pets, enchants, lootboxes, miscItems, potions, cardItems, boosts, guildBattles, releases, generated_at: generatedAt }), "utf8"),
   writeFile(resolve(output, "thumbnails.json"), JSON.stringify(thumbnails), "utf8"),
   writeFile(resolve(output, ".nojekyll"), "", "utf8"),
 ]);
