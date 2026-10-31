@@ -780,7 +780,7 @@ const page = String.raw`<!doctype html>
       $("titanicKindFilter").textContent = "Titanic · " + counts.Titanic;
       $("gargantuanKindFilter").textContent = "Gargantuan · " + counts.Gargantuan;
     }
-    function thumb(asset) { return asset && state.thumbs[asset] ? state.thumbs[asset] : ""; }
+    function thumb(asset) { return asset ? (state.thumbs[asset] || (state.thumbIndex && state.thumbIndex[asset]) || "") : ""; }
     function iconHtml(asset, label, className) {
       const url = thumb(asset);
       if (url) return '<img class="' + (className || "") + '" src="' + esc(url) + '" alt="' + esc(label) + '" loading="lazy" decoding="async">';
