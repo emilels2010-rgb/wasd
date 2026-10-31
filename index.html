@@ -876,6 +876,29 @@
     body * { cursor: inherit; }
     a, button, select, [role="button"], [tabindex]:not([tabindex="-1"]), .modifier-card, .pet-open { cursor: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAQAAAAAYLlVAAAACXBIWXMAAAsTAAALEwEAmpwYAAACfklEQVR42u2XvW4TQRCA536d8+56d+fufDZxsE2CExKiWHYBIk1KhJTSBRINtGnpCV0iUUCVgoaKDiGeILwAAoknCAjaGB6AwT+EUyITCUV7afYbadv5drSzmgGLxWKxWCwWi8VisVgslougWvoQCT+qFlwKLn7aJ6J90ofgQME44IKHNAVp4JEDTrECPpRyASgNvEIFdl0IM5YLpBwCcKEoyAG/EUmdC0jdiMArUiDIGE9zAfyBx/iiuBo4EAJPaycCOzSko9EZv8fjUTwvQKCW6pvl+onAEY0Z/hXBXTALvmrTBuFXpD+cEcFjcA32BD58QEMiOiCk2SBBCC45Rp7fwMOnOzTl4J8CGesHZmrgQoCPkV7TeSBdnbQlmfj/GpFq4pc2fT5XQCRQhgAMCASrnFf1PfzZpaNzBFgt5YYEEsEyuageIXVpSLMYElJSBwEGXoHTD4DxdK6t19UzTds0iz3SVK5jxUgFBh7MKRXPi47q4kukvRnpkfBNUk8EBIa6oF6ej6MFsSJ7+kN3Vvpvamv8Bsw0ojNWACYS1cI1fR/pNG3C73hXLvJq/hMYUFgNlwWvymt6/awAkt7GNdWsIERgbERxwINQy+RK0kE6HZrURnqd1bCyVPo1SW9OIRKxauq3k7R5vItXcAF0fn9TuBBiZVSDZdWNb4k7elNs4m3ZH5efp8AgIAeMMpmJRDJKd0NtyJ7slXuqy1dlm2VYgbCA2WjLb81pmdZUM11KOmJZdOSiarJMqUZefsNzsd+IsCJinrLaOHgVYi0hAv+JW9Rq4kMJooylPBEpzxhEUJqM506B29GWD0E/gGn44+SXsaY55ExPu7D/P78BkZfOX1sbuw0AAAAASUVORK5CYII=") 32 32, pointer; }
     input[type="search"], .searchbox input { cursor: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAQAAAAAYLlVAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAX0lEQVR42u3WMRHAIBQE0VjglKCaFk0oAAebLhb+MNmnYK+7R5IkSbpYCNltZodQEgCLwYGqgNCBTghPjXzrDTDAAAMMMMCA8oA/HpIAh8GqvGRtt9l2CJ50SZIkXesF9VN4bw3fch0AAAAASUVORK5CYII=") 32 32, text; }
+
+    .game-tip { border-width: 3px !important; border-radius: 9px; box-shadow: 0 12px 34px rgba(0,0,0,.58), 0 0 0 2px rgba(255,255,255,.22), inset 0 0 0 1px rgba(255,255,255,.12); animation: game-tip-float-in 190ms cubic-bezier(.2,.8,.2,1) both; transform-origin: 18px 18px; }
+    .game-tip-title { text-decoration: none; }
+    .game-tip::before { display: none; content: none; }
+    .pet-open .pet-art { transform: translateY(0) scale(1); transition: transform 210ms cubic-bezier(.18,.8,.2,1); will-change: transform; }
+    .pet-open:hover .pet-art, .pet-open:focus-visible .pet-art { transform: translateY(-5px) scale(1.035); }
+    .pet-open:active .pet-art { transform: translateY(-1px) scale(.88); transition-duration: 80ms; }
+    .latest-pets-window { margin: 0 0 18px; padding: 13px 15px 10px; border: 2px solid #42646c; border-radius: 10px; background: linear-gradient(145deg,#1c3d46,#142d36 75%); box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 6px 18px rgba(0,0,0,.16); }
+    .latest-pets-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .latest-pets-kicker { color: #a6d5c7; font-size: 8px; font-weight: 900; letter-spacing: .14em; }
+    .latest-pets-title { margin: 3px 0 0; color: #f8f2df; font-size: 17px; line-height: 1.2; font-weight: 850; }
+    .latest-pets-meta { margin: 4px 0 0; color: #b3c6c0; font-size: 10px; line-height: 1.4; }
+    .latest-pets-arrow { display: grid; width: 26px; height: 26px; place-items: center; border: 1px solid #52777d; border-radius: 50%; color: #d9c680; font-size: 21px; line-height: 1; }
+    .latest-pets-rail { display: flex; min-height: 68px; align-items: center; gap: 7px; overflow-x: auto; padding: 5px 1px 7px; margin-top: 6px; scrollbar-color: #54787c #18353e; scrollbar-width: thin; }
+    .latest-pets-rail::-webkit-scrollbar { height: 5px; }
+    .latest-pets-rail::-webkit-scrollbar-thumb { border-radius: 8px; background: #54787c; }
+    .latest-pet-tile { display: grid; width: 62px; height: 62px; flex: 0 0 62px; place-items: center; padding: 3px; border: 0; border-radius: 0; background: transparent; cursor: pointer; }
+    .latest-pet-tile .pet-art { width: 100%; height: 100%; transition: transform 210ms cubic-bezier(.18,.8,.2,1); }
+    .latest-pet-tile:hover .pet-art, .latest-pet-tile:focus-visible .pet-art { transform: translateY(-5px) scale(1.035); }
+    .latest-pet-tile:active .pet-art { transform: translateY(-1px) scale(.88); transition-duration: 80ms; }
+    .latest-pets-empty { padding: 8px 4px; color: #9fb4b2; font-size: 10px; }
+    @keyframes game-tip-float-in { from { opacity: 0; transform: translateY(8px) scale(.96); } 70% { opacity: 1; transform: translateY(-1px) scale(1.01); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    @media (prefers-reduced-motion: reduce) { .game-tip { animation: none !important; } .pet-open .pet-art, .latest-pet-tile .pet-art { transition: none !important; } }
   </style>
 <script>window.PS99_STATIC_MODE=true;window.PS99_DATA_URL="./data.json";window.PS99_THUMBNAILS_URL="./thumbnails.json";</script>
 </head>
@@ -904,6 +927,13 @@
           <div class="release-line"><span class="release-number" id="releaseNumber">Checking…</span><span class="release-state" id="releaseState">Live feed</span></div>
           <div class="release-time" id="releaseTime">Waiting for the public API</div>
         </aside>
+      </section>
+      <section class="latest-pets-window" aria-labelledby="latestPetsTitle">
+        <div class="latest-pets-header">
+          <div><div class="latest-pets-kicker">NEW ARRIVALS</div><h2 class="latest-pets-title" id="latestPetsTitle">Latest pets added</h2><p class="latest-pets-meta" id="latestPetsMeta">Waiting for the latest pet data…</p></div>
+          <span class="latest-pets-arrow" aria-hidden="true">›</span>
+        </div>
+        <div class="latest-pets-rail" id="latestPetsRail" aria-label="Latest rare pets added"><span class="latest-pets-empty">Loading new pet icons…</span></div>
       </section>
       <div class="atlas-layout">
         <aside class="filter-groups" id="sourceFilters" aria-label="Catalog filters">
@@ -1373,6 +1403,37 @@
       $("releaseState").textContent = release ? (Number(release.added || 0) + Number(release.changed || 0) > 0 ? "Odds feed" : "Live feed") : "Live feed";
       $("releaseTime").textContent = release ? "Synced " + niceDate(release.importedAt || release.publishedAt) : "Latest release info unavailable";
     }
+    function latestRarePets() {
+      const dated = state.pets.map(function(pet) {
+        const created = pet.pet && pet.pet.dateCreated ? Date.parse(pet.pet.dateCreated) : NaN;
+        return Number.isFinite(created) ? { pet: pet, created: created, day: new Date(created).toISOString().slice(0, 10) } : null;
+      }).filter(Boolean).sort(function(a, b) { return b.created - a.created || a.pet.name.localeCompare(b.pet.name); });
+      if (!dated.length) return [];
+      const latestDay = dated[0].day;
+      return dated.filter(function(item) { return item.day === latestDay; });
+    }
+    function renderLatestPets() {
+      const rail = $("latestPetsRail");
+      const meta = $("latestPetsMeta");
+      if (!rail || !meta) return;
+      const latest = latestRarePets();
+      if (!latest.length) {
+        meta.textContent = "The public feed has no dated rare-pet additions yet.";
+        rail.innerHTML = '<span class="latest-pets-empty">No recent pet additions are published.</span>';
+        return;
+      }
+      const latestDay = latest[0].day;
+      const release = releaseInfo(state.data || {});
+      const dateLabel = new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric" }).format(new Date(latestDay + "T12:00:00"));
+      const versionLabel = release ? " · Update " + release.version : "";
+      meta.textContent = latest.length + (latest.length === 1 ? " rare pet added" : " rare pets added") + " · " + dateLabel + versionLabel + " · hover for names and odds";
+      rail.innerHTML = latest.map(function(item) {
+        const pet = item.pet;
+        const key = esc(encodeURIComponent(pet.name));
+        return '<button class="pet-open latest-pet-tile" type="button" data-pet-key="' + key + '" data-tip-type="pet" data-tip-key="' + key + '" aria-label="' + esc(pet.name) + ' · newly added · hover for odds · activate for details">' + petIconHtml(pet.pet, pet.name, "") + '</button>';
+      }).join("");
+      resolveVisibleThumbs();
+    }
     function updateStats() {
       $("statPets").textContent = String(state.pets.length);
       $("statPools").textContent = String(state.pools.length);
@@ -1420,6 +1481,13 @@
     function petVariantLabel() {
       return ({ normal: "NORMAL", gold: "GOLD", rainbow: "RAINBOW", shiny: "SHINY", "shiny-gold": "SHINY GOLD", "shiny-rainbow": "SHINY RAINBOW" })[state.variant] || "NORMAL";
     }
+    function petRarityLabel(pet) {
+      const config = pet && pet.pet && pet.pet.configData ? pet.pet.configData : {};
+      const value = config.rarity;
+      if (typeof value === "string" && value) return value;
+      const rarity = value && typeof value === "object" ? value : {};
+      return String(rarity.DisplayName || rarity.displayName || rarity._id || pet && pet.kind || "Pet");
+    }
     function petIconHtml(pet, label, className) {
       const config = pet && pet.configData ? pet.configData : {};
       const goldMode = state.variant === "gold" || state.variant === "shiny-gold";
@@ -1445,6 +1513,12 @@
         });
         pet.sources.filter(sourceMatchesTab).slice(0, 3).forEach(function(source) { if (source.pool.icon) ids.add(source.pool.icon); });
         asArray(pet.otherSources).filter(function(item) { return state.tab === "all" || item.type === state.tab; }).slice(0, 3).forEach(function(item) { if (item.icon) ids.add(item.icon); });
+      });
+      latestRarePets().forEach(function(item) {
+        getPetAssetCandidates(item.pet.pet).forEach(function(asset) {
+          const id = assetUrl(asset) ? "" : assetId(asset);
+          if (id) ids.add(id);
+        });
       });
       if (state.tab === "enchant") state.modifiers.forEach(function(item) { if (item.icon) ids.add(item.icon); });
       if (state.tab === "extras") state.otherSources.filter(function(item) { return !state.query || item.searchText.includes(state.query); }).slice(0, state.showLimit).forEach(function(item) { if (item.icon) ids.add(item.icon); });
@@ -1684,6 +1758,7 @@
     }
     function render() {
       if (!state.data) return;
+      renderLatestPets();
       $("loadMore").hidden = true;
       $("specialPanel").className = "source-panel";
       $("cards").style.display = "grid";
@@ -1804,7 +1879,7 @@
         });
         if (!sources.length && !extraSources.length) lines.push(tipLine("Odds", "No published chance or reward source in the game feed"));
         const subtitle = state.variant === "normal" ? "NORMAL · base pet chance shown" : petVariantLabel() + " · variant chance by source";
-        return gameTipHtml(pet.name, pet.kind, pet.kind.toLowerCase(), getPetAsset(pet.pet), pet.kind.charAt(0), subtitle, description, lines, petIconHtml(pet.pet, pet.name, "game-tip-pet-art"));
+        return gameTipHtml(pet.name, petRarityLabel(pet), pet.kind.toLowerCase(), getPetAsset(pet.pet), pet.kind.charAt(0), subtitle, description, lines, petIconHtml(pet.pet, pet.name, "game-tip-pet-art"));
       }
       if (type === "source") {
         const pool = sourceMap().get(key);
@@ -1903,6 +1978,7 @@
     }
     bindGameTips($("cards"));
     bindGameTips($("specialPanel"));
+    bindGameTips($("latestPetsRail"));
     $("gameTip").addEventListener("pointerleave", function(event) {
       if (activeGameTip && activeGameTip.contains(event.relatedTarget)) return;
       hideGameTip();
@@ -2009,6 +2085,10 @@
       if (pet) { event.stopPropagation(); showPet(decodeURIComponent(pet.dataset.petKey)); }
       else if (source) { event.stopPropagation(); showPool(decodeURIComponent(source.dataset.sourceKey)); }
       else if (chanceSource) { event.stopPropagation(); showChanceSource(decodeURIComponent(chanceSource.dataset.chanceSourceKey)); }
+    });
+    $("latestPetsRail").addEventListener("click", function(event) {
+      const pet = event.target.closest("[data-pet-key]");
+      if (pet) { event.stopPropagation(); showPet(decodeURIComponent(pet.dataset.petKey)); }
     });
     $("specialPanel").addEventListener("click", function(event) { const enchant = event.target.closest("[data-enchant-key]"); const source = event.target.closest("[data-chance-source-key]"); if (enchant) showEnchant(decodeURIComponent(enchant.dataset.enchantKey)); else if (source) showChanceSource(decodeURIComponent(source.dataset.chanceSourceKey)); });
     $("closeModal").addEventListener("click", function() { $("detailModal").close(); });
