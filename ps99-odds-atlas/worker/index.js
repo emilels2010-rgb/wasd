@@ -797,9 +797,10 @@ const page = String.raw`<!doctype html>
         const id = getPetAsset(pet.pet);
         if (id) ids.add(id);
         pet.sources.filter(sourceMatchesTab).slice(0, 3).forEach(function(source) { if (source.pool.icon) ids.add(source.pool.icon); });
+        asArray(pet.otherSources).filter(function(item) { return state.tab === "all" || item.type === state.tab; }).slice(0, 3).forEach(function(item) { if (item.icon) ids.add(item.icon); });
       });
       if (state.tab === "enchant") state.modifiers.forEach(function(item) { if (item.icon) ids.add(item.icon); });
-      if (state.tab === "extras") state.otherSources.slice(0, state.showLimit).forEach(function(item) { if (item.icon) ids.add(item.icon); });
+      if (state.tab === "extras") state.otherSources.filter(function(item) { return !state.query || item.searchText.includes(state.query); }).slice(0, state.showLimit).forEach(function(item) { if (item.icon) ids.add(item.icon); });
       return Array.from(ids).filter(function(id) { return !state.thumbs[id] && !state.thumbMisses.has(id) && !state.thumbPending.has(id); });
     }
     async function resolveVisibleThumbs() {
