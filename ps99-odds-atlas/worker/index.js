@@ -825,12 +825,12 @@ const page = String.raw`<!doctype html>
     .game-tip-line span:first-child { flex: 1 1 auto; white-space: normal; }
     .game-tip-line strong { font-size: 12px; }
     .game-tip-subtitle { margin: 0; }
-    .pet-art.variant-rainbow::before, .pet-art.variant-shiny-rainbow::before { background: linear-gradient(125deg, #ff244d 0%, #ffb526 17%, #f5ff37 32%, #54f542 47%, #25e5ed 63%, #397bff 78%, #d62bff 92%, #ff244d 100%); background-size: 260% 260%; mix-blend-mode: color; opacity: .96; animation: pet-rainbow-flow 2.2s linear infinite; }
+    .pet-art.variant-rainbow::before, .pet-art.variant-shiny-rainbow::before { background: linear-gradient(110deg, #ff244d 0%, #ff9e22 15%, #ffeb36 29%, #48ef49 43%, #1de2e9 57%, #367bff 71%, #c32cff 86%, #ff244d 100%); background-size: 300% 100%; mix-blend-mode: color; opacity: .98; animation: pet-rainbow-flow 2.6s linear infinite; }
     .pet-art.variant-rainbow .pet-art-image { filter: saturate(1.9) contrast(1.12); }
     .pet-art.variant-shiny .pet-art-image, .pet-art.variant-shiny-gold .pet-art-image { filter: saturate(1.35) brightness(1.13) drop-shadow(0 0 8px rgba(255, 239, 170, .55)); }
     .pet-art.variant-shiny-rainbow .pet-art-image { filter: saturate(2.1) contrast(1.16) drop-shadow(0 0 8px rgba(218, 162, 255, .6)); }
     .pet-art.variant-shiny::after, .pet-art.variant-shiny-gold::after, .pet-art.variant-shiny-rainbow::after { inset: -45%; background: radial-gradient(circle at 18% 31%, rgba(255,255,255,.98) 0 1.5px, transparent 4px), radial-gradient(circle at 76% 22%, rgba(255,246,196,.98) 0 2px, transparent 5px), radial-gradient(circle at 64% 78%, rgba(255,255,255,.98) 0 1.5px, transparent 4px), radial-gradient(circle at 35% 65%, rgba(255,223,151,.85) 0 1px, transparent 4px), linear-gradient(112deg, transparent 29%, rgba(255,255,255,.08) 41%, rgba(255,255,255,.9) 49%, rgba(255,255,255,.16) 57%, transparent 70%); mix-blend-mode: screen; opacity: .92; animation: pet-shine-sweep 2.15s ease-in-out infinite; }
-    @keyframes pet-rainbow-flow { 0% { background-position: 0% 50%; filter: hue-rotate(0deg) saturate(1.35); } 100% { background-position: 100% 50%; filter: hue-rotate(360deg) saturate(1.35); } }
+    @keyframes pet-rainbow-flow { 0% { background-position: 0% 50%; } 100% { background-position: 100% 50%; } }
     @keyframes pet-shine-sweep { 0% { transform: translate(-20%, -16%) rotate(-8deg); opacity: .28; } 42% { opacity: .98; } 100% { transform: translate(20%, 16%) rotate(-8deg); opacity: .4; } }
     @media (max-width: 840px) { .pet-open { height: 188px; } .game-tip { width: min(520px, calc(100vw - 20px)); } }
     @media (max-width: 720px) { .pet-open { height: clamp(155px, 39vw, 190px); } .game-tip { width: min(500px, calc(100vw - 18px)); } .game-tip.kind-gargantuan .game-tip-body, .game-tip.kind-titanic .game-tip-body, .game-tip.kind-huge .game-tip-body { grid-template-columns: 112px minmax(0, 1fr); } }
