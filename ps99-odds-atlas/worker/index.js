@@ -599,6 +599,7 @@ const page = String.raw`<!doctype html>
             description: "The game config exposes a maximum boost value, but not the base pet drop chance or the complete boost formula.",
             chanceNote: Number.isFinite(maxPercent) ? "Configured maximum: " + maxPercent.toLocaleString("en-US") + "% boost cap · this is not a pet drop chance." : "Luck boost config · exact drop chance and formula are not published.",
             icon: assetId(config.Icon || config.icon || ""),
+            iconUrl: String(config.AtlasThumbnailUrl || ""),
             rolls: null,
             updated: entry.dateModified || entry.dateCreated || null,
             activity: "Config value · not a drop rate",
@@ -650,6 +651,7 @@ const page = String.raw`<!doctype html>
           description: description || "No item description is published.",
           chanceNote: chanceNote,
           icon: assetId((tier && tier.Icon) || config.Icon || config.icon || config.PageIcon || ""),
+          iconUrl: String((tier && tier.AtlasThumbnailUrl) || config.AtlasThumbnailUrl || ""),
           rolls: rollCount || null,
           updated: entry.dateModified || entry.dateCreated || null,
           activity: ageInDays(entry.dateModified || entry.dateCreated) <= recentDays ? "Recently updated" : "Activity unconfirmed",
@@ -684,6 +686,7 @@ const page = String.raw`<!doctype html>
           const rankLabel = best === worst ? "rank " + best : "ranks " + best + "–" + worst;
           const pet = asArray(readData(api.pets)).find(function(record) { return String(record.configData && record.configData.name || record.configName || "").toLowerCase() === matchedName.toLowerCase(); });
           const icon = assetId(pet && pet.configData && (pet.configData.thumbnail || pet.configData.Thumbnail || pet.configData.icon) || "");
+          const iconUrl = String(pet && pet.configData && pet.configData.AtlasThumbnailUrl || "");
           const description = matchedName + " is a listed placement reward for " + battleName + " (" + rankLabel + contributor + "). This is a rank reward, not a random drop.";
           const id = "guild:" + String(entry.configName || battleName) + ":" + matchedName + ":" + best + ":" + worst;
           records.push({
@@ -693,6 +696,7 @@ const page = String.raw`<!doctype html>
             description: description,
             chanceNote: "Guaranteed for " + rankLabel + contributor + " · not a random chance.",
             icon: icon,
+            iconUrl: iconUrl,
             rolls: null,
             updated: entry.dateModified || entry.dateCreated || null,
             activity: "Active · ends " + niceDate(new Date(finish * 1000)),
@@ -780,7 +784,12 @@ const page = String.raw`<!doctype html>
       $("titanicKindFilter").textContent = "Titanic · " + counts.Titanic;
       $("gargantuanKindFilter").textContent = "Gargantuan · " + counts.Gargantuan;
     }
-    function thumb(asset) { return asset ? (state.thumbs[asset] || (state.thumbIndex && state.thumbIndex[asset]) || "") : ""; }
+    function thumb(asset) {
+      if (!asset) return "";
+      const value = String(asset);
+      if (/^https?:\/\//i.test(value)) return value;
+      return state.thumbs[value] || (state.thumbIndex && state.thumbIndex[value]) || "";
+    }
     function iconHtml(asset, label, className) {
       const url = thumb(asset);
       if (url) return '<img class="' + (className || "") + '" src="' + esc(url) + '" alt="' + esc(label) + '" loading="lazy" decoding="async">';
@@ -854,7 +863,7 @@ const page = String.raw`<!doctype html>
     }
     function chanceSourceRowHtml(item) {
       return '<button class="source-row" type="button" data-chance-source-key="' + esc(encodeURIComponent(item.id)) + '" data-tip-type="chance-source" data-tip-key="' + esc(encodeURIComponent(item.id)) + '" aria-label="Open ' + esc(item.name) + ' chance source details">' +
-        '<span class="source-thumb">' + iconHtml(item.icon, item.name, "") + '</span>' +
+        '<span class="source-thumb">' + iconHtml(item.iconUrl || item.icon, item.name, "") + '</span>' +
         '<span class="source-meta"><span class="source-name">' + esc(item.name) + '</span><span class="source-status">' + esc(item.chanceNote) + '</span></span>' +
         '<span class="source-odds">See info<small>' + esc(item.activity) + '</small></span></button>';
     }
@@ -1023,7 +1032,7 @@ const page = String.raw`<!doctype html>
       if (!$("loadMore").hidden) $("loadMore").textContent = "Show more sources · " + state.showLimit + " of " + matches.length;
       $("specialPanel").className = "source-panel visible";
       $("specialPanel").innerHTML = '<div class="panel-grid">' + (visible.length ? visible.map(function(item) {
-        return '<button class="modifier-card" type="button" data-chance-source-key="' + esc(encodeURIComponent(item.id)) + '" data-tip-type="chance-source" data-tip-key="' + esc(encodeURIComponent(item.id)) + '"><span class="modifier-top"><span class="modifier-icon">' + iconHtml(item.icon, item.name, "") + '</span><span><h3 class="modifier-name">' + esc(item.name) + '</h3><span class="modifier-class">' + esc(item.group) + '</span></span></span><span class="modifier-copy">' + esc(item.description) + '</span><span class="modifier-value">' + esc(item.chanceNote) + '</span><span class="source-status">' + esc(item.activity) + (item.rolls ? ' · ' + item.rolls + ' rolls per pack' : '') + '</span></button>';
+        return '<button class="modifier-card" type="button" data-chance-source-key="' + esc(encodeURIComponent(item.id)) + '" data-tip-type="chance-source" data-tip-key="' + esc(encodeURIComponent(item.id)) + '"><span class="modifier-top"><span class="modifier-icon">' + iconHtml(item.iconUrl || item.icon, item.name, "") + '</span><span><h3 class="modifier-name">' + esc(item.name) + '</h3><span class="modifier-class">' + esc(item.group) + '</span></span></span><span class="modifier-copy">' + esc(item.description) + '</span><span class="modifier-value">' + esc(item.chanceNote) + '</span><span class="source-status">' + esc(item.activity) + (item.rolls ? ' · ' + item.rolls + ' rolls per pack' : '') + '</span></button>';
       }).join("") : '<div class="empty"><strong>No matching rare-pet chance sources</strong>Try a shorter search.</div>') + '</div>' +
         '<p class="section-foot">Gift and lootbox descriptions may say a Huge, Titanic, or Gargantuan is possible without publishing its rate. The feed also lists chest and breakable spawns without item-by-item pet drops. Those missing rates stay unquantified. <a href="https://github.com/BIG-Games-LLC/ps99-public-api-docs/blob/master/legacy/README.md" target="_blank" rel="noreferrer">View the game-config API docs</a>.</p>';
       resolveVisibleThumbs();
@@ -1166,7 +1175,7 @@ const page = String.raw`<!doctype html>
         if (!item) return "";
         const lines = [tipLine("Chance info", item.chanceNote, "chance"), tipLine("Activity", item.activity)];
         if (item.rolls) lines.push(tipLine("Pack contents", item.rolls + " rolls per pack"));
-        return gameTipHtml(item.name, "Chance source", "item", item.icon, "✦", item.group, item.description, lines);
+        return gameTipHtml(item.name, "Chance source", "item", item.iconUrl || item.icon, "✦", item.group, item.description, lines);
       }
       return "";
     }
@@ -1269,7 +1278,8 @@ const page = String.raw`<!doctype html>
       $("modalKicker").textContent = item.group + " · rare-pet source";
       $("modalTitle").textContent = item.name;
       const packLine = item.rolls ? '<div class="modal-source"><div class="modal-source-name">Pack contents</div><div class="modal-odds">' + item.rolls + ' rolls</div></div>' : "";
-      $("modalContent").innerHTML = '<div class="modal-hero"><div class="modal-image">' + (thumb(item.icon) ? iconHtml(item.icon, item.name, "") : '<span class="pet-placeholder">✦</span>') + '</div><div><span class="pet-kind other">' + esc(item.activity) + '</span><p class="modal-desc">' + esc(item.description) + '</p></div></div><div class="coverage-note"><span class="coverage-icon">i</span><span>' + esc(item.chanceNote) + '</span></div>' + packLine + '<p class="section-foot">Source: BIG Games public configuration feed. A chance mentioned without a numeric rate cannot be converted to an exact percentage from the available data.</p>';
+      const sourceIcon = item.iconUrl || item.icon;
+      $("modalContent").innerHTML = '<div class="modal-hero"><div class="modal-image">' + (thumb(sourceIcon) ? iconHtml(sourceIcon, item.name, "") : '<span class="pet-placeholder">✦</span>') + '</div><div><span class="pet-kind other">' + esc(item.activity) + '</span><p class="modal-desc">' + esc(item.description) + '</p></div></div><div class="coverage-note"><span class="coverage-icon">i</span><span>' + esc(item.chanceNote) + '</span></div>' + packLine + '<p class="section-foot">Source: BIG Games public configuration feed. A chance mentioned without a numeric rate cannot be converted to an exact percentage from the available data.</p>';
       $("detailModal").showModal();
     }
     document.querySelectorAll("[data-tab]").forEach(function(button) { button.addEventListener("click", function() { state.tab = button.dataset.tab; state.showLimit = pageSize; searchPendingKey = ""; updateFilterStyles(); if (state.data) render(); }); });

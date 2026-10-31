@@ -140,6 +140,48 @@ for (let index = 0; index < batches.length; index += 4) {
   });
 }
 
+function thumbnailUrl(...values) {
+  for (const value of values) {
+    const id = String(value || "").match(/\d{5,}/)?.[0];
+    if (id && thumbnails[id]) return thumbnails[id];
+  }
+  return "";
+}
+
+function attachThumbnailUrls(collection) {
+  if (collection?.status !== "ok" || !Array.isArray(collection.data)) return collection;
+  return {
+    ...collection,
+    data: collection.data.map((entry) => {
+      const config = entry?.configData || {};
+      const configData = {
+        ...config,
+        AtlasThumbnailUrl: thumbnailUrl(config.thumbnail, config.Thumbnail, config.icon, config.Icon, config.PageIcon),
+      };
+      if (Array.isArray(config.Tiers)) {
+        configData.Tiers = config.Tiers.map((tier) => ({
+          ...tier,
+          AtlasThumbnailUrl: thumbnailUrl(tier?.Icon, tier?.icon, tier?.thumbnail, tier?.Thumbnail),
+        }));
+      }
+      return { ...entry, configData };
+    }),
+  };
+}
+
+const staticData = {
+  eggs,
+  pets: attachThumbnailUrls(pets),
+  enchants,
+  lootboxes: attachThumbnailUrls(lootboxes),
+  miscItems: attachThumbnailUrls(miscItems),
+  potions: attachThumbnailUrls(potions),
+  cardItems: attachThumbnailUrls(cardItems),
+  boosts: attachThumbnailUrls(boosts),
+  guildBattles,
+  releases,
+};
+
 await rm(output, { recursive: true, force: true });
 await mkdir(output, { recursive: true });
 const generatedAt = new Date().toISOString();
@@ -149,7 +191,7 @@ if (staticPage === page) throw new Error("Could not inject GitHub Pages data set
 
 await Promise.all([
   writeFile(resolve(output, "index.html"), staticPage, "utf8"),
-  writeFile(resolve(output, "data.json"), JSON.stringify({ eggs, pets, enchants, lootboxes, miscItems, potions, cardItems, boosts, guildBattles, releases }), "utf8"),
+  writeFile(resolve(output, "data.json"), JSON.stringify(staticData), "utf8"),
   writeFile(resolve(output, "thumbnails.json"), JSON.stringify(thumbnails), "utf8"),
   writeFile(resolve(output, ".nojekyll"), "", "utf8"),
 ]);
