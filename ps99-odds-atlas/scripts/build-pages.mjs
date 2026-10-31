@@ -34,7 +34,7 @@ async function fetchDiscoveredConfigs() {
         const text = JSON.stringify(config);
         return /huge|titanic|gargantuan/i.test(text) && /chance|odds|luck|weight|roll/i.test(text);
       })
-      .map((entry) => ({ ...entry, sourceCollection: collection }));
+      .map((entry) => ({ ...entry, sourceCollection: collection })));
   } catch (error) {
     console.warn(`Could not discover game config collections: ${error.message}`);
     return [];
