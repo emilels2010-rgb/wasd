@@ -1203,6 +1203,63 @@
       records.forEach(function(record) { unique.set(record.name, record); });
       return Array.from(unique.values()).sort(function(a, b) { return a.name.localeCompare(b.name); });
     }
+    function discoveredChanceSources(api, rarePetNames) {
+      const records = [];
+      const rarePetByName = new Map(rarePetNames.map(function(name) { return [name.toLowerCase(), name]; }));
+      function collectText(value, path, output, depth) {
+        if (depth > 10 || value == null) return;
+        if (Array.isArray(value)) { value.forEach(function(item, index) { collectText(item, path + "[" + index + "]", output, depth + 1); }); return; }
+        if (typeof value === "object") { Object.keys(value).forEach(function(key) { collectText(value[key], path ? path + "." + key : key, output, depth + 1); }); return; }
+        if (typeof value !== "string" || !/(?:^|\.)(?:text|desc|description|indexDesc)$/i.test(path)) return;
+        if (/\b(?:huge|titanic|gargantuan)\b/i.test(value) && /\b(?:chance|odds|luck|roll|drop)\b/i.test(value)) output.push({ path: path, text: value.trim() });
+      }
+      function rowPetName(row) {
+        if (Array.isArray(row)) return typeof row[0] === "string" ? row[0] : "";
+        if (!row || typeof row !== "object") return "";
+        const item = row.Item || row.item || row.Pet || row.pet || {};
+        return String(row.Name || row.name || row.PetName || row.petName || row.Id || row.id || item.id || item.Id || item._data && item._data.id || "");
+      }
+      function rowWeight(row) {
+        if (Array.isArray(row)) return Number(row[1]);
+        return Number(row && (row.Weight != null ? row.Weight : row.weight != null ? row.weight : row.Chance != null ? row.Chance : row.chance));
+      }
+      function scanTables(value, path, source, depth) {
+        if (depth > 9 || value == null) return;
+        if (Array.isArray(value)) {
+          if (value.length && value.every(function(row) { return row && (Array.isArray(row) || typeof row === "object") && rowPetName(row) && Number.isFinite(rowWeight(row)) && rowWeight(row) > 0; })) {
+            const rows = value.map(function(row) { return { name: rowPetName(row), weight: rowWeight(row) }; });
+            const matches = rows.filter(function(row) { return rarePetByName.has(row.name.toLowerCase()); });
+            const total = rows.reduce(function(sum, row) { return sum + row.weight; }, 0);
+            matches.forEach(function(row) {
+              const petName = rarePetByName.get(row.name.toLowerCase());
+              const chance = row.weight / total * 100;
+              const id = "discovered-weight:" + source.sourceCollection + ":" + source.configName + ":" + path + ":" + petName;
+              records.push({ id: id, name: String(source.configData && (source.configData.DisplayName || source.configData.name) || source.configName) + " · " + petName, group: "Game config · " + source.sourceCollection + " · " + path, description: "The game config lists weight " + row.weight + " for " + petName + " in this table. This is that outcome's share of the table weights; any earlier rolls are separate.", chanceNote: pctLabel(chance) + " of configured table weights · " + oneInLabel(total / row.weight), icon: assetId(source.configData && (source.configData.Icon || source.configData.icon || source.configData.thumbnail) || ""), iconUrl: String(source.configData && source.configData.AtlasThumbnailUrl || ""), rolls: null, updated: source.dateModified || source.dateCreated || null, activity: "Published config table · upstream roll context may apply", type: "other", petNames: [petName], searchText: (source.configName + " " + petName + " " + path + " " + source.sourceCollection).toLowerCase() });
+            });
+          }
+          value.forEach(function(item, index) { scanTables(item, path + "[" + index + "]", source, depth + 1); });
+          return;
+        }
+        if (typeof value === "object") Object.keys(value).forEach(function(key) { scanTables(value[key], path ? path + "." + key : key, source, depth + 1); });
+      }
+      asArray(readData(api.discoveredConfigs)).forEach(function(source) {
+        const config = source.configData || {};
+        const clues = [];
+        collectText(config, "", clues, 0);
+        scanTables(config, "configData", source, 0);
+        const uniqueClues = Array.from(new Map(clues.map(function(clue) { return [clue.text, clue]; })).values());
+        if (!uniqueClues.length) return;
+        const descriptions = uniqueClues.map(function(clue) { return clue.text; });
+        const numbers = descriptions.filter(function(value) { return /\d/.test(value); });
+        const name = String(config.DisplayName || config.name || source.configName || source.sourceCollection + " config");
+        const petNames = rarePetNames.filter(function(petName) { return descriptions.some(function(value) { return value.toLowerCase().includes(petName.toLowerCase()); }); });
+        const id = "discovered-config:" + source.sourceCollection + ":" + source.configName;
+        records.push({ id: id, name: name, group: "Game config · " + source.sourceCollection + (source.category ? " · " + source.category : ""), description: descriptions.join(" "), chanceNote: numbers.length ? "Published config text: " + numbers.join(" · ") : "The config mentions a rare-pet chance, but publishes no numeric rate.", icon: assetId(config.Icon || config.icon || config.thumbnail || config.Thumbnail || ""), iconUrl: String(config.AtlasThumbnailUrl || ""), rolls: null, updated: source.dateModified || source.dateCreated || null, activity: "Source text from the public game config", type: /gift|present|bag|pack/i.test(name) ? "gift" : /chest|key|loot/i.test(name) ? "chest" : "other", petNames: petNames, searchText: (name + " " + source.sourceCollection + " " + String(source.category || "") + " " + descriptions.join(" ")).toLowerCase() });
+      });
+      const unique = new Map();
+      records.forEach(function(record) { unique.set(record.id, record); });
+      return Array.from(unique.values());
+    }
     function getSupplementalChanceSources(api) {
       const rarePetNames = asArray(readData(api.pets)).filter(isRarePet).map(function(pet) {
         const config = pet.configData || {};
@@ -1337,6 +1394,7 @@
           });
         });
       });
+      records.push.apply(records, discoveredChanceSources(api, rarePetNames));
       return records.sort(function(a, b) { return a.name.localeCompare(b.name); });
     }
     function createCatalog(api, resolveIcons) {
