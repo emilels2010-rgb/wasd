@@ -803,14 +803,10 @@ const page = String.raw`<!doctype html>
     @media (max-width: 410px) { .cards { grid-template-columns: 1fr; } .pet-open { height: 150px; } .stats { flex-wrap: wrap; } .variant-note { display: none; } }
     @media (prefers-reduced-motion: reduce) { .pet-art.variant-shiny::after, .pet-art.variant-shiny-gold::after, .pet-art.variant-shiny-rainbow::after { animation: none; } }
     /* Icon-only pet catalog with 3 / 5 / 8 type-specific columns. */
-    .cards.pet-catalog { grid-template-columns: repeat(120, minmax(0, 1fr)); gap: 0; align-items: start; }
-    .cards.pet-catalog[data-kind="gargantuan"] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    .cards.pet-catalog[data-kind="titanic"] { grid-template-columns: repeat(5, minmax(0, 1fr)); }
-    .cards.pet-catalog[data-kind="huge"] { grid-template-columns: repeat(8, minmax(0, 1fr)); }
-    .cards.pet-catalog[data-kind="all"] .pet-card.gargantuan { grid-column: span 40; }
-    .cards.pet-catalog[data-kind="all"] .pet-card.titanic { grid-column: span 24; }
-    .cards.pet-catalog[data-kind="all"] .pet-card.huge { grid-column: span 15; }
-    .cards.pet-catalog[data-kind="all"] .pet-card.pet-group-start { grid-column-start: 1; }
+    .cards.pet-catalog { display: block; gap: 0; }
+    .cards.pet-catalog .pet-kind-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; align-items: start; }
+    .cards.pet-catalog .pet-kind-grid.titanic { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+    .cards.pet-catalog .pet-kind-grid.huge { grid-template-columns: repeat(8, minmax(0, 1fr)); }
     .cards.pet-catalog .empty { grid-column: 1 / -1; margin: 0; }
     .cards.pet-catalog .pet-card { min-width: 0; margin: 0 5px 12px; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
     .cards.pet-catalog .pet-card:hover { border: 0; background: transparent; box-shadow: none; }
@@ -1575,14 +1571,20 @@ const page = String.raw`<!doctype html>
         $("loadMore").hidden = true;
         return;
       }
-      let previousKind = "";
-      $("cards").innerHTML = pets.map(function(pet) {
+      const groups = [];
+      pets.forEach(function(pet) {
         const kind = pet.kind.toLowerCase();
-        const groupStart = kind !== previousKind ? " pet-group-start" : "";
-        previousKind = kind;
-        return '<article class="pet-card ' + esc(kind) + groupStart + '" data-tip-type="pet" data-tip-key="' + esc(encodeURIComponent(pet.name)) + '">' +
-          '<button class="pet-open" type="button" data-pet-key="' + esc(encodeURIComponent(pet.name)) + '" aria-label="' + esc(pet.name) + ' · hover for odds · activate for details">' + petIconHtml(pet.pet, pet.name, "") + '</button>' +
-          '</article>';
+        let group = groups[groups.length - 1];
+        if (!group || group.kind !== kind) { group = { kind: kind, pets: [] }; groups.push(group); }
+        group.pets.push(pet);
+      });
+      $("cards").innerHTML = groups.map(function(group) {
+        const cards = group.pets.map(function(pet) {
+          return '<article class="pet-card ' + esc(group.kind) + '" data-tip-type="pet" data-tip-key="' + esc(encodeURIComponent(pet.name)) + '">' +
+            '<button class="pet-open" type="button" data-pet-key="' + esc(encodeURIComponent(pet.name)) + '" aria-label="' + esc(pet.name) + ' · hover for odds · activate for details">' + petIconHtml(pet.pet, pet.name, "") + '</button>' +
+            '</article>';
+        }).join("");
+        return '<div class="pet-kind-grid ' + esc(group.kind) + '">' + cards + '</div>';
       }).join("");
       const loadMore = $("loadMore");
       loadMore.hidden = matches.length <= state.showLimit;
