@@ -800,40 +800,72 @@
     }
     @media (max-width: 410px) { .cards { grid-template-columns: 1fr; } .pet-open { height: 150px; } .stats { flex-wrap: wrap; } .variant-note { display: none; } }
     @media (prefers-reduced-motion: reduce) { .pet-art.variant-shiny::after, .pet-art.variant-shiny-gold::after, .pet-art.variant-shiny-rainbow::after { animation: none; } }
-    /* Large, undistorted pet art with type-scaled icons and a cursor-following odds panel. */
-    .pet-open { height: 204px; overflow: hidden; }
-    .pet-art { width: 100%; height: 100%; border-radius: 6px; }
-    .pet-card .pet-art-image, .game-tip .pet-art-image { width: auto !important; height: auto !important; max-width: 96%; max-height: 96%; object-fit: contain; background: transparent; }
-    .pet-card.gargantuan .pet-art-image { max-width: 96%; max-height: 96%; }
-    .pet-card.titanic .pet-art-image { max-width: 82%; max-height: 82%; }
-    .pet-card.huge .pet-art-image { max-width: 66%; max-height: 66%; }
-    .pet-card .pet-art .pet-placeholder { width: 66%; height: 66%; }
-    .game-tip { width: min(560px, calc(100vw - 24px)); max-height: min(660px, calc(100vh - 18px)); overflow-y: auto; overscroll-behavior: contain; pointer-events: auto; scrollbar-color: #655477 #211c2b; scrollbar-width: thin; }
+    /* Icon-only pet catalog with 3 / 5 / 8 type-specific columns. */
+    .cards.pet-catalog { grid-template-columns: repeat(120, minmax(0, 1fr)); gap: 0; align-items: start; }
+    .cards.pet-catalog[data-kind="gargantuan"] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .cards.pet-catalog[data-kind="titanic"] { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+    .cards.pet-catalog[data-kind="huge"] { grid-template-columns: repeat(8, minmax(0, 1fr)); }
+    .cards.pet-catalog[data-kind="all"] .pet-card.gargantuan { grid-column: span 40; }
+    .cards.pet-catalog[data-kind="all"] .pet-card.titanic { grid-column: span 24; }
+    .cards.pet-catalog[data-kind="all"] .pet-card.huge { grid-column: span 15; }
+    .cards.pet-catalog[data-kind="all"] .pet-card.pet-group-start { grid-column-start: 1; }
+    .cards.pet-catalog .empty { grid-column: 1 / -1; margin: 0; }
+    .cards.pet-catalog .pet-card { min-width: 0; margin: 0 5px 12px; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+    .cards.pet-catalog .pet-card:hover { border: 0; background: transparent; box-shadow: none; }
+    .pet-open { display: grid; width: 100%; height: auto; aspect-ratio: 1; place-items: center; padding: 0; border: 0; border-radius: 0; overflow: visible; background: transparent; box-shadow: none; cursor: pointer; }
+    .pet-open:hover img { transform: none; }
+    .pet-open:focus-visible .pet-visual { filter: drop-shadow(0 0 5px rgba(255,255,255,.8)); }
+    .pet-art, .game-tip-image .pet-art { position: relative; display: grid; width: 100%; height: 100%; place-items: center; overflow: visible; border: 0 !important; border-radius: 0 !important; background: transparent !important; box-shadow: none !important; }
+    .pet-art.variant-gold, .pet-art.variant-shiny-gold, .pet-art.variant-rainbow, .pet-art.variant-shiny-rainbow, .pet-art.variant-shiny { border: 0 !important; background: transparent !important; box-shadow: none !important; }
+    .pet-art.variant-rainbow::before, .pet-art.variant-shiny-rainbow::before, .pet-art.variant-shiny::after, .pet-art.variant-shiny-gold::after, .pet-art.variant-shiny-rainbow::after { display: none !important; content: none !important; }
+    .pet-visual { position: relative; display: grid; width: 100%; height: 100%; place-items: center; overflow: hidden; }
+    .pet-card.gargantuan .pet-visual { width: 100%; height: 100%; }
+    .pet-card.titanic .pet-visual { width: 82%; height: 82%; }
+    .pet-card.huge .pet-visual { width: 66%; height: 66%; }
+    .game-tip.kind-gargantuan .pet-visual { width: 100%; height: 100%; }
+    .game-tip.kind-titanic .pet-visual { width: 82%; height: 82%; }
+    .game-tip.kind-huge .pet-visual { width: 66%; height: 66%; }
+    .pet-card .pet-art-image, .game-tip .pet-art-image { position: relative; z-index: 1; display: block; width: 100% !important; height: 100% !important; max-width: 100% !important; max-height: 100% !important; object-fit: contain; border: 0 !important; border-radius: 0 !important; background: transparent !important; box-shadow: none !important; transition: filter .16s; }
+    .pet-art .pet-placeholder { position: relative; z-index: 1; width: 100%; height: 100%; display: grid; place-items: center; border: 0; color: #eee8ff; background: transparent; font-size: clamp(18px, 3vw, 38px); }
+    .pet-art.variant-fallback .pet-art-image { filter: sepia(1) saturate(2) hue-rotate(350deg) brightness(1.06); }
+    .pet-art.variant-rainbow .pet-art-image { filter: saturate(1.45) contrast(1.05); }
+    .pet-art.variant-shiny .pet-art-image, .pet-art.variant-shiny-gold .pet-art-image { filter: saturate(1.35) brightness(1.13) drop-shadow(0 0 8px rgba(255,239,170,.55)); }
+    .pet-art.variant-shiny-rainbow .pet-art-image { filter: saturate(1.6) contrast(1.08) drop-shadow(0 0 8px rgba(218,162,255,.42)); }
+    .pet-effect-rainbow, .pet-effect-stripes, .pet-effect-sweep { position: absolute; pointer-events: none; }
+    .pet-effect-rainbow { z-index: 2; top: 0; bottom: 0; left: 0; width: 200%; display: none; opacity: .29; mix-blend-mode: color; background: linear-gradient(90deg, #ff244d 0%, #ff9e22 7.14%, #ffeb36 14.28%, #48ef49 21.42%, #1de2e9 28.56%, #367bff 35.7%, #c32cff 42.84%, #ff244d 50%, #ff9e22 57.14%, #ffeb36 64.28%, #48ef49 71.42%, #1de2e9 78.56%, #367bff 85.7%, #c32cff 92.84%, #ff244d 100%); animation: pet-rainbow-loop 38s linear infinite; }
+    .pet-art.variant-rainbow .pet-effect-rainbow, .pet-art.variant-shiny-rainbow .pet-effect-rainbow { display: block; }
+    .pet-effect-stripes { z-index: 3; inset: 0; display: none; opacity: .24; mix-blend-mode: screen; background: repeating-linear-gradient(112deg, transparent 0 8px, rgba(255,255,255,.26) 9px 10px, transparent 11px 21px), radial-gradient(circle at 22% 26%, rgba(255,255,255,.6) 0 1px, transparent 3px), radial-gradient(circle at 73% 66%, rgba(255,255,255,.45) 0 1px, transparent 3px); }
+    .pet-art.variant-shiny .pet-effect-stripes, .pet-art.variant-shiny-gold .pet-effect-stripes, .pet-art.variant-shiny-rainbow .pet-effect-stripes { display: block; }
+    .pet-effect-sweep { z-index: 4; top: -55%; left: -95%; width: 72%; height: 210%; display: none; opacity: .8; transform: translateX(0) rotate(-9deg); mix-blend-mode: screen; background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,.16) 34%, rgba(255,255,255,.94) 50%, rgba(255,255,255,.22) 66%, transparent 100%); }
+    .pet-art.variant-shiny .pet-effect-sweep, .pet-art.variant-shiny-gold .pet-effect-sweep, .pet-art.variant-shiny-rainbow .pet-effect-sweep { display: block; animation: pet-shine-sweep 1.05s linear infinite; }
+    .game-tip { width: min(720px, calc(100vw - 20px)); max-height: min(760px, calc(100vh - 16px)); overflow-y: auto; overscroll-behavior: contain; pointer-events: auto; scrollbar-color: #655477 #211c2b; scrollbar-width: thin; }
     .game-tip-body { grid-template-columns: 166px minmax(0, 1fr); align-items: start; gap: 14px; padding: 14px; }
-    .game-tip-image { width: 100%; height: auto; aspect-ratio: 1; }
+    .game-tip-image { width: 100%; height: auto; aspect-ratio: 1; overflow: visible; }
     .game-tip-image .pet-art { width: 100%; height: 100%; }
-    .game-tip-image .pet-art-image, .game-tip-image .pet-art .pet-placeholder { width: auto !important; height: auto !important; max-width: 96%; max-height: 96%; }
-    .game-tip.kind-gargantuan .game-tip-body { grid-template-columns: 190px minmax(0, 1fr); }
-    .game-tip.kind-titanic .game-tip-body { grid-template-columns: 158px minmax(0, 1fr); }
-    .game-tip.kind-huge .game-tip-body { grid-template-columns: 126px minmax(0, 1fr); }
-    .game-tip.kind-titanic .game-tip-image .pet-art-image { max-width: 82%; max-height: 82%; }
-    .game-tip.kind-huge .game-tip-image .pet-art-image { max-width: 66%; max-height: 66%; }
+    .game-tip .pet-art-image, .game-tip .pet-art .pet-placeholder { width: 100% !important; height: 100% !important; max-width: 100% !important; max-height: 100% !important; }
+    .game-tip.kind-gargantuan .game-tip-body { grid-template-columns: 200px minmax(0, 1fr); }
+    .game-tip.kind-titanic .game-tip-body { grid-template-columns: 166px minmax(0, 1fr); }
+    .game-tip.kind-huge .game-tip-body { grid-template-columns: 132px minmax(0, 1fr); }
     .game-tip-foot { gap: 8px; padding: 12px 14px; }
     .game-tip-line { gap: 14px; font-size: 11px; }
     .game-tip-line span:first-child { flex: 1 1 auto; white-space: normal; }
     .game-tip-line strong { font-size: 12px; }
     .game-tip-subtitle { margin: 0; }
-    .pet-art.variant-rainbow::before, .pet-art.variant-shiny-rainbow::before { background: linear-gradient(110deg, #ff244d 0%, #ff9e22 15%, #ffeb36 29%, #48ef49 43%, #1de2e9 57%, #367bff 71%, #c32cff 86%, #ff244d 100%); background-size: 300% 100%; mix-blend-mode: color; opacity: .98; animation: pet-rainbow-flow 2.6s linear infinite; }
-    .pet-art.variant-rainbow .pet-art-image { filter: saturate(1.9) contrast(1.12); }
-    .pet-art.variant-shiny .pet-art-image, .pet-art.variant-shiny-gold .pet-art-image { filter: saturate(1.35) brightness(1.13) drop-shadow(0 0 8px rgba(255, 239, 170, .55)); }
-    .pet-art.variant-shiny-rainbow .pet-art-image { filter: saturate(2.1) contrast(1.16) drop-shadow(0 0 8px rgba(218, 162, 255, .6)); }
-    .pet-art.variant-shiny::after, .pet-art.variant-shiny-gold::after, .pet-art.variant-shiny-rainbow::after { inset: -45%; background: radial-gradient(circle at 18% 31%, rgba(255,255,255,.98) 0 1.5px, transparent 4px), radial-gradient(circle at 76% 22%, rgba(255,246,196,.98) 0 2px, transparent 5px), radial-gradient(circle at 64% 78%, rgba(255,255,255,.98) 0 1.5px, transparent 4px), radial-gradient(circle at 35% 65%, rgba(255,223,151,.85) 0 1px, transparent 4px), linear-gradient(112deg, transparent 29%, rgba(255,255,255,.08) 41%, rgba(255,255,255,.9) 49%, rgba(255,255,255,.16) 57%, transparent 70%); mix-blend-mode: screen; opacity: .92; animation: pet-shine-sweep 2.15s ease-in-out infinite; }
-    @keyframes pet-rainbow-flow { 0% { background-position: 0% 50%; } 100% { background-position: 100% 50%; } }
-    @keyframes pet-shine-sweep { 0% { transform: translate(-20%, -16%) rotate(-8deg); opacity: .28; } 42% { opacity: .98; } 100% { transform: translate(20%, 16%) rotate(-8deg); opacity: .4; } }
-    @media (max-width: 840px) { .pet-open { height: 188px; } .game-tip { width: min(520px, calc(100vw - 20px)); } }
-    @media (max-width: 720px) { .pet-open { height: clamp(155px, 39vw, 190px); } .game-tip { width: min(500px, calc(100vw - 18px)); } .game-tip.kind-gargantuan .game-tip-body, .game-tip.kind-titanic .game-tip-body, .game-tip.kind-huge .game-tip-body { grid-template-columns: 112px minmax(0, 1fr); } }
-    @media (max-width: 410px) { .pet-open { height: 150px; } .game-tip-body { grid-template-columns: 94px minmax(0, 1fr); gap: 9px; padding: 10px; } }
-    @media (prefers-reduced-motion: reduce) { .pet-art.variant-rainbow::before, .pet-art.variant-shiny-rainbow::before, .pet-art.variant-shiny::after, .pet-art.variant-shiny-gold::after, .pet-art.variant-shiny-rainbow::after { animation: none; } }
+    .game-tip-source-line { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 14px; padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,.09); }
+    .game-tip-source-main { min-width: 0; display: flex; align-items: center; gap: 9px; }
+    .game-tip-source-thumb { width: 32px; height: 32px; flex: 0 0 32px; display: grid; place-items: center; overflow: hidden; border: 1px solid rgba(255,255,255,.14); border-radius: 4px; background: rgba(0,0,0,.14); }
+    .game-tip-source-icon { width: 100%; height: 100%; object-fit: contain; }
+    .game-tip-source-copy { min-width: 0; display: grid; gap: 3px; }
+    .game-tip-source-copy strong { color: #f4efff; font-size: 11px; font-weight: 750; overflow-wrap: anywhere; }
+    .game-tip-source-copy small { color: #aaa2b4; font-size: 9px; line-height: 1.4; }
+    .game-tip-source-odds { color: #ffe394; text-align: right; font-size: 11px; font-weight: 850; }
+    .game-tip-meta-note { color: #bdb4ce; font-size: 10px; line-height: 1.4; }
+    @keyframes pet-rainbow-loop { to { transform: translateX(-50%); } }
+    @keyframes pet-shine-sweep { to { transform: translateX(480%) rotate(-9deg); } }
+    @media (max-width: 840px) { .game-tip { width: min(680px, calc(100vw - 20px)); } }
+    @media (max-width: 720px) { .game-tip { width: min(620px, calc(100vw - 18px)); } .game-tip.kind-gargantuan .game-tip-body, .game-tip.kind-titanic .game-tip-body, .game-tip.kind-huge .game-tip-body { grid-template-columns: 112px minmax(0, 1fr); } }
+    @media (max-width: 410px) { .game-tip-body { grid-template-columns: 94px minmax(0, 1fr); gap: 9px; padding: 10px; } .game-tip-source-line { gap: 7px; } .game-tip-source-odds { font-size: 10px; } }
+    @media (prefers-reduced-motion: reduce) { .pet-effect-rainbow, .pet-effect-sweep { animation: none !important; } }
   </style>
 <script>window.PS99_STATIC_MODE=true;window.PS99_DATA_URL="./data.json";window.PS99_THUMBNAILS_URL="./thumbnails.json";</script>
 </head>
@@ -1352,7 +1384,8 @@
       const icon = getPetAsset(pet);
       const configMark = pet && pet.configData ? (pet.configData.titanic ? "T" : pet.configData.gargantuan ? "G" : "H") : "✦";
       const content = thumb(icon) ? iconHtml(icon, label, "pet-art-image") : '<span class="pet-placeholder">' + esc(configMark) + "</span>";
-      return '<span class="pet-art ' + esc(className || "") + " " + esc(variantClass + fallbackClass) + '" title="' + esc(petVariantLabel() + (fallback ? " · golden icon unavailable; showing an effect preview" : "")) + '">' + content + "</span>";
+      const effects = '<span class="pet-effect-rainbow" aria-hidden="true"></span><span class="pet-effect-stripes" aria-hidden="true"></span><span class="pet-effect-sweep" aria-hidden="true"></span>';
+      return '<span class="pet-art ' + esc(className || "") + " " + esc(variantClass + fallbackClass) + '"><span class="pet-visual">' + content + effects + "</span></span>";
     }
     function uniqueAssetIds() {
       const ids = new Set();
@@ -1531,6 +1564,8 @@
     function renderPetCards() {
       const matches = getVisiblePets();
       if (!matches) return;
+      $("cards").classList.add("pet-catalog");
+      $("cards").dataset.kind = state.kind;
       const pets = matches.slice(0, state.showLimit);
       $("resultCount").textContent = matches.length > state.showLimit ? "Showing " + pets.length + " of " + matches.length + " pets" : matches.length + (matches.length === 1 ? " pet" : " pets");
       $("catalogSubtitle").textContent = state.tab === "active" ? "Hover an Active Huge pet to see its share of the published pool" : "Hover a pet to see every published chance and source note";
@@ -1539,13 +1574,13 @@
         $("loadMore").hidden = true;
         return;
       }
+      let previousKind = "";
       $("cards").innerHTML = pets.map(function(pet) {
-        const petSources = pet.sources.filter(sourceMatchesTab);
-        const extraSources = asArray(pet.otherSources).filter(function(item) { return state.tab === "all" || item.type === state.tab; });
-        const totalSources = petSources.length + extraSources.length;
-        return '<article class="pet-card ' + esc(pet.kind.toLowerCase()) + '" data-tip-type="pet" data-tip-key="' + esc(encodeURIComponent(pet.name)) + '">' +
-          '<button class="pet-open" type="button" data-pet-key="' + esc(encodeURIComponent(pet.name)) + '" aria-label="Open details for ' + esc(pet.name) + ' · hover for odds">' + petIconHtml(pet.pet, pet.name, "") + '</button>' +
-          '<div class="pet-title-wrap"><h3 class="pet-name ' + esc(pet.kind.toLowerCase()) + '">' + esc(pet.name) + '</h3><div class="pet-meta"><span class="pet-kind ' + esc(pet.kind.toLowerCase()) + '">' + esc(pet.kind) + '</span><span class="variant-label">' + esc(petVariantLabel()) + '</span><span class="pool-count">' + (totalSources ? totalSources + (totalSources === 1 ? " source" : " sources") : "No odds") + '</span></div></div>' +
+        const kind = pet.kind.toLowerCase();
+        const groupStart = kind !== previousKind ? " pet-group-start" : "";
+        previousKind = kind;
+        return '<article class="pet-card ' + esc(kind) + groupStart + '" data-tip-type="pet" data-tip-key="' + esc(encodeURIComponent(pet.name)) + '">' +
+          '<button class="pet-open" type="button" data-pet-key="' + esc(encodeURIComponent(pet.name)) + '" aria-label="' + esc(pet.name) + ' · hover for odds · activate for details">' + petIconHtml(pet.pet, pet.name, "") + '</button>' +
           '</article>';
       }).join("");
       const loadMore = $("loadMore");
@@ -1669,6 +1704,10 @@
     function tipLine(label, value, accent) {
       return '<div class="game-tip-line"><span>' + esc(label) + '</span><strong' + (accent ? ' class="' + esc(accent) + '"' : '') + '>' + esc(value) + '</strong></div>';
     }
+    function tipPetSourceLine(name, detail, odds, asset) {
+      const icon = thumb(asset) ? iconHtml(asset, name, "game-tip-source-icon") : '<span class="game-tip-source-icon" aria-hidden="true">✦</span>';
+      return '<div class="game-tip-source-line"><div class="game-tip-source-main"><span class="game-tip-source-thumb">' + icon + '</span><span class="game-tip-source-copy"><strong>' + esc(name) + '</strong><small>' + esc(detail) + '</small></span></div><strong class="game-tip-source-odds">' + esc(odds) + '</strong></div>';
+    }
     function gameTipHtml(title, badge, kind, asset, mark, subtitle, description, lines, imageMarkup) {
       const image = imageMarkup || (thumb(asset) ? iconHtml(asset, title, "") : '<span>' + esc(mark || "✦") + '</span>');
       return '<div class="game-tip-content kind-' + esc(String(kind || "item").toLowerCase()) + '">' +
@@ -1685,15 +1724,21 @@
         const config = pet.pet && pet.pet.configData ? pet.pet.configData : {};
         const description = String(config.indexDesc || "").split(/\n+/)[0].trim() || "Hover preview of this rare pet. Click for its full odds.";
         const sources = pet.sources.slice().sort(function(a, b) { return a.odds.pct - b.odds.pct; });
-        const lines = sources.map(function(source) {
-          const odds = pctLabel(source.odds.pct) + (isActiveHugeSource(source) ? " · share of listed pool" : " · " + oneInLabel(source.odds.oneIn));
-          const status = source.pool.availability && source.pool.availability.confidence === "unconfirmed" ? " · activity unconfirmed" : "";
-          return tipLine(source.pool.name, odds + status, "chance");
-        });
         const extraSources = asArray(pet.otherSources);
-        extraSources.forEach(function(source) { lines.push(tipLine(source.name, [source.chanceNote, source.activity].filter(Boolean).join(" · "), "chance")); });
-        if (!lines.length) lines.push(tipLine("Odds", "No published chance in the game feed"));
-        return gameTipHtml(pet.name, pet.kind, pet.kind.toLowerCase(), getPetAsset(pet.pet), pet.kind.charAt(0), "", description, lines, petIconHtml(pet.pet, pet.name, "game-tip-pet-art"));
+        const lines = [tipLine("Icon variant", petVariantLabel() + " · visual only; odds stay at base rate")];
+        if (sources.length + extraSources.length) lines.push(tipLine("Published sources", String(sources.length + extraSources.length)));
+        sources.forEach(function(source) {
+          const odds = pctLabel(source.odds.pct) + (isActiveHugeSource(source) ? " · share of listed pool" : " · " + oneInLabel(source.odds.oneIn));
+          const availability = source.pool.availability && source.pool.availability.status || "Availability not supplied";
+          const detail = [source.pool.category, availability, source.pool.updated ? "Config " + niceDate(source.pool.updated) : ""].filter(Boolean).join(" · ");
+          lines.push(tipPetSourceLine(source.pool.name, detail, odds, source.pool.icon));
+        });
+        extraSources.forEach(function(source) {
+          const detail = [source.group, source.activity, source.description, source.updated ? "Updated " + niceDate(source.updated) : ""].filter(Boolean).join(" · ");
+          lines.push(tipPetSourceLine(source.name, detail, source.chanceNote || "Chance not published", source.iconUrl || source.icon));
+        });
+        if (!sources.length && !extraSources.length) lines.push(tipLine("Odds", "No published chance or reward source in the game feed"));
+        return gameTipHtml(pet.name, pet.kind, pet.kind.toLowerCase(), getPetAsset(pet.pet), pet.kind.charAt(0), petVariantLabel() + " visual preview · odds remain at base rate", description, lines, petIconHtml(pet.pet, pet.name, "game-tip-pet-art"));
       }
       if (type === "source") {
         const pool = sourceMap().get(key);
