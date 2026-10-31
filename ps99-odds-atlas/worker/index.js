@@ -830,7 +830,7 @@ const page = String.raw`<!doctype html>
     .pet-art.variant-shiny .pet-art-image, .pet-art.variant-shiny-gold .pet-art-image { filter: saturate(1.35) brightness(1.13) drop-shadow(0 0 8px rgba(255,239,170,.55)); }
     .pet-art.variant-shiny-rainbow .pet-art-image { filter: saturate(2.05) contrast(1.11) brightness(1.05) drop-shadow(0 0 9px rgba(218,162,255,.55)); }
     .pet-effect-rainbow, .pet-effect-clouds, .pet-effect-sparkles, .pet-effect-sweep { position: absolute; pointer-events: none; }
-    .pet-effect-rainbow { z-index: 2; top: 0; bottom: 0; left: 0; width: 200%; display: none; opacity: .48; mix-blend-mode: color; background: linear-gradient(90deg, #ff244d 0%, #ff9e22 7.14%, #ffeb36 14.28%, #48ef49 21.42%, #1de2e9 28.56%, #367bff 35.7%, #c32cff 42.84%, #ff244d 50%, #ff9e22 57.14%, #ffeb36 64.28%, #48ef49 71.42%, #1de2e9 78.56%, #367bff 85.7%, #c32cff 92.84%, #ff244d 100%); animation: pet-rainbow-loop 38s linear infinite; }
+    .pet-effect-rainbow { z-index: 2; top: 0; bottom: 0; left: 0; width: 200%; display: none; opacity: .48; mix-blend-mode: color; background: linear-gradient(90deg, #ff244d 0%, #ff9e22 7.14%, #ffeb36 14.28%, #48ef49 21.42%, #1de2e9 28.56%, #367bff 35.7%, #c32cff 42.84%, #ff244d 50%, #ff9e22 57.14%, #ffeb36 64.28%, #48ef49 71.42%, #1de2e9 78.56%, #367bff 85.7%, #c32cff 92.84%, #ff244d 100%); animation: pet-rainbow-loop 18s linear infinite; }
     .pet-art.variant-rainbow .pet-effect-rainbow, .pet-art.variant-shiny-rainbow .pet-effect-rainbow { display: block; }
     .pet-effect-clouds { z-index: 3; inset: 0 auto 0 0; width: 200%; display: none; opacity: .38; mix-blend-mode: screen; filter: blur(1px); background-size: 50% 100%; background-repeat: repeat-x; background-image: radial-gradient(ellipse 22% 50% at 15% 55%, rgba(255,255,255,.72) 0%, rgba(255,255,255,.34) 34%, transparent 100%), radial-gradient(ellipse 19% 43% at 48% 28%, rgba(255,255,255,.62) 0%, rgba(255,255,255,.28) 38%, transparent 100%), radial-gradient(ellipse 24% 48% at 80% 67%, rgba(255,255,255,.66) 0%, rgba(255,255,255,.3) 38%, transparent 100%); animation: pet-cloud-loop 17s linear infinite; }
     .pet-art.variant-shiny .pet-effect-clouds, .pet-art.variant-shiny-gold .pet-effect-clouds, .pet-art.variant-shiny-rainbow .pet-effect-clouds { display: block; }
@@ -861,7 +861,9 @@ const page = String.raw`<!doctype html>
     .game-tip-source-copy { min-width: 0; display: grid; gap: 3px; }
     .game-tip-source-copy strong { color: #f4efff; font-size: 11px; font-weight: 750; overflow-wrap: anywhere; }
     .game-tip-source-copy small { color: #aaa2b4; font-size: 9px; line-height: 1.4; }
+    .game-tip-source-chances { min-width: 92px; display: grid; justify-items: end; gap: 3px; }
     .game-tip-source-odds { color: #ffe394; text-align: right; font-size: 11px; font-weight: 850; }
+    .game-tip-source-variant { color: #d6c9f4; text-align: right; font-size: 8px; font-weight: 750; line-height: 1.25; }
     .game-tip-meta-note { color: #bdb4ce; font-size: 10px; line-height: 1.4; }
     @keyframes pet-rainbow-loop { to { transform: translateX(-50%); } }
     @keyframes pet-cloud-loop { to { transform: translateX(-50%); } }
@@ -1067,6 +1069,21 @@ const page = String.raw`<!doctype html>
     function oneInLabel(value) {
       if (!Number.isFinite(value) || value < 1) return "";
       return "1 in " + Math.round(value).toLocaleString("en-US");
+    }
+    function variantChanceLabel(pool, variant) {
+      const requested = ({ gold: ["gold"], rainbow: ["rainbow"], shiny: ["shiny"], "shiny-gold": ["shiny", "gold"], "shiny-rainbow": ["shiny", "rainbow"] })[variant];
+      if (!requested) return "";
+      const modifiers = pool && pool.modifiers || {};
+      return requested.map(function(key) {
+        const label = key.charAt(0).toUpperCase() + key.slice(1);
+        const disabledKey = key + "Disabled";
+        if (modifiers[disabledKey] === true) return label + " disabled";
+        const raw = modifiers[key];
+        const chance = raw == null || raw === "" ? NaN : Number(raw);
+        if (!Number.isFinite(chance) || chance <= 0 || chance > 100) return label + " chance not published";
+        const oneIn = oneInLabel(100 / chance);
+        return label + " " + pctLabel(chance) + (oneIn ? " · " + oneIn : "");
+      }).join(" + ");
     }
     function isActiveHugeSource(source) {
       return /active huge/i.test(source && source.pool && source.pool.name || "");
@@ -1746,9 +1763,10 @@ const page = String.raw`<!doctype html>
     function tipLine(label, value, accent) {
       return '<div class="game-tip-line"><span>' + esc(label) + '</span><strong' + (accent ? ' class="' + esc(accent) + '"' : '') + '>' + esc(value) + '</strong></div>';
     }
-    function tipPetSourceLine(name, detail, odds, asset) {
+    function tipPetSourceLine(name, detail, odds, asset, variantOdds) {
       const icon = thumb(asset) ? iconHtml(asset, name, "game-tip-source-icon") : '<span class="game-tip-source-icon" aria-hidden="true">✦</span>';
-      return '<div class="game-tip-source-line"><div class="game-tip-source-main"><span class="game-tip-source-thumb">' + icon + '</span><span class="game-tip-source-copy"><strong>' + esc(name) + '</strong><small>' + esc(detail) + '</small></span></div><strong class="game-tip-source-odds">' + esc(odds) + '</strong></div>';
+      const variant = variantOdds ? '<small class="game-tip-source-variant">' + esc(variantOdds) + '</small>' : "";
+      return '<div class="game-tip-source-line"><div class="game-tip-source-main"><span class="game-tip-source-thumb">' + icon + '</span><span class="game-tip-source-copy"><strong>' + esc(name) + '</strong><small>' + esc(detail) + '</small></span></div><span class="game-tip-source-chances"><strong class="game-tip-source-odds">' + esc(odds) + '</strong>' + variant + '</span></div>';
     }
     function gameTipHtml(title, badge, kind, asset, mark, subtitle, description, lines, imageMarkup) {
       const image = imageMarkup || (thumb(asset) ? iconHtml(asset, title, "") : '<span>' + esc(mark || "✦") + '</span>');
@@ -1767,20 +1785,27 @@ const page = String.raw`<!doctype html>
         const description = String(config.indexDesc || "").split(/\n+/)[0].trim() || "Hover preview of this rare pet. Click for its full odds.";
         const sources = pet.sources.slice().sort(function(a, b) { return a.odds.pct - b.odds.pct; });
         const extraSources = asArray(pet.otherSources);
-        const lines = [tipLine("Icon variant", petVariantLabel() + " · visual only; odds stay at base rate")];
+        const isBaseVariant = state.variant === "normal";
+        const lines = [tipLine("Selected variant", petVariantLabel())];
+        if (!isBaseVariant && (state.variant === "shiny-gold" || state.variant === "shiny-rainbow")) {
+          lines.push(tipLine("Variant rarity", "Component chances shown separately by source; combined rate not published"));
+        } else if (!isBaseVariant) {
+          lines.push(tipLine("Variant rarity", "Published chance shown by source below"));
+        }
         if (sources.length + extraSources.length) lines.push(tipLine("Published sources", String(sources.length + extraSources.length)));
         sources.forEach(function(source) {
           const odds = pctLabel(source.odds.pct) + (isActiveHugeSource(source) ? " · share of listed pool" : " · " + oneInLabel(source.odds.oneIn));
           const availability = source.pool.availability && source.pool.availability.status || "Availability not supplied";
           const detail = [source.pool.category, availability, source.pool.updated ? "Config " + niceDate(source.pool.updated) : ""].filter(Boolean).join(" · ");
-          lines.push(tipPetSourceLine(source.pool.name, detail, odds, source.pool.icon));
+          lines.push(tipPetSourceLine(source.pool.name, detail, odds, source.pool.icon, variantChanceLabel(source.pool, state.variant)));
         });
         extraSources.forEach(function(source) {
           const detail = [source.group, source.activity, source.description, source.updated ? "Updated " + niceDate(source.updated) : ""].filter(Boolean).join(" · ");
-          lines.push(tipPetSourceLine(source.name, detail, source.chanceNote || "Chance not published", source.iconUrl || source.icon));
+          lines.push(tipPetSourceLine(source.name, detail, source.chanceNote || "Chance not published", source.iconUrl || source.icon, variantChanceLabel(null, state.variant)));
         });
         if (!sources.length && !extraSources.length) lines.push(tipLine("Odds", "No published chance or reward source in the game feed"));
-        return gameTipHtml(pet.name, pet.kind, pet.kind.toLowerCase(), getPetAsset(pet.pet), pet.kind.charAt(0), petVariantLabel() + " visual preview · odds remain at base rate", description, lines, petIconHtml(pet.pet, pet.name, "game-tip-pet-art"));
+        const subtitle = state.variant === "normal" ? "NORMAL · base pet chance shown" : petVariantLabel() + " · variant chance by source";
+        return gameTipHtml(pet.name, pet.kind, pet.kind.toLowerCase(), getPetAsset(pet.pet), pet.kind.charAt(0), subtitle, description, lines, petIconHtml(pet.pet, pet.name, "game-tip-pet-art"));
       }
       if (type === "source") {
         const pool = sourceMap().get(key);
