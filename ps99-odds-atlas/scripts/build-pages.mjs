@@ -18,6 +18,28 @@ async function fetchJson(url) {
   return response.json();
 }
 
+const CORE_COLLECTIONS = new Set(["Eggs", "Pets", "Enchants", "Lootboxes", "MiscItems", "Potions", "CardItems", "Boosts", "GuildBattles"]);
+
+async function fetchDiscoveredConfigs() {
+  try {
+    const response = await fetchJson(`${API}/api/collections`);
+    const names = Array.isArray(response?.data) ? response.data.filter((name) => typeof name === "string" && !CORE_COLLECTIONS.has(name)) : [];
+    const collections = await Promise.all(names.map(async (name) => {
+      try { return [name, await fetchJson(`${API}/api/collection/${encodeURIComponent(name)}`)]; }
+      catch (error) { console.warn(`Skipping config collection ${name}: ${error.message}`); return [name, null]; }
+    }));
+    return collections.flatMap(([collection, result]) => (Array.isArray(result?.data) ? result.data : [])
+      .filter((entry) => {
+        const config = entry?.configData || {};
+        const text = JSON.stringify(config);
+        return /huge|titanic|gargantuan/i.test(text) && /chance|odds|luck|weight|roll/i.test(text);
+      })
+      .map((entry) => ({ ...entry, sourceCollection: collection }));
+  } catch (error) {
+    console.warn(`Could not discover game config collections: ${error.message}`);
+    return [];
+  }
+}
 async function fetchThumbnailBatch(ids) {
   const url = "https://thumbnails.roblox.com/v1/assets?assetIds=" + encodeURIComponent(ids.join(",")) + "&size=420x420&format=Png&isCircular=false";
   let lastError;
@@ -85,7 +107,7 @@ function isExclusiveEgg(entry) {
   return /exclusive eggs/i.test(category) || /^exclusive\b.*\begg\b/i.test(name) || soldAsExclusiveEgg || hiddenExclusiveEgg;
 }
 
-function getAtlasAssetIds(eggs, pets, enchants, chanceSources) {
+function getAtlasAssetIds(eggs, pets, enchants, chanceSources, discoveredConfigs) {
   const rarePets = collectionData(pets).filter(isRarePet);
   const rareNames = new Set(rarePets.map((pet) => String(pet.configData?.name || pet.configName || "").toLowerCase()));
   const oddsPools = collectionData(eggs).filter((entry) => {
@@ -102,10 +124,10 @@ function getAtlasAssetIds(eggs, pets, enchants, chanceSources) {
       return /huge|titanic|gargantuan/i.test(title + " " + description) && /odds|chance|luck|hatch|roll|random|adds?\s+\d+\s+rare/i.test(description + " " + title);
     });
   });
-  return Array.from(collectAssetIds([rarePets, oddsPools, relevantEnchants, getRelevantChanceSources(chanceSources)]));
+  return Array.from(collectAssetIds([rarePets, oddsPools, relevantEnchants, getRelevantChanceSources(chanceSources), discoveredConfigs]));
 }
 
-const [eggs, pets, enchants, lootboxes, miscItems, potions, cardItems, boosts, guildBattles, releases] = await Promise.all([
+const [eggs, pets, enchants, lootboxes, miscItems, potions, cardItems, boosts, guildBattles, releases, discoveredConfigs] = await Promise.all([
   fetchJson(`${API}/api/collection/Eggs`),
   fetchJson(`${API}/api/collection/Pets`),
   fetchJson(`${API}/api/collection/Enchants`),
@@ -116,10 +138,11 @@ const [eggs, pets, enchants, lootboxes, miscItems, potions, cardItems, boosts, g
   fetchJson(`${API}/api/collection/Boosts`),
   fetchJson(`${API}/api/collection/GuildBattles`),
   fetchJson(`${API}/v1/releases?pageSize=20`),
+  fetchDiscoveredConfigs(),
 ]);
 
 const chanceSourceCollections = { lootboxes, miscItems, potions, cardItems, boosts, guildBattles };
-const assetIds = getAtlasAssetIds(eggs, pets, enchants, chanceSourceCollections);
+const assetIds = getAtlasAssetIds(eggs, pets, enchants, chanceSourceCollections, discoveredConfigs);
 const thumbnails = {};
 const batches = [];
 for (let index = 0; index < assetIds.length; index += 100) batches.push(assetIds.slice(index, index + 100));
@@ -180,6 +203,7 @@ const staticData = {
   boosts: attachThumbnailUrls(boosts),
   guildBattles,
   releases,
+  discoveredConfigs: attachThumbnailUrls({ status: "ok", data: discoveredConfigs }),
 };
 
 await rm(output, { recursive: true, force: true });
@@ -196,5 +220,5 @@ await Promise.all([
   writeFile(resolve(output, ".nojekyll"), "", "utf8"),
 ]);
 
-console.log(`Built GitHub Pages snapshot at ${generatedAt} with ${assetIds.length} asset IDs and ${Object.keys(thumbnails).length} thumbnails.`);
+console.log(`Built GitHub Pages snapshot at ${generatedAt} with ${assetIds.length} asset IDs, ${Object.keys(thumbnails).length} thumbnails, and ${discoveredConfigs.length} newly discovered odds config records.`);
 
