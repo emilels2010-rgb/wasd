@@ -705,6 +705,8 @@ const page = String.raw`<!doctype html>
     .source-odds small { color: #9b95a8; font-size: 8px; }
     .more-sources { color: #928ba0; font-size: 8px; }
     .no-odds { padding: 8px; border: 1px dashed #373541; border-radius: 6px; color: #aaa5b5; background: #17171e; font-size: 9px; }
+    .no-odds strong { display: block; margin-bottom: 2px; color: #ded6eb; font-size: 9px; }
+    .no-odds span { color: #9691a1; font-size: 8px; }
     .empty { border: 1px dashed #40394d; border-radius: 10px; color: #bcb5ca; background: #13131a; }
     .empty strong { color: #f2edfb; }
     .load-more { border: 1px solid #4b3c62; border-radius: 8px; color: #e7ddfa; background: #211b2d; }
@@ -760,6 +762,13 @@ const page = String.raw`<!doctype html>
     .muted { color: #aaa3b2; }
     @media (max-width: 1180px) { .cards { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
     @media (max-width: 960px) { .atlas-layout { grid-template-columns: 165px minmax(0, 1fr); gap: 17px; } .cards { grid-template-columns: repeat(3, minmax(0, 1fr)); } .hero { grid-template-columns: minmax(0, 1fr) 220px; } }
+    @media (max-width: 840px) {
+      .atlas-layout { display: block; }
+      .filter-groups { position: static; display: grid; grid-template-columns: 1fr; gap: 10px; margin: 0 0 12px; padding: 10px; border: 1px solid #302d38; border-radius: 10px; background: #13131a; }
+      .filters { flex-direction: row; overflow-x: auto; gap: 5px; padding-bottom: 2px; }
+      .filter-btn { width: auto; min-height: 31px; flex: 0 0 auto; padding: 6px 9px; font-size: 10px; }
+      .cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
     @media (max-width: 720px) {
       .shell { width: min(100% - 28px, 620px); }
       .hero { display: block; padding: 16px 0 14px; }
@@ -792,7 +801,7 @@ const page = String.raw`<!doctype html>
       .source-odds { font-size: 8px; }
     }
     @media (max-width: 410px) { .cards { grid-template-columns: 1fr; } .pet-open { height: 150px; } .stats { flex-wrap: wrap; } .variant-note { display: none; } }
-    @media (prefers-reduced-motion: reduce) { .pet-art.variant-shiny::after, .pet-art.variant-shiny-gold::after, .pet-art.variant-shiny-rainbow::after { animation: none; } }\n   </style>
+    @media (prefers-reduced-motion: reduce) { .pet-art.variant-shiny::after, .pet-art.variant-shiny-gold::after, .pet-art.variant-shiny-rainbow::after { animation: none; } }
   </style>
 </head>
 <body>
@@ -1506,7 +1515,7 @@ const page = String.raw`<!doctype html>
         const sourceSummary = String(config.indexDesc || "").split(/\n+/)[0].trim();
         const allShown = shown.map(sourceRowHtml).concat(extraShown.map(chanceSourceRowHtml));
         const totalSources = petSources.length + extraSources.length;
-        const oddsHtml = allShown.length ? allShown.join("") : '<div class="no-odds" title="' + esc(sourceSummary) + '">No non-exclusive odds published · current availability unconfirmed.' + (sourceSummary ? ' Game index note: ' + esc(sourceSummary) : ' No source detail in feed.') + '</div>';
+        const oddsHtml = allShown.length ? allShown.join("") : '<div class="no-odds" title="' + esc(sourceSummary) + '"><strong>No published odds</strong><span>Availability unconfirmed · open for notes</span></div>';
         return '<article class="pet-card ' + esc(pet.kind.toLowerCase()) + '">' +
           '<button class="pet-open" type="button" data-pet-key="' + esc(encodeURIComponent(pet.name)) + '" data-tip-type="pet" data-tip-key="' + esc(encodeURIComponent(pet.name)) + '" aria-label="Open details for ' + esc(pet.name) + '">' + petIconHtml(pet.pet, pet.name, "") + '</button>' +
           '<div class="pet-title-wrap"><h3 class="pet-name ' + esc(pet.kind.toLowerCase()) + '">' + esc(pet.name) + '</h3><div class="pet-meta"><span class="pet-kind ' + esc(pet.kind.toLowerCase()) + '">' + esc(pet.kind) + '</span><span class="variant-label">' + esc(petVariantLabel()) + '</span><span class="pool-count">' + (totalSources ? totalSources + (totalSources === 1 ? " source" : " sources") : "No odds") + '</span></div></div>' +
@@ -1898,4 +1907,3 @@ async function fetchJson(url) {
   if (!response.ok) throw new Error("Upstream returned " + response.status);
   return response.json();
 }
-
