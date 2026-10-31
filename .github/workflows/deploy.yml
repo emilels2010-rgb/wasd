@@ -6,7 +6,7 @@ on:
     - cron: "*/15 * * * *"
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 concurrency:
@@ -24,6 +24,20 @@ jobs:
         run: node ps99-odds-atlas/scripts/build-pages.mjs
         env:
           PS99_OUTPUT_DIR: dist-pages
+      - name: Publish snapshot files at the main site root
+        shell: bash
+        run: |
+          cp dist-pages/index.html index.html
+          cp dist-pages/data.json data.json
+          cp dist-pages/thumbnails.json thumbnails.json
+          cp dist-pages/.nojekyll .nojekyll
+          git add index.html data.json thumbnails.json .nojekyll
+          if ! git diff --cached --quiet; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit -m "Refresh PS99 Odds Atlas data snapshot"
+            git push
+          fi
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist-pages

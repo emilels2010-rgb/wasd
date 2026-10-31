@@ -149,7 +149,7 @@ if (staticPage === page) throw new Error("Could not inject GitHub Pages data set
 
 await Promise.all([
   writeFile(resolve(output, "index.html"), staticPage, "utf8"),
-  writeFile(resolve(output, "data.json"), JSON.stringify({ eggs, pets, enchants, lootboxes, miscItems, potions, cardItems, boosts, guildBattles, releases, generated_at: generatedAt }), "utf8"),
+  writeFile(resolve(output, "data.json"), JSON.stringify({ eggs, pets, enchants, lootboxes, miscItems, potions, cardItems, boosts, guildBattles, releases }), "utf8"),
   writeFile(resolve(output, "thumbnails.json"), JSON.stringify(thumbnails), "utf8"),
   writeFile(resolve(output, ".nojekyll"), "", "utf8"),
 ]);
