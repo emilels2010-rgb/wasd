@@ -801,8 +801,8 @@
     @media (max-width: 410px) { .cards { grid-template-columns: 1fr; } .pet-open { height: 150px; } .stats { flex-wrap: wrap; } .variant-note { display: none; } }
     @media (prefers-reduced-motion: reduce) { .pet-art.variant-shiny::after, .pet-art.variant-shiny-gold::after, .pet-art.variant-shiny-rainbow::after { animation: none; } }
     /* Icon-only pet catalog with 3 / 5 / 8 type-specific columns. */
-    .cards.pet-catalog { display: block; gap: 0; }
-    .cards.pet-catalog .pet-kind-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; align-items: start; }
+    .cards.pet-catalog { display: block; width: 100%; gap: 0; }
+    .cards.pet-catalog .pet-kind-grid { display: grid; width: 100%; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; align-items: start; }
     .cards.pet-catalog .pet-kind-grid.titanic { grid-template-columns: repeat(5, minmax(0, 1fr)); }
     .cards.pet-catalog .pet-kind-grid.huge { grid-template-columns: repeat(8, minmax(0, 1fr)); }
     .cards.pet-catalog .empty { grid-column: 1 / -1; margin: 0; }
@@ -1561,6 +1561,8 @@
       const matches = getVisiblePets();
       if (!matches) return;
       $("cards").classList.add("pet-catalog");
+      $("cards").style.display = "block";
+      $("cards").style.width = "100%";
       $("cards").dataset.kind = state.kind;
       const pets = matches.slice(0, state.showLimit);
       $("resultCount").textContent = matches.length > state.showLimit ? "Showing " + pets.length + " of " + matches.length + " pets" : matches.length + (matches.length === 1 ? " pet" : " pets");
